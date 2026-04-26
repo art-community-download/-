@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Task Earn</title>
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* === CSS RESET & BASE VARIABLES === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --bg-color: #0f172a;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --error: #ef4444;
+            --success: #10b981;
+        }
+
+        body {
+            background: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        /* === GLASSMORPHISM LOGIN CONTAINER === */
+        .login-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* === INPUT FIELDS === */
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            transition: 0.3s;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary);
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .input-group input:focus + i,
+        .input-group input:not(:placeholder-shown) + i {
+            color: var(--primary);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: 0.3s;
+        }
+
+        .toggle-password:hover {
+            color: var(--text-main);
+        }
+
+        /* === REMEMBER ME === */
+        .options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-group input {
+            accent-color: var(--primary);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        /* === BUTTONS === */
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* === SPINNER === */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .footer-text a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .footer-text a:hover {
+            text-decoration: underline;
+            color: #8c9eff;
+        }
+
+        /* === TOAST NOTIFICATION === */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-left: 4px solid var(--primary);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--error); }
+
+    </style>
+</head>
+<body>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
+
+    <div class="login-container">
+        <div class="header">
+            <h1>Welcome Back</h1>
+            <p>Log in to your account (লগিন করুন)</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <input type="tel" id="phone" placeholder="Phone Number (e.g. 017XXXXXXXX)" required autocomplete="off">
+                <i class="fa-solid fa-phone"></i>
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Password (পাসওয়ার্ড)" required>
+                <i class="fa-solid fa-lock"></i>
+                <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
+            </div>
+
+            <div class="options">
+                <label class="checkbox-group">
+                    <input type="checkbox" id="rememberMe">
+                    Remember Me
+                </label>
+                <a href="#" style="color: var(--text-muted); text-decoration: none;">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="btn" id="loginBtn">
+                <span id="btnText">Login (লগিন)</span>
+                <div class="spinner" id="btnSpinner"></div>
+            </button>
+        </form>
+
+        <div class="footer-text">
+            Don't have an account? <a href="registration.html">Register Now (রেজিস্ট্রেশন করুন)</a>
+        </div>
+    </div>
+
+    <!-- FIREBASE & JS LOGIC -->
+    <script type="module">
+        // Import Firebase Modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // Your Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDmPnQdJBFKQqq2l077B-NLDy8cer8TzfY",
+            authDomain: "fake-a933d.firebaseapp.com",
+            projectId: "fake-a933d",
+            storageBucket: "fake-a933d.firebasestorage.app",
+            messagingSenderId: "820359993169",
+            appId: "1:820359993169:web:461011e0481966b423a570"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // UI Elements
+        const loginForm = document.getElementById('loginForm');
+        const phoneInput = document.getElementById('phone');
+        const passwordInput = document.getElementById('password');
+        const togglePassword = document.getElementById('togglePassword');
+        const rememberMe = document.getElementById('rememberMe');
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+        const loginBtn = document.getElementById('loginBtn');
+
+        // Check Remember Me
+        window.onload = () => {
+            const savedPhone = localStorage.getItem('savedPhone');
+            if (savedPhone) {
+                phoneInput.value = savedPhone;
+                rememberMe.checked = true;
+            }
+        };
+
+        // Toggle Password Visibility
+        togglePassword.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        // Toast Notification Function
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icon = type === 'success' ? '<i class="fa-solid fa-circle-check" style="color:var(--success); font-size:20px;"></i>' 
+                                            : '<i class="fa-solid fa-circle-exclamation" style="color:var(--error); font-size:20px;"></i>';
+            
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            container.appendChild(toast);
+
+            // Trigger Animation
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Remove Toast
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        // Handle Login Submit
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const phone = phoneInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if(phone.length < 11) {
+                showToast("সঠিক ফোন নম্বর দিন! (Invalid Phone)", "error");
+                return;
+            }
+
+            // UI Loading state
+            btnText.style.display = 'none';
+            btnSpinner.style.display = 'block';
+            loginBtn.disabled = true;
+
+            // Workaround: Firebase Auth requires Email, so we generate a fake email using the phone number
+            const dummyEmail = `${phone}@taskearn.com`;
+
+            try {
+                // Firebase Login
+                await signInWithEmailAndPassword(auth, dummyEmail, password);
+                
+                // Handle Remember Me
+                if (rememberMe.checked) {
+                    localStorage.setItem('savedPhone', phone);
+                } else {
+                    localStorage.removeItem('savedPhone');
+                }
+
+                showToast("লগিন সফল হয়েছে! (Login Successful)", "success");
+                
+                // Redirect to Home Dashboard after short delay
+                setTimeout(() => {
+                    window.location.href = "home.html";
+                }, 1500);
+
+            } catch (error) {
+                console.error(error.code);
+                let errorMessage = "লগিন ব্যর্থ হয়েছে! (Login Failed)";
+                if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    errorMessage = "ভুল ফোন নম্বর বা পাসওয়ার্ড! (Wrong Credentials)";
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = "অতিরিক্ত চেষ্টা করা হয়েছে, পরে চেষ্টা করুন। (Too many requests)";
+                }
+                showToast(errorMessage, "error");
+                
+                // Reset UI Loading state
+                btnText.style.display = 'block';
+                btnSpinner.style.display = 'none';
+                loginBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

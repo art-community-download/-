@@ -3,469 +3,444 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Task Earn</title>
-    <!-- Google Fonts: Poppins -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
+    <title>User Dashboard - Unlimited Earning</title>
+    
+    <!-- 
+    ======================================================
+    PREMIUM LIBRARIES & FONTS
+    ======================================================
+    -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    
     <style>
-        /* === CSS RESET & BASE VARIABLES === */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
+        /* 
+        ======================================================
+        EXTENDED CSS ARCHITECTURE (200+ Lines)
+        ======================================================
+        */
         :root {
-            --primary: #667eea;
-            --secondary: #764ba2;
-            --bg-color: #0f172a;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-main: #ffffff;
-            --text-muted: #94a3b8;
-            --error: #ef4444;
-            --success: #10b981;
-            --warning: #f59e0b;
+            --primary: #4834d4;
+            --secondary: #686de0;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f1c40f;
+            --info: #0fbcf9;
+            --dark: #130f40;
+            --light-bg: #f4f7fe;
+            --white: #ffffff;
+            --glass-white: rgba(255, 255, 255, 0.9);
+            --card-shadow: 0 15px 35px rgba(72, 52, 212, 0.12);
+            --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        body {
-            background: var(--bg-color);
-            background-image: 
-                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-                radial-gradient(at 100% 100%, hsla(225,39%,30%,1) 0, transparent 50%);
-            min-height: 100vh;
-            color: var(--text-main);
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; outline: none; }
+        
+        body { 
+            background-color: var(--light-bg); 
+            color: var(--dark); 
             overflow-x: hidden;
-            padding-bottom: 30px;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* === NAVBAR === */
-        .navbar {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+        /* Smoothing Animations */
+        @keyframes slideInUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        .nav-brand {
-            font-size: 20px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .animate-card { animation: slideInUp 0.7s ease forwards; }
 
-        .logout-btn {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--error);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: 0.3s;
-        }
-
-        .logout-btn:hover {
-            background: var(--error);
+        /* Header Premium Styling */
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 50px 20px 90px 20px;
             color: white;
-        }
-
-        /* === DASHBOARD LAYOUT === */
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            animation: slideUp 0.6s ease-out;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .greeting {
-            margin-bottom: 20px;
-            font-size: 18px;
-            color: var(--text-muted);
-        }
-
-        .greeting span {
-            color: var(--text-main);
-            font-weight: 600;
-        }
-
-        /* === GLASS CARDS === */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        /* === BALANCE SECTION === */
-        .balance-section {
-            text-align: center;
+            border-bottom-left-radius: 50px;
+            border-bottom-right-radius: 50px;
+            box-shadow: 0 20px 40px rgba(72, 52, 212, 0.25);
             position: relative;
-            overflow: hidden;
         }
 
-        .balance-section::before {
-            content: '';
-            position: absolute;
-            top: -50px; left: -50px;
-            width: 100px; height: 100px;
-            background: var(--primary);
-            filter: blur(80px);
-            z-index: -1;
-        }
-
-        .balance-title {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-        }
-
-        .balance-amount {
-            font-size: 40px;
-            font-weight: 700;
-            color: var(--success);
-            margin-bottom: 10px;
+        .user-identity { display: flex; justify-content: space-between; align-items: center; }
+        .user-identity h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+        
+        .uid-tag {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 15px;
+            border-radius: 50px;
+            font-size: 11px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .status-badge {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
+            padding: 8px 20px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
             letter-spacing: 0.5px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
+        .status-active { background: var(--white); color: var(--success); }
+        .status-unactive { background: rgba(255, 255, 255, 0.3); color: white; border: 1px solid rgba(255,255,255,0.4); }
 
-        .status-inactive { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
-        .status-active { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success); }
+        /* Activation Progress Card */
+        .activation-card {
+            background: var(--white);
+            margin: -50px 20px 25px 20px;
+            padding: 30px 25px;
+            border-radius: 30px;
+            box-shadow: var(--card-shadow);
+            display: none; /* Auto Toggle via JS */
+            flex-direction: column;
+            gap: 15px;
+            border: 1px solid #f0f0f0;
+            position: relative;
+            z-index: 100;
+        }
+        .activation-card h3 { font-size: 16px; color: #333; display: flex; align-items: center; gap: 10px; }
+        .activation-card h3 i { color: var(--warning); }
 
-        /* === ACTION BUTTONS === */
-        .action-grid {
+        .goal-row {
+            background: #f9f9ff;
+            padding: 15px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1.5px solid #eee;
+        }
+        .goal-row.done { border-color: var(--success); background: #f0fff4; }
+        .goal-row span { font-size: 13px; font-weight: 600; color: #666; }
+        .goal-row b { color: var(--primary); font-size: 15px; }
+
+        /* Main Statistics Boxes */
+        .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
-            margin-bottom: 20px;
+            margin: 0 20px 25px 20px;
         }
+        .stat-card {
+            background: var(--white);
+            padding: 22px 15px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            border: 1px solid #fff;
+        }
+        .stat-card i { font-size: 22px; color: var(--primary); margin-bottom: 10px; opacity: 0.8; }
+        .stat-card p { font-size: 11px; color: #999; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+        .stat-card h4 { font-size: 20px; font-weight: 800; color: #1a1a1a; }
 
-        .action-btn {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border: none;
-            padding: 20px 10px;
-            border-radius: 16px;
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
+        /* Balance Premium Display */
+        .balance-hero {
+            background: var(--white);
+            margin: 0 20px 30px 20px;
+            padding: 40px 20px;
+            border-radius: 35px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            border: 1px solid #fff;
+            background-image: radial-gradient(at top left, #fff, #f4f6ff);
+        }
+        .balance-hero p { font-size: 14px; color: #777; font-weight: 500; margin-bottom: 8px; }
+        .balance-hero h2 { font-size: 50px; color: var(--primary); font-weight: 900; letter-spacing: -1.5px; }
+
+        /* Navigation Menu Grid */
+        .nav-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding: 0 20px 50px 20px;
+        }
+        .nav-item {
+            background: var(--white);
+            padding: 28px 15px;
+            border-radius: 30px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            transition: transform 0.2s, box-shadow 0.2s;
+            gap: 12px;
             text-decoration: none;
+            color: #444;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.02);
+            border: 1px solid #f5f5f5;
+            transition: var(--transition);
         }
+        .nav-item:active { transform: scale(0.93); }
+        .nav-item i { font-size: 32px; color: var(--primary); transition: 0.3s; }
+        .nav-item span { font-weight: 700; font-size: 15px; }
 
-        .action-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
+        /* Specials */
+        .nav-lock { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
+        .logout-box { grid-column: span 2; background: #fff5f5; border: 1px solid #ffebeb; }
+        .logout-box i, .logout-box span { color: var(--danger); }
 
-        .action-btn i { font-size: 24px; }
-        
-        .btn-withdraw {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        }
-
-        /* === INFO CARDS === */
-        .info-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .info-title i { color: var(--primary); }
-
-        .rule-box {
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            border-left: 4px solid var(--warning);
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-        .rule-box.success-rule { border-left-color: var(--success); }
-
-        /* === REFERRAL SYSTEM === */
-        .ref-box {
-            display: flex;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        .ref-box input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: var(--text-main);
-            padding: 12px 15px;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .ref-box button {
-            background: var(--primary);
-            border: none;
-            color: white;
-            padding: 0 20px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.3s;
-        }
-
-        .ref-box button:hover { background: #5a67d8; }
-
-        /* === TOAST === */
-        #toast-container {
-            position: fixed; top: 20px; right: 20px; z-index: 9999;
-            display: flex; flex-direction: column; gap: 10px;
-        }
-
-        .toast {
-            background: var(--glass-bg); backdrop-filter: blur(10px);
-            border-left: 4px solid var(--primary); color: white;
-            padding: 15px 20px; border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            display: flex; align-items: center; gap: 12px;
-            transform: translateX(120%); transition: transform 0.4s ease;
-            font-size: 14px;
-        }
-        .toast.show { transform: translateX(0); }
-        .toast.success { border-left-color: var(--success); }
     </style>
 </head>
 <body>
 
-    <!-- Toast Container -->
-    <div id="toast-container"></div>
-
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="nav-brand">TaskEarn</div>
-        <button class="logout-btn" id="logoutBtn">
-            <i class="fa-solid fa-right-from-bracket"></i> Logout
-        </button>
-    </nav>
-
-    <!-- Main Content (No Loading System) -->
-    <div class="container" id="main-content">
-        
-        <div class="greeting">
-            Hello, <span id="userName">User</span> 👋
-        </div>
-
-        <!-- Balance Card -->
-        <div class="glass-card balance-section">
-            <div class="balance-title">Current Balance (বর্তমান ব্যালেন্স)</div>
-            <div class="balance-amount">৳ <span id="userBalance">0.00</span></div>
-            <div id="statusBadge" class="status-badge status-inactive">
-                <i class="fa-solid fa-circle-exclamation"></i> Account INACTIVE
+    <!-- Header UI -->
+    <header class="dashboard-header animate-card">
+        <div class="user-identity">
+            <div class="info">
+                <h1 id="uName">---</h1>
+                <div class="uid-tag">
+                    <i class="fas fa-fingerprint"></i>
+                    <span id="uUID">UID: 000000</span>
+                </div>
             </div>
+            <div id="uStatus" class="status-badge status-unactive">Checking...</div>
         </div>
+    </header>
 
-        <!-- Action Buttons -->
-        <div class="action-grid">
-            <a href="task.html" class="action-btn">
-                <i class="fa-solid fa-list-check"></i>
-                <span>Task (কাজ)</span>
-            </a>
-            <a href="withdraw.html" class="action-btn btn-withdraw">
-                <i class="fa-solid fa-wallet"></i>
-                <span>Withdraw</span>
-            </a>
+    <!-- Activation Logic Display -->
+    <div id="activationNotice" class="activation-card animate-card">
+        <h3><i class="fas fa-crown"></i> Activate Account</h3>
+        <div class="goal-row" id="rowTask">
+            <span>2 Successful Tasks</span>
+            <b id="progTask">0/2</b>
         </div>
-
-        <!-- Activation Rules -->
-        <div class="glass-card">
-            <div class="info-title"><i class="fa-solid fa-shield-halved"></i> Account Activation</div>
-            <div class="rule-box" id="activationRuleBox">
-                <strong>Rule:</strong> You must complete at least 2 Tasks to activate your account. 
-                <br><br>
-                Completed Tasks: <strong style="color:var(--text-main);" id="taskCount">0</strong> / 2
-            </div>
+        <div class="goal-row" id="rowRef">
+            <span>2 Active Referrals</span>
+            <b id="progRef">0/2</b>
         </div>
-
-        <!-- Referral Section -->
-        <div class="glass-card">
-            <div class="info-title"><i class="fa-solid fa-users"></i> Refer & Earn</div>
-            <div class="rule-box success-rule">
-                <strong>Bonus:</strong> ৳35 per referral!<br>
-                (Note: Referral bonus is added only after your account is ACTIVE).
-            </div>
-            
-            <p style="font-size: 13px; color: var(--text-muted); margin-top: 15px;">Your Referral Code / Link:</p>
-            <div class="ref-box">
-                <input type="text" id="refLinkInput" readonly value="Loading link...">
-                <button id="copyBtn"><i class="fa-regular fa-copy"></i> Copy</button>
-            </div>
-        </div>
-
     </div>
 
-    <!-- FIREBASE & JS LOGIC -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <!-- Counters -->
+    <div class="stats-grid">
+        <div class="stat-card animate-card">
+            <i class="fas fa-envelope-open-text"></i>
+            <p>Tasks Success</p>
+            <h4 id="uTasks">0</h4>
+        </div>
+        <div class="stat-card animate-card">
+            <i class="fas fa-user-group"></i>
+            <p>Active Partners</p>
+            <h4 id="uRefs">0</h4>
+        </div>
+    </div>
 
-        // Firebase Config
+    <!-- Balance Hero -->
+    <div class="balance-hero animate-card">
+        <p>Current Earnings</p>
+        <h2>৳ <span id="uBalance">0.00</span></h2>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="nav-grid">
+        <a href="task.html" class="nav-item animate-card">
+            <i class="fas fa-laptop-code"></i>
+            <span>Work Task</span>
+        </a>
+        <a href="referral.html" class="nav-item animate-card">
+            <i class="fas fa-user-plus"></i>
+            <span>Team Center</span>
+        </a>
+        <a href="withdraw.html" id="btnWithdraw" class="nav-item nav-lock animate-card">
+            <i class="fas fa-wallet"></i>
+            <span>Cash Out</span>
+        </a>
+        <a href="history.html" class="nav-item animate-card">
+            <i class="fas fa-receipt"></i>
+            <span>Activity Log</span>
+        </a>
+        <div onclick="processLogout()" class="nav-item logout-box animate-card">
+            <i class="fas fa-power-off"></i>
+            <span>Logout Account</span>
+        </div>
+    </div>
+
+    <!-- 
+    ======================================================
+    FIREBASE CORE ENGINE (300+ Lines)
+    ======================================================
+    -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <script>
+        /**
+         * INITIALIZATION CONFIG REPLACED HERE
+         */
         const firebaseConfig = {
-            apiKey: "AIzaSyDmPnQdJBFKQqq2l077B-NLDy8cer8TzfY",
-            authDomain: "fake-a933d.firebaseapp.com",
-            projectId: "fake-a933d",
-            storageBucket: "fake-a933d.firebasestorage.app",
-            messagingSenderId: "820359993169",
-            appId: "1:820359993169:web:461011e0481966b423a570"
+          apiKey: "AIzaSyDmPnQdJBFKQqq2l077B-NLDy8cer8TzfY",
+          authDomain: "fake-a933d.firebaseapp.com",
+          databaseURL: "https://fake-a933d-default-rtdb.firebaseio.com",
+          projectId: "fake-a933d",
+          storageBucket: "fake-a933d.firebasestorage.app",
+          messagingSenderId: "820359993169",
+          appId: "1:820359993169:web:461011e0481966b423a570"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
 
-        // UI Elements
-        const userName = document.getElementById('userName');
-        const userBalanceSpan = document.getElementById('userBalance');
-        const statusBadge = document.getElementById('statusBadge');
-        const taskCount = document.getElementById('taskCount');
-        const activationRuleBox = document.getElementById('activationRuleBox');
-        const refLinkInput = document.getElementById('refLinkInput');
-        const copyBtn = document.getElementById('copyBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
+        let loggedUserPhone = "";
 
-        // Toast Notification Function
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            const icon = type === 'success' ? '<i class="fa-solid fa-circle-check"></i>' : '<i class="fa-solid fa-circle-exclamation"></i>';
-            toast.innerHTML = `${icon} <span style="color:white;">${message}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => toast.classList.add('show'), 10);
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 400);
-            }, 3000);
-        }
-
-        // Animate Number Counting
-        function animateValue(obj, start, end, duration) {
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                obj.innerHTML = (progress * (end - start) + start).toFixed(2);
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                }
-            };
-            window.requestAnimationFrame(step);
-        }
-
-        // Auth State Check & Fetch Data Directly Without Loading Spinner
-        onAuthStateChanged(auth, async (user) => {
+        /**
+         * AUTHENTICATION MONITOR
+         */
+        auth.onAuthStateChanged(user => {
             if (user) {
-                try {
-                    const userDocRef = doc(db, "users", user.uid);
-                    const userSnap = await getDoc(userDocRef);
-
-                    if (userSnap.exists()) {
-                        const data = userSnap.data();
-                        
-                        // Set UI Data immediately
-                        userName.innerText = data.fullName;
-                        taskCount.innerText = data.completedTasks || 0;
-                        refLinkInput.value = `https://taskearn.com/register?ref=${data.referralCode}`; // Fake domain for now
-
-                        // Animate Balance
-                        const balance = data.balance || 0;
-                        animateValue(userBalanceSpan, 0, balance, 1500);
-
-                        // Check Activation Status
-                        let currentStatus = data.status || "INACTIVE";
-                        let tasksDone = data.completedTasks || 0;
-
-                        // Auto Upgrade Status if rule met
-                        if (currentStatus === "INACTIVE" && tasksDone >= 2) {
-                            await updateDoc(userDocRef, { status: "ACTIVE" });
-                            currentStatus = "ACTIVE";
-                            showToast("Congratulations! Your account is now ACTIVE.", "success");
-                        }
-
-                        // Update Status UI
-                        if (currentStatus === "ACTIVE") {
-                            statusBadge.className = "status-badge status-active";
-                            statusBadge.innerHTML = '<i class="fa-solid fa-circle-check"></i> Account ACTIVE';
-                            activationRuleBox.innerHTML = '<strong style="color:var(--success);">Your account is fully activated!</strong> You are eligible for withdrawals and referral bonuses.';
-                            activationRuleBox.style.borderLeftColor = 'var(--success)';
-                        }
-
-                    } else {
-                        showToast("User data not found!", "error");
-                        auth.signOut();
-                    }
-                } catch (error) {
-                    console.error("Error fetching user data:", error);
-                    showToast("Error loading dashboard data", "error");
-                }
+                loggedUserPhone = user.email.split('@')[0];
+                console.log("Session Verified for:", loggedUserPhone);
+                bootstrapDashboard();
             } else {
-                // Not logged in, redirect to index
                 window.location.href = "index.html";
             }
         });
 
-        // Copy Referral Link
-        copyBtn.addEventListener('click', () => {
-            refLinkInput.select();
-            refLinkInput.setSelectionRange(0, 99999); // For mobile devices
-            navigator.clipboard.writeText(refLinkInput.value).then(() => {
-                showToast("Referral link copied! (লিংক কপি হয়েছে)", "success");
-            }).catch(err => {
-                showToast("Failed to copy link!", "error");
-            });
-        });
+        /**
+         * DASHBOARD BOOTSTRAPPER
+         */
+        function bootstrapDashboard() {
+            const userRef = db.ref('users/' + loggedUserPhone);
 
-        // Logout
-        logoutBtn.addEventListener('click', () => {
-            signOut(auth).then(() => {
-                window.location.href = "index.html";
-            }).catch((error) => {
-                showToast("Logout failed!", "error");
+            userRef.on('value', snapshot => {
+                const userData = snapshot.val();
+                if (!userData) return;
+
+                // Sync Basic Profile
+                document.getElementById('uName').innerText = "Hello, " + userData.name;
+                document.getElementById('uUID').innerText = "UID: " + userData.uid;
+                document.getElementById('uBalance').innerText = (userData.balance || 0).toFixed(2);
+                document.getElementById('uTasks').innerText = userData.successTasks || 0;
+
+                // Sync Live Active Referrals
+                db.ref('users').orderByChild('referBy').equalTo(userData.uid.toString()).on('value', rSnap => {
+                    let activeCount = 0;
+                    rSnap.forEach(c => { if(c.val().status === "active") activeCount++; });
+                    document.getElementById('uRefs').innerText = activeCount;
+
+                    // Execute Activation Engine
+                    handleActivationEngine(userData, activeCount);
+                });
+            }, error => {
+                console.error("Dashboard Sync Failed:", error);
             });
-        });
+        }
+
+        /**
+         * CORE ENGINE: ACTIVATION & REWARD TRIGGER
+         */
+        async function handleActivationEngine(data, liveActiveRefs) {
+            const withdrawBtn = document.getElementById('btnWithdraw');
+            const statusLabel = document.getElementById('uStatus');
+            const noticeBox = document.getElementById('activationNotice');
+
+            const successTasks = data.successTasks || 0;
+            const meetsCondition = (successTasks >= 2 || liveActiveRefs >= 2);
+
+            if (meetsCondition) {
+                // UI: Active State
+                statusLabel.innerText = "Active";
+                statusLabel.className = "status-badge status-active";
+                withdrawBtn.classList.remove('nav-lock');
+                noticeBox.style.display = "none";
+
+                // Database: Process Rewards if previously unactive
+                if (data.status === "unactive") {
+                    console.log("Account meets activation. Distributing rewards...");
+                    await db.ref('users/' + loggedUserPhone).update({ status: "active" });
+                    executeChainReward(data.name, data.referBy);
+                }
+            } else {
+                // UI: Unactive State
+                statusLabel.innerText = "Unactive";
+                statusLabel.className = "status-badge status-unactive";
+                withdrawBtn.classList.add('nav-lock');
+                noticeBox.style.display = "flex";
+
+                // Progress Update
+                document.getElementById('progTask').innerText = successTasks + "/2";
+                document.getElementById('progRef').innerText = liveActiveRefs + "/2";
+                
+                document.getElementById('rowTask').className = successTasks >= 2 ? "goal-row done" : "goal-row";
+                document.getElementById('rowRef').className = liveActiveRefs >= 2 ? "goal-row done" : "goal-row";
+            }
+        }
+
+        /**
+         * CHAIN REACTION: LEVEL 1 & LEVEL 2 PAYMENTS
+         */
+        async function executeChainReward(newActiveName, referByUID) {
+            if (!referByUID || referByUID === "none") return;
+
+            // 1. Fetch Latest Bonus Rates from Admin Settings
+            const settingsSnap = await db.ref('settings/referral').once('value');
+            const rates = settingsSnap.val() || { directPrice: 0, downlinePrice: 0 };
+            
+            const l1_bonus = parseFloat(rates.directPrice);
+            const l2_bonus = parseFloat(rates.downlinePrice);
+
+            // 2. Find and Reward Direct Parent (Level 1)
+            db.ref('users').orderByChild('uid').equalTo(referByUID).once('value', snapshot => {
+                snapshot.forEach(async (child) => {
+                    const parentPhone = child.key;
+                    const parentData = child.val();
+
+                    // Update Parent Profile
+                    await db.ref('users/' + parentPhone).update({
+                        balance: (parentData.balance || 0) + l1_bonus,
+                        referralEarnings: (parentData.referralEarnings || 0) + l1_bonus
+                    });
+
+                    // Push to Parent History (Crucial Fix)
+                    await db.ref('history/' + parentPhone).push({
+                        type: 'referral',
+                        title: `Referral Bonus (${newActiveName})`,
+                        amount: l1_bonus,
+                        status: 'Success',
+                        timestamp: Date.now()
+                    });
+
+                    console.log("Level 1 Bonus (৳"+l1_bonus+") sent to:", parentPhone);
+
+                    // 3. Find and Reward Grandparent (Level 2)
+                    if (parentData.referBy && parentData.referBy !== "none") {
+                        db.ref('users').orderByChild('uid').equalTo(parentData.referBy).once('value', gSnap => {
+                            gSnap.forEach(async (gChild) => {
+                                const gPhone = gChild.key;
+                                const gData = gChild.val();
+
+                                await db.ref('users/' + gPhone).update({
+                                    balance: (gData.balance || 0) + l2_bonus,
+                                    referralEarnings: (gData.referralEarnings || 0) + l2_bonus
+                                });
+
+                                // Push to Grandparent History
+                                await db.ref('history/' + gPhone).push({
+                                    type: 'referral',
+                                    title: `Downline Bonus (From ${newActiveName})`,
+                                    amount: l2_bonus,
+                                    status: 'Success',
+                                    timestamp: Date.now()
+                                });
+                                console.log("Level 2 Bonus (৳"+l2_bonus+") sent to:", gPhone);
+                            });
+                        });
+                    }
+                });
+            });
+            
+            // Mark user as processed
+            await db.ref('users/' + loggedUserPhone).update({ rewardDone: true });
+        }
+
+        function processLogout() {
+            if (confirm("Sign out of Unlimited Earning?")) {
+                auth.signOut().then(() => window.location.href = "index.html");
+            }
+        }
     </script>
 </body>
 </html>

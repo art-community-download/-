@@ -1,0 +1,2096 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Management | Poultry Shop Panel</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================
+       CSS RESET & DESIGN TOKENS (BLACK & GOLD OBSIDIAN)
+       ========================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-body: #07080b;
+      --bg-sidebar: #0d0f15;
+      --bg-card: rgba(18, 20, 28, 0.78);
+      --bg-card-hover: rgba(26, 29, 40, 0.88);
+      --border-gold: rgba(212, 175, 55, 0.22);
+      --border-gold-bright: rgba(212, 175, 55, 0.6);
+      --gold-primary: #d4af37;
+      --gold-light: #f5d77f;
+      --gold-dark: #997519;
+      --gold-gradient: linear-gradient(135deg, #f7df87 0%, #d4af37 50%, #997519 100%);
+      --text-main: #f3f4f6;
+      --text-muted: #94a3b8;
+      --text-dark: #07080b;
+
+      --status-available: #10b981;
+      --status-outofstock: #ef4444;
+      --status-hidden: #64748b;
+
+      --sidebar-width: 260px;
+      --header-height: 75px;
+      --gold-glow: 0 0 25px rgba(212, 175, 55, 0.2);
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #08090d; }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 4px; }
+
+    /* Ambient Background Light */
+    .ambient-glow {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      filter: blur(140px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.12;
+      background: radial-gradient(circle, var(--gold-primary), transparent 70%);
+      top: -80px;
+      right: -80px;
+    }
+
+    /* ==========================================================
+       SIDEBAR NAVIGATION
+       ========================================================== */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-gold);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-brand {
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 22px;
+      border-bottom: 1px solid var(--border-gold);
+    }
+
+    .brand-logo-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 30% 30%, #2a251b, #111216);
+      border: 1.5px solid var(--gold-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--gold-glow);
+    }
+
+    .brand-logo-badge svg { width: 22px; height: 22px; stroke: var(--gold-primary); }
+
+    .brand-text h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.08rem;
+      font-weight: 700;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-text span {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .sidebar-user {
+      padding: 14px 18px;
+      margin: 14px 14px 6px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--gold-gradient);
+      color: #07080b;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .user-meta { flex: 1; overflow: hidden; }
+    .role-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+      text-transform: uppercase;
+      background: rgba(212, 175, 55, 0.2);
+      color: var(--gold-light);
+      border: 1px solid var(--border-gold);
+    }
+    .user-email {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 3px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      border-radius: 10px;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link svg { width: 18px; height: 18px; stroke: currentColor; }
+
+    .nav-link:hover {
+      background: rgba(212, 175, 55, 0.08);
+      color: var(--gold-light);
+      transform: translateX(3px);
+    }
+
+    .nav-link.active {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+    }
+
+    .nav-link.active svg { stroke: var(--text-dark); }
+
+    .nav-link.logout-link {
+      color: #f87171;
+      margin-top: 14px;
+    }
+    .nav-link.logout-link:hover {
+      background: rgba(239, 68, 68, 0.12);
+      color: #fca5a5;
+    }
+
+    /* ==========================================================
+       MAIN CONTENT WRAPPER
+       ========================================================== */
+    .main-wrapper {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+      z-index: 10;
+    }
+
+    .top-header {
+      height: var(--header-height);
+      background: rgba(13, 15, 21, 0.85);
+      backdrop-filter: blur(15px);
+      border-bottom: 1px solid var(--border-gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: 1px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .page-title h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .page-title p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* Language Switcher Button */
+    .btn-lang-toggle {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.25s ease;
+    }
+
+    .btn-lang-toggle:hover {
+      background: rgba(212, 175, 55, 0.15);
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 12px rgba(212, 175, 55, 0.25);
+    }
+
+    .btn-add-product {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 18px rgba(212, 175, 55, 0.3);
+      transition: all 0.25s ease;
+    }
+
+    .btn-add-product:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(212, 175, 55, 0.45);
+    }
+
+    /* Content Area */
+    .content-area {
+      padding: 26px 30px 60px;
+      flex: 1;
+    }
+
+    /* ==========================================================
+       STATISTICS COUNTERS
+       ========================================================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 26px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-gold);
+      border-radius: 16px;
+      padding: 18px 20px;
+      position: relative;
+      transition: all 0.25s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-gold-bright);
+      box-shadow: var(--gold-glow);
+    }
+
+    .stat-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .stat-title {
+      font-size: 0.76rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+    }
+
+    .stat-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      color: var(--gold-light);
+    }
+
+    .stat-icon svg { width: 18px; height: 18px; stroke: currentColor; }
+
+    .stat-value {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .stat-subtext {
+      font-size: 0.72rem;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    /* ==========================================================
+       FILTER & SEARCH TOOLBAR
+       ========================================================== */
+    .toolbar-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 18px;
+      padding: 16px 20px;
+      margin-bottom: 26px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 260px;
+      position: relative;
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 17px;
+      height: 17px;
+      stroke: var(--gold-primary);
+      opacity: 0.75;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 44px;
+      background: rgba(10, 11, 16, 0.75);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 0 16px 0 42px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+    }
+
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .filter-select {
+      height: 44px;
+      background: rgba(10, 11, 16, 0.75);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 0 14px;
+      color: #e2e8f0;
+      font-family: inherit;
+      font-size: 0.84rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .filter-select:focus { border-color: var(--gold-primary); }
+
+    .btn-clear {
+      height: 44px;
+      padding: 0 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-clear:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    /* ==========================================================
+       PRODUCT CARDS GRID
+       ========================================================== */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 22px;
+    }
+
+    .product-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-gold);
+      border-radius: 18px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-gold-bright);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), var(--gold-glow);
+    }
+
+    .card-thumb-wrap {
+      width: 100%;
+      height: 180px;
+      position: relative;
+      background: #11131a;
+      overflow: hidden;
+    }
+
+    .card-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .product-card:hover .card-thumb { transform: scale(1.06); }
+
+    .status-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      backdrop-filter: blur(10px);
+    }
+
+    .status-badge.available {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      color: #6ee7b7;
+    }
+
+    .status-badge.out_of_stock {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      color: #fca5a5;
+    }
+
+    .status-badge.hidden {
+      background: rgba(100, 116, 139, 0.25);
+      border: 1px solid rgba(100, 116, 139, 0.45);
+      color: #cbd5e1;
+    }
+
+    .category-chip {
+      position: absolute;
+      bottom: 10px;
+      left: 12px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: rgba(0, 0, 0, 0.75);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      color: var(--gold-light);
+      padding: 3px 9px;
+      border-radius: 6px;
+      backdrop-filter: blur(4px);
+    }
+
+    .card-body {
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .product-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .product-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      height: 38px;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      margin-bottom: 14px;
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 9px 12px;
+      margin-bottom: 10px;
+    }
+
+    .price-tag {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--gold-light);
+    }
+    .price-unit {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .stock-tag {
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .stock-in { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .stock-low { background: rgba(245, 158, 11, 0.15); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .stock-out { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    .qty-limit {
+      font-size: 0.72rem;
+      color: #64748b;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 14px;
+    }
+
+    .btn-action {
+      flex: 1;
+      height: 36px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: 1px solid var(--border-gold);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action:hover {
+      background: rgba(212, 175, 55, 0.15);
+      border-color: var(--gold-primary);
+      color: var(--gold-light);
+    }
+
+    .btn-action.btn-delete {
+      flex: 0 0 38px;
+      color: #fca5a5;
+      border-color: rgba(239, 68, 68, 0.3);
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    .btn-action.btn-delete:hover {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: rgba(239, 68, 68, 0.6);
+    }
+
+    /* ==========================================================
+       MODALS: FORM & DELETE CONFIRM
+       ========================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .modal-dialog {
+      background: #0d0f15;
+      border: 1px solid var(--border-gold);
+      border-radius: 22px;
+      width: 100%;
+      max-width: 620px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), var(--gold-glow);
+      animation: modalScaleUp 0.25s ease-out;
+      overflow: hidden;
+      margin: auto;
+    }
+
+    @keyframes modalScaleUp {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.15rem;
+      color: var(--gold-light);
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.4rem;
+      line-height: 1;
+      padding: 4px;
+      border-radius: 6px;
+    }
+
+    .modal-close:hover { color: #fff; }
+
+    .modal-body {
+      padding: 22px 24px;
+      max-height: calc(85vh - 140px);
+      overflow-y: auto;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-col-2 { grid-column: span 2; }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #e2e8f0;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      background: #08090d;
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    .image-preview-box {
+      border: 1px dashed var(--border-gold);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: rgba(0, 0, 0, 0.3);
+      margin-top: 6px;
+    }
+
+    .preview-thumb {
+      width: 70px;
+      height: 70px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: #111216;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    .preview-info { flex: 1; font-size: 0.78rem; }
+    .preview-status { font-weight: 600; margin-top: 3px; }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-modal {
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-modal-cancel {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-gold);
+      color: #e2e8f0;
+    }
+
+    .btn-modal-cancel:hover { background: rgba(255, 255, 255, 0.1); }
+
+    .btn-modal-save {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    }
+
+    .btn-modal-save:hover {
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .btn-modal-save:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Empty state */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--bg-card);
+      border: 1px dashed var(--border-gold);
+      border-radius: 20px;
+    }
+
+    .empty-state svg {
+      width: 50px;
+      height: 50px;
+      stroke: var(--gold-primary);
+      margin-bottom: 12px;
+      opacity: 0.6;
+    }
+
+    .skeleton-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 18px;
+      height: 360px;
+      animation: pulseSkeleton 1.5s infinite;
+    }
+
+    @keyframes pulseSkeleton {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 0.3; }
+    }
+
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1100;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: #141720;
+      border: 1px solid var(--border-gold);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      animation: toastSlideIn 0.3s ease-out;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.success { border-color: var(--status-available); color: #6ee7b7; }
+    .toast.error { border-color: var(--status-outofstock); color: #fca5a5; }
+
+    @keyframes toastSlideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-left: 0; }
+      .menu-toggle { display: block; }
+      .content-area { padding: 20px 16px; }
+      .top-header { padding: 0 16px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-col-2 { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+
+  <!-- ==========================================================
+       SIDEBAR NAVIGATION
+       ========================================================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2C8.5 2 6 4.5 6 8c0 2 .8 3.8 2.2 5.1L5 22h14l-3.2-8.9C17.2 11.8 18 10 18 8c0-3.5-2.5-6-6-6z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h2>POULTRY ERP</h2>
+        <span data-i18n="shop_mgmt">Shop Management</span>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="userAvatar">A</div>
+      <div class="user-meta">
+        <span class="role-badge" id="userRoleBadge">CHECKING...</span>
+        <div class="user-email" id="userEmail">Loading user...</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="admin-dashboard.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span data-i18n="nav_dashboard">Dashboard</span>
+      </a>
+      <a href="admin-orders.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span data-i18n="nav_orders">Orders</span>
+      </a>
+      <a href="admin-products.html" class="nav-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+        <span data-i18n="nav_products">Products Catalog</span>
+      </a>
+      <a href="stock.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        <span data-i18n="nav_stock">Stock</span>
+      </a>
+      <a href="customers.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span data-i18n="nav_customers">Customers</span>
+      </a>
+      <a href="shop-settings.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span data-i18n="nav_settings">Shop Settings</span>
+      </a>
+      <a href="javascript:void(0)" class="nav-link logout-link" id="btnLogout">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span data-i18n="nav_logout">Logout</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ==========================================================
+       MAIN CONTENT CONTAINER
+       ========================================================== -->
+  <div class="main-wrapper">
+
+    <!-- Top Sticky Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <button class="menu-toggle" id="menuToggleBtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="page-title">
+          <h1 data-i18n="header_title">Product Catalog</h1>
+          <p data-i18n="header_subtitle">Single Poultry Shop Management System</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Language Swap Button -->
+        <button class="btn-lang-toggle" id="btnLangToggle" title="Change Language / ভাষা পরিবর্তন">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="langButtonText">বাংলা</span>
+        </button>
+
+        <button class="btn-add-product" id="btnOpenAddModal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span data-i18n="btn_add_product">Add New Product</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="content-area">
+
+      <!-- Realtime Statistics Overview -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="stat_total">Total Products</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg></div>
+          </div>
+          <div class="stat-value" id="statTotalProducts">0</div>
+          <div class="stat-subtext" data-i18n="stat_total_sub">All items in catalog</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="stat_available">Available</span>
+            <div class="stat-icon" style="color: var(--status-available); border-color: rgba(16,185,129,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+          </div>
+          <div class="stat-value" id="statAvailableProducts" style="color: var(--status-available);">0</div>
+          <div class="stat-subtext" data-i18n="stat_available_sub">Visible in Customer App</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="stat_outofstock">Out of Stock</span>
+            <div class="stat-icon" style="color: var(--status-outofstock); border-color: rgba(239,68,68,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
+          </div>
+          <div class="stat-value" id="statOutOfStockProducts" style="color: var(--status-outofstock);">0</div>
+          <div class="stat-subtext" data-i18n="stat_outofstock_sub">Zero inventory / disabled</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="stat_hidden">Hidden</span>
+            <div class="stat-icon" style="color: var(--status-hidden); border-color: rgba(100,116,139,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></div>
+          </div>
+          <div class="stat-value" id="statHiddenProducts" style="color: var(--status-hidden);">0</div>
+          <div class="stat-subtext" data-i18n="stat_hidden_sub">Drafts / hidden from shop</div>
+        </div>
+      </section>
+
+      <!-- Search & Filters Toolbar -->
+      <section class="toolbar-panel">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" class="search-input" data-i18n-ph="search_placeholder" placeholder="Search by product name..." />
+        </div>
+
+        <div class="filter-group">
+          <!-- Category Filter -->
+          <select id="filterCategory" class="filter-select">
+            <option value="all" data-i18n="cat_all">All Categories</option>
+            <option value="Broiler Chicken" data-i18n="cat_broiler">Broiler Chicken</option>
+            <option value="Sonali Chicken" data-i18n="cat_sonali">Sonali Chicken</option>
+            <option value="Deshi Chicken" data-i18n="cat_deshi">Deshi Chicken</option>
+            <option value="Layer Chicken" data-i18n="cat_layer">Layer Chicken</option>
+            <option value="Whole Chicken" data-i18n="cat_whole">Whole Chicken</option>
+            <option value="Chicken Leg Pieces" data-i18n="cat_leg">Chicken Leg Pieces</option>
+            <option value="Chicken Wings" data-i18n="cat_wings">Chicken Wings</option>
+            <option value="Boneless Chicken" data-i18n="cat_boneless">Boneless Chicken</option>
+            <option value="Mixed Chicken Cuts" data-i18n="cat_mixed">Mixed Chicken Cuts</option>
+            <option value="Duck" data-i18n="cat_duck">Duck</option>
+            <option value="Duck Meat" data-i18n="cat_duck_meat">Duck Meat</option>
+            <option value="Duck Cuts" data-i18n="cat_duck_cuts">Duck Cuts</option>
+            <option value="Other Poultry Products" data-i18n="cat_other">Other Poultry Products</option>
+          </select>
+
+          <!-- Status Filter -->
+          <select id="filterStatus" class="filter-select">
+            <option value="all" data-i18n="filter_status_all">All Status</option>
+            <option value="available" data-i18n="status_available">Available</option>
+            <option value="out_of_stock" data-i18n="status_out_of_stock">Out of Stock</option>
+            <option value="hidden" data-i18n="status_hidden">Hidden</option>
+          </select>
+
+          <!-- Sort Filter -->
+          <select id="filterSort" class="filter-select">
+            <option value="newest" data-i18n="sort_newest">Sort: Newest First</option>
+            <option value="oldest" data-i18n="sort_oldest">Sort: Oldest First</option>
+            <option value="price_asc" data-i18n="sort_price_asc">Price: Low to High</option>
+            <option value="price_desc" data-i18n="sort_price_desc">Price: High to Low</option>
+            <option value="stock_low" data-i18n="sort_stock_low">Stock: Lowest First</option>
+          </select>
+
+          <button class="btn-clear" id="btnClearFilters" title="Clear Filters">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <span data-i18n="btn_reset">Reset</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Products Grid -->
+      <section class="products-grid" id="productsGrid">
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ==========================================================
+       MODAL: ADD & EDIT PRODUCT FORM
+       ========================================================== -->
+  <div class="modal-backdrop" id="productModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalFormTitle">Add New Poultry Product</h3>
+        <button class="modal-close" id="btnCloseModal">&times;</button>
+      </div>
+
+      <form id="productForm" autocomplete="off">
+        <input type="hidden" id="formProductId" />
+
+        <div class="modal-body">
+          <div class="form-grid">
+            
+            <div class="form-group form-col-2">
+              <label class="form-label" for="prodName" data-i18n="form_prod_name">Product Name *</label>
+              <input type="text" id="prodName" class="form-input" data-i18n-ph="form_prod_name_ph" placeholder="e.g. Deshi Chicken Live (দেশি মুরগি)" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="prodCategory" data-i18n="form_category">Category *</label>
+              <select id="prodCategory" class="form-select" required>
+                <option value="" data-i18n="select_cat">Select Category</option>
+                <option value="Broiler Chicken" data-i18n="cat_broiler">Broiler Chicken</option>
+                <option value="Sonali Chicken" data-i18n="cat_sonali">Sonali Chicken</option>
+                <option value="Deshi Chicken" data-i18n="cat_deshi">Deshi Chicken</option>
+                <option value="Layer Chicken" data-i18n="cat_layer">Layer Chicken</option>
+                <option value="Whole Chicken" data-i18n="cat_whole">Whole Chicken</option>
+                <option value="Chicken Leg Pieces" data-i18n="cat_leg">Chicken Leg Pieces</option>
+                <option value="Chicken Wings" data-i18n="cat_wings">Chicken Wings</option>
+                <option value="Boneless Chicken" data-i18n="cat_boneless">Boneless Chicken</option>
+                <option value="Mixed Chicken Cuts" data-i18n="cat_mixed">Mixed Chicken Cuts</option>
+                <option value="Duck" data-i18n="cat_duck">Duck</option>
+                <option value="Duck Meat" data-i18n="cat_duck_meat">Duck Meat</option>
+                <option value="Duck Cuts" data-i18n="cat_duck_cuts">Duck Cuts</option>
+                <option value="Other Poultry Products" data-i18n="cat_other">Other Poultry Products</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="prodUnit" data-i18n="form_unit">Unit Type *</label>
+              <select id="prodUnit" class="form-select" required>
+                <option value="KG" data-i18n="unit_kg">KG (Kilogram)</option>
+                <option value="Piece" data-i18n="unit_piece">Piece (পিস)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="prodBasePrice" data-i18n="form_price">Base Price (৳) *</label>
+              <input type="number" id="prodBasePrice" class="form-input" placeholder="e.g. 210" min="1" step="any" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="prodStock" data-i18n="form_stock">Available Stock *</label>
+              <input type="number" id="prodStock" class="form-input" placeholder="e.g. 50" min="0" step="any" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="prodMinQty" data-i18n="form_min_qty">Min Order Qty *</label>
+              <input type="number" id="prodMinQty" class="form-input" value="1" min="1" step="any" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="prodMaxQty" data-i18n="form_max_qty">Max Order Qty *</label>
+              <input type="number" id="prodMaxQty" class="form-input" value="50" min="1" step="any" required />
+            </div>
+
+            <div class="form-group form-col-2">
+              <label class="form-label" for="prodStatus" data-i18n="form_status">Product Status *</label>
+              <select id="prodStatus" class="form-select" required>
+                <option value="available" data-i18n="status_opt_available">Available (Active in Customer App)</option>
+                <option value="out_of_stock" data-i18n="status_opt_outofstock">Out of Stock (Shows as Sold Out)</option>
+                <option value="hidden" data-i18n="status_opt_hidden">Hidden (Completely Hidden from Shop)</option>
+              </select>
+            </div>
+
+            <div class="form-group form-col-2">
+              <label class="form-label" for="prodImageUrl" data-i18n="form_image_url">Image URL (HTTP or HTTPS) *</label>
+              <input type="url" id="prodImageUrl" class="form-input" placeholder="https://images.unsplash.com/photo-..." required />
+              
+              <div class="image-preview-box">
+                <img id="liveImgPreview" src="https://via.placeholder.com/150?text=No+Image" class="preview-thumb" alt="Preview" />
+                <div class="preview-info">
+                  <div style="font-weight: 600; color: #fff;" data-i18n="live_preview">Live Preview</div>
+                  <div id="previewStatusText" class="preview-status" style="color: var(--text-muted);" data-i18n="preview_hint">Enter a valid image URL</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group form-col-2">
+              <label class="form-label" for="prodDescription" data-i18n="form_desc">Product Description</label>
+              <textarea id="prodDescription" class="form-textarea" data-i18n-ph="form_desc_ph" placeholder="Add fresh details, cut style, cleaning info, or quality assurance details..."></textarea>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-modal btn-modal-cancel" id="btnCancelModal" data-i18n="btn_cancel">Cancel</button>
+          <button type="submit" class="btn-modal btn-modal-save" id="btnSaveProduct">
+            <span id="btnSaveText" data-i18n="btn_save_prod">Save Product</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       MODAL: DELETE CONFIRMATION
+       ========================================================== -->
+  <div class="modal-backdrop" id="deleteConfirmModal">
+    <div class="modal-dialog" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="color: var(--status-outofstock);" data-i18n="modal_del_title">Confirm Deletion</h3>
+        <button class="modal-close" id="btnCloseDeleteModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.92rem; color: #e2e8f0; line-height: 1.5;">
+          <span data-i18n="del_confirm_msg">Are you sure you want to delete</span> 
+          <strong id="deleteTargetName" style="color: var(--gold-light);">this product</strong>?
+        </p>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;" data-i18n="del_warning_msg">
+          This action will immediately remove the product from Firebase Realtime Database and the Customer App.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-modal btn-modal-cancel" id="btnCancelDelete" data-i18n="btn_cancel">Cancel</button>
+        <button type="button" class="btn-modal" id="btnConfirmDelete" style="background: rgba(239, 68, 68, 0.9); color: #fff;" data-i18n="btn_del_confirm">
+          Delete Permanently
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ==========================================================
+       MODULAR FIREBASE SDK (v10) & MULTI-LANGUAGE SCRIPT
+       ========================================================== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      getDatabase, 
+      ref, 
+      onValue, 
+      push, 
+      set, 
+      update, 
+      remove, 
+      serverTimestamp, 
+      get 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // 1. Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDYPsjlOmRwH2F5P8fFoiirP1FLjgh3c8A",
+      authDomain: "murgi-dfd67.firebaseapp.com",
+      databaseURL: "https://murgi-dfd67-default-rtdb.firebaseio.com",
+      projectId: "murgi-dfd67",
+      storageBucket: "murgi-dfd67.firebasestorage.app",
+      messagingSenderId: "209696889864",
+      appId: "1:209696889864:web:3eaa16034f00cca45505bd"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // ==========================================================
+    // MULTI-LANGUAGE TRANSLATION DICTIONARY (EN & BN)
+    // ==========================================================
+    const i18n = {
+      en: {
+        shop_mgmt: "Shop Management",
+        nav_dashboard: "Dashboard",
+        nav_orders: "Orders",
+        nav_products: "Products Catalog",
+        nav_stock: "Stock",
+        nav_customers: "Customers",
+        nav_settings: "Shop Settings",
+        nav_logout: "Logout",
+        header_title: "Product Catalog",
+        header_subtitle: "Single Poultry Shop Management System",
+        btn_add_product: "Add New Product",
+        stat_total: "Total Products",
+        stat_total_sub: "All items in catalog",
+        stat_available: "Available",
+        stat_available_sub: "Visible in Customer App",
+        stat_outofstock: "Out of Stock",
+        stat_outofstock_sub: "Zero inventory / disabled",
+        stat_hidden: "Hidden",
+        stat_hidden_sub: "Drafts / hidden from shop",
+        search_placeholder: "Search by product name...",
+        cat_all: "All Categories",
+        cat_broiler: "Broiler Chicken",
+        cat_sonali: "Sonali Chicken",
+        cat_deshi: "Deshi Chicken",
+        cat_layer: "Layer Chicken",
+        cat_whole: "Whole Chicken",
+        cat_leg: "Chicken Leg Pieces",
+        cat_wings: "Chicken Wings",
+        cat_boneless: "Boneless Chicken",
+        cat_mixed: "Mixed Chicken Cuts",
+        cat_duck: "Duck",
+        cat_duck_meat: "Duck Meat",
+        cat_duck_cuts: "Duck Cuts",
+        cat_other: "Other Poultry Products",
+        filter_status_all: "All Status",
+        status_available: "Available",
+        status_out_of_stock: "Out of Stock",
+        status_hidden: "Hidden",
+        sort_newest: "Sort: Newest First",
+        sort_oldest: "Sort: Oldest First",
+        sort_price_asc: "Price: Low to High",
+        sort_price_desc: "Price: High to Low",
+        sort_stock_low: "Stock: Lowest First",
+        btn_reset: "Reset",
+        form_prod_name: "Product Name *",
+        form_prod_name_ph: "e.g. Deshi Chicken Live (দেশি মুরগি)",
+        form_category: "Category *",
+        select_cat: "Select Category",
+        form_unit: "Unit Type *",
+        unit_kg: "KG (Kilogram)",
+        unit_piece: "Piece (পিস)",
+        form_price: "Base Price (৳) *",
+        form_stock: "Available Stock *",
+        form_min_qty: "Min Order Qty *",
+        form_max_qty: "Max Order Qty *",
+        form_status: "Product Status *",
+        status_opt_available: "Available (Active in Customer App)",
+        status_opt_outofstock: "Out of Stock (Shows as Sold Out)",
+        status_opt_hidden: "Hidden (Completely Hidden from Shop)",
+        form_image_url: "Image URL (HTTP or HTTPS) *",
+        live_preview: "Live Preview",
+        preview_hint: "Enter a valid image URL",
+        form_desc: "Product Description",
+        form_desc_ph: "Add fresh details, cut style, cleaning info, or quality assurance details...",
+        btn_cancel: "Cancel",
+        btn_save_prod: "Save Product",
+        btn_update_prod: "Update Product",
+        modal_add_title: "Add New Poultry Product",
+        modal_edit_title: "Edit Product Details",
+        modal_del_title: "Confirm Deletion",
+        del_confirm_msg: "Are you sure you want to delete",
+        del_warning_msg: "This action will immediately remove the product from Firebase Realtime Database and the Customer App.",
+        btn_del_confirm: "Delete Permanently",
+        no_products: "No Products Found",
+        no_products_sub: "Try adjusting your search query, clearing filters, or add a new poultry product.",
+        lang_switch_to: "বাংলা",
+        stock_label: "Stock",
+        min_label: "Min",
+        max_label: "Max",
+        edit_btn: "Edit",
+        toggle_show: "Show",
+        toggle_stockout: "Stock Out",
+        toggle_available: "Available"
+      },
+      bn: {
+        shop_mgmt: "শপ ম্যানেজমেন্ট",
+        nav_dashboard: "ড্যাশবোর্ড",
+        nav_orders: "অর্ডারসমূহ",
+        nav_products: "পণ্য ক্যাটালগ",
+        nav_stock: "স্টক হিসাব",
+        nav_customers: "গ্রাহকবৃন্দ",
+        nav_settings: "শপ সেটিংস",
+        nav_logout: "লগআউট",
+        header_title: "পণ্য ক্যাটালগ",
+        header_subtitle: "পোল্ট্রি শপ ম্যানেজমেন্ট সিস্টেম",
+        btn_add_product: "নতুন পণ্য যোগ করুন",
+        stat_total: "মোট পণ্য",
+        stat_total_sub: "ক্যাটালগের সকল আইটেম",
+        stat_available: "উপলব্ধ পণ্য",
+        stat_available_sub: "গ্রাহক অ্যাপে দৃশ্যমান",
+        stat_outofstock: "স্টক শেষ",
+        stat_outofstock_sub: "শূন্য ইনভেন্টরি / অনুপলব্ধ",
+        stat_hidden: "লুকানো পণ্য",
+        stat_hidden_sub: "ড্রাফট / গোপন রাখা হয়েছে",
+        search_placeholder: "পণ্যের নাম দিয়ে খুঁজুন...",
+        cat_all: "সকল ক্যাটাগরি",
+        cat_broiler: "ব্রয়লার মুরগি",
+        cat_sonali: "সোনালী মুরগি",
+        cat_deshi: "দেশি মুরগি",
+        cat_layer: "লেয়ার মুরগি",
+        cat_whole: "আস্ত মুরগি (Whole)",
+        cat_leg: "চিকেন লেগ পিস",
+        cat_wings: "মুরগির পাখা (Chicken Wings)",
+        cat_wings: "চিকেন উইংস",
+        cat_boneless: "হাড় ছাড়া মাংস (Boneless)",
+        cat_mixed: "মিক্সড কাট চিকেন",
+        cat_duck: "হাঁস (জীবন্ত)",
+        cat_duck_meat: "হাঁসের মাংস",
+        cat_duck_cuts: "হাঁসের মাংসের কাট",
+        cat_other: "অন্যান্য পোল্ট্রি পণ্য",
+        filter_status_all: "সকল স্ট্যাটাস",
+        status_available: "উপলব্ধ (Available)",
+        status_out_of_stock: "স্টক শেষ (Out of Stock)",
+        status_hidden: "লুকানো (Hidden)",
+        sort_newest: "সর্ট: নতুন পণ্য আগে",
+        sort_oldest: "সর্ট: পুরাতন পণ্য আগে",
+        sort_price_asc: "মূল্য: কম থেকে বেশি",
+        sort_price_desc: "মূল্য: বেশি থেকে কম",
+        sort_stock_low: "স্টক: সর্বনিম্ন আগে",
+        btn_reset: "রিসেট",
+        form_prod_name: "পণ্যের নাম *",
+        form_prod_name_ph: "যেমন: দেশি মুরগি লাইভ (Deshi Chicken Live)",
+        form_category: "ক্যাটাগরি *",
+        select_cat: "ক্যাটাগরি নির্বাচন করুন",
+        form_unit: "পরিমাপের একক *",
+        unit_kg: "কেজি (Kilogram)",
+        unit_piece: "পিস (Piece)",
+        form_price: "মূল্য প্রতি একক (৳) *",
+        form_stock: "মজুদ স্টক *",
+        form_min_qty: "সর্বনিম্ন অর্ডার পরিমাণ *",
+        form_max_qty: "সর্বোচ্চ অর্ডার পরিমাণ *",
+        form_status: "পণ্যের অবস্থা *",
+        status_opt_available: "উপলব্ধ (গ্রাহক অ্যাপে সক্রিয়)",
+        status_opt_outofstock: "স্টক আউট (সোল্ড আউট দেখাবে)",
+        status_opt_hidden: "লুকানো (দোকান থেকে সম্পূর্ণরূপে অপ্রকাশ্য)",
+        form_image_url: "ছবির লিংক (URL) *",
+        live_preview: "লাইভ ছবির প্রিভিউ",
+        preview_hint: "সঠিক ছবির লিংক প্রবেশ করান",
+        form_desc: "পণ্যের বিবরণ (Description)",
+        form_desc_ph: "পণ্যের গুণমান, কাটার ধরণ বা প্রসেসিং সংক্রান্ত তথ্য যোগ করুন...",
+        btn_cancel: "বাতিল",
+        btn_save_prod: "পণ্য সংরক্ষণ করুন",
+        btn_update_prod: "আপডেট করুন",
+        modal_add_title: "নতুন পোল্ট্রি পণ্য যোগ করুন",
+        modal_edit_title: "পণ্যের তথ্য পরিবর্তন করুন",
+        modal_del_title: "ডিলিট নিশ্চিতকরণ",
+        del_confirm_msg: "আপনি কি নিশ্চিতভাবে মুছে ফেলতে চান",
+        del_warning_msg: "এই পণ্যটি মুছে ফেললে ডাটাবেজ এবং কাস্টমার অ্যাপ থেকে চিরতরে মুছে যাবে।",
+        btn_del_confirm: "স্থায়ীভাবে মুছে ফেলুন",
+        no_products: "কোনো পণ্য পাওয়া যায়নি",
+        no_products_sub: "সার্চের নাম পরিবর্তন করুন অথবা নতুন পণ্য যুক্ত করুন।",
+        lang_switch_to: "English",
+        stock_label: "স্টক",
+        min_label: "মিনিমাম",
+        max_label: "ম্যাক্সিমাম",
+        edit_btn: "এডিট",
+        toggle_show: "দৃশ্যমান করুন",
+        toggle_stockout: "স্টক আউট",
+        toggle_available: "উপলব্ধ করুন"
+      }
+    };
+
+    // Current Active Language (Default to Bangla, restore from localStorage if exists)
+    let currentLang = localStorage.getItem('poultry_admin_lang') || 'bn';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('poultry_admin_lang', lang);
+      document.documentElement.lang = lang;
+
+      // Update static text elements
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang][key]) {
+          el.textContent = i18n[lang][key];
+        }
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const key = el.getAttribute('data-i18n-ph');
+        if (i18n[lang][key]) {
+          el.placeholder = i18n[lang][key];
+        }
+      });
+
+      // Toggle Button Label (shows what language you can switch TO)
+      const langBtnText = document.getElementById('langButtonText');
+      if (langBtnText) {
+        langBtnText.textContent = i18n[lang].lang_switch_to;
+      }
+
+      // Re-render products grid with translated dynamic keys
+      applyFiltersAndRender();
+    }
+
+    // Toggle Button Click
+    document.getElementById('btnLangToggle').addEventListener('click', () => {
+      const nextLang = currentLang === 'en' ? 'bn' : 'en';
+      setLanguage(nextLang);
+      showToast(nextLang === 'bn' ? "ভাষা পরিবর্তন: বাংলা" : "Language switched to English", "success");
+    });
+
+    // Global App State
+    let currentUser = null;
+    let currentUserRole = null;
+    let allProducts = [];
+    let pendingDeleteId = null;
+
+    // DOM Elements Cache
+    const userRoleBadge = document.getElementById('userRoleBadge');
+    const userEmail = document.getElementById('userEmail');
+    const userAvatar = document.getElementById('userAvatar');
+    const btnLogout = document.getElementById('btnLogout');
+    const menuToggleBtn = document.getElementById('menuToggleBtn');
+    const sidebar = document.getElementById('sidebar');
+
+    const statTotal = document.getElementById('statTotalProducts');
+    const statAvailable = document.getElementById('statAvailableProducts');
+    const statOutOfStock = document.getElementById('statOutOfStockProducts');
+    const statHidden = document.getElementById('statHiddenProducts');
+
+    const searchInput = document.getElementById('searchInput');
+    const filterCategory = document.getElementById('filterCategory');
+    const filterStatus = document.getElementById('filterStatus');
+    const filterSort = document.getElementById('filterSort');
+    const btnClearFilters = document.getElementById('btnClearFilters');
+    const productsGrid = document.getElementById('productsGrid');
+
+    // Modal elements
+    const productModal = document.getElementById('productModal');
+    const btnOpenAddModal = document.getElementById('btnOpenAddModal');
+    const btnCloseModal = document.getElementById('btnCloseModal');
+    const btnCancelModal = document.getElementById('btnCancelModal');
+    const productForm = document.getElementById('productForm');
+    const modalFormTitle = document.getElementById('modalFormTitle');
+    const btnSaveProduct = document.getElementById('btnSaveProduct');
+    const btnSaveText = document.getElementById('btnSaveText');
+
+    // Inputs
+    const formProductId = document.getElementById('formProductId');
+    const prodName = document.getElementById('prodName');
+    const prodCategory = document.getElementById('prodCategory');
+    const prodUnit = document.getElementById('prodUnit');
+    const prodBasePrice = document.getElementById('prodBasePrice');
+    const prodStock = document.getElementById('prodStock');
+    const prodMinQty = document.getElementById('prodMinQty');
+    const prodMaxQty = document.getElementById('prodMaxQty');
+    const prodStatus = document.getElementById('prodStatus');
+    const prodImageUrl = document.getElementById('prodImageUrl');
+    const prodDescription = document.getElementById('prodDescription');
+    const liveImgPreview = document.getElementById('liveImgPreview');
+    const previewStatusText = document.getElementById('previewStatusText');
+
+    // Delete modal elements
+    const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+    const btnCloseDeleteModal = document.getElementById('btnCloseDeleteModal');
+    const btnCancelDelete = document.getElementById('btnCancelDelete');
+    const btnConfirmDelete = document.getElementById('btnConfirmDelete');
+    const deleteTargetName = document.getElementById('deleteTargetName');
+
+    // ==========================================================
+    // TOAST NOTIFICATIONS
+    // ==========================================================
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          ${type === 'success' ? '<polyline points="20 6 9 17 4 12"/>' : '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'}
+        </svg>
+        <span>${escapeHTML(message)}</span>
+      `;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // ==========================================================
+    // AUTHENTICATION GUARD
+    // ==========================================================
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.replace('admin-login.html');
+        return;
+      }
+
+      currentUser = user;
+      userEmail.textContent = user.email;
+      userAvatar.textContent = (user.email.charAt(0) || 'U').toUpperCase();
+
+      try {
+        const roleRef = ref(db, `users/${user.uid}/role`);
+        const snapshot = await get(roleRef);
+        const role = snapshot.val();
+
+        if (!role) {
+          showToast("অননুমোদিত একাউন্ট (Access Denied).", "error");
+          await signOut(auth);
+          window.location.replace('admin-login.html');
+          return;
+        }
+
+        const normalizedRole = role.toString().toLowerCase().trim();
+
+        if (normalizedRole !== 'admin' && normalizedRole !== 'shopkeeper') {
+          showToast("অননুমোদিত রোল (Unauthorized).", "error");
+          await signOut(auth);
+          window.location.replace('admin-login.html');
+          return;
+        }
+
+        currentUserRole = normalizedRole;
+        userRoleBadge.textContent = normalizedRole.toUpperCase();
+
+        listenToProductsRealtime();
+
+      } catch (err) {
+        console.error("Auth Guard Error:", err);
+      }
+    });
+
+    btnLogout.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        window.location.replace('admin-login.html');
+      } catch (error) {
+        showToast("Logout Error", "error");
+      }
+    });
+
+    // Mobile Sidebar
+    menuToggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+    document.addEventListener('click', (e) => {
+      if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !menuToggleBtn.contains(e.target)) {
+        sidebar.classList.remove('open');
+      }
+    });
+
+    // ==========================================================
+    // REALTIME DATABASE LISTENER
+    // ==========================================================
+    function listenToProductsRealtime() {
+      const productsRef = ref(db, 'products');
+
+      onValue(productsRef, (snapshot) => {
+        allProducts = [];
+        let countTotal = 0;
+        let countAvailable = 0;
+        let countOutOfStock = 0;
+        let countHidden = 0;
+
+        snapshot.forEach((childSnap) => {
+          const item = childSnap.val();
+          item.productId = childSnap.key;
+
+          allProducts.push(item);
+          countTotal++;
+
+          const st = (item.status || 'available').toLowerCase();
+          const stock = Number(item.stockQuantity || 0);
+
+          if (st === 'hidden') {
+            countHidden++;
+          } else if (st === 'out_of_stock' || stock <= 0) {
+            countOutOfStock++;
+          } else {
+            countAvailable++;
+          }
+        });
+
+        statTotal.textContent = countTotal;
+        statAvailable.textContent = countAvailable;
+        statOutOfStock.textContent = countOutOfStock;
+        statHidden.textContent = countHidden;
+
+        applyFiltersAndRender();
+      }, (error) => {
+        console.error("Realtime Error:", error);
+      });
+    }
+
+    // ==========================================================
+    // FILTERS, SEARCH & RENDER
+    // ==========================================================
+    [searchInput, filterCategory, filterStatus, filterSort].forEach(el => {
+      el.addEventListener('input', applyFiltersAndRender);
+      el.addEventListener('change', applyFiltersAndRender);
+    });
+
+    btnClearFilters.addEventListener('click', () => {
+      searchInput.value = '';
+      filterCategory.value = 'all';
+      filterStatus.value = 'all';
+      filterSort.value = 'newest';
+      applyFiltersAndRender();
+    });
+
+    function applyFiltersAndRender() {
+      const q = searchInput.value.toLowerCase().trim();
+      const cat = filterCategory.value;
+      const st = filterStatus.value;
+      const sort = filterSort.value;
+
+      let filtered = allProducts.filter(item => {
+        const name = (item.productName || '').toLowerCase();
+        const desc = (item.description || '').toLowerCase();
+        const matchSearch = !q || name.includes(q) || desc.includes(q);
+        const matchCat = (cat === 'all') || (item.category === cat);
+
+        let matchStatus = true;
+        const itemStatus = (item.status || 'available').toLowerCase();
+        if (st !== 'all') {
+          matchStatus = itemStatus === st;
+        }
+
+        return matchSearch && matchCat && matchStatus;
+      });
+
+      filtered.sort((a, b) => {
+        const timeA = a.updatedAt || a.createdAt || 0;
+        const timeB = b.updatedAt || b.createdAt || 0;
+        if (sort === 'newest') return timeB - timeA;
+        if (sort === 'oldest') return timeA - timeB;
+        if (sort === 'price_asc') return Number(a.basePrice || 0) - Number(b.basePrice || 0);
+        if (sort === 'price_desc') return Number(b.basePrice || 0) - Number(a.basePrice || 0);
+        if (sort === 'stock_low') return Number(a.stockQuantity || 0) - Number(b.stockQuantity || 0);
+        return 0;
+      });
+
+      renderProductsGrid(filtered);
+    }
+
+    function renderProductsGrid(products) {
+      const t = i18n[currentLang];
+
+      if (!products || products.length === 0) {
+        productsGrid.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="m10 15 4-4m0 4-4-4"/></svg>
+            <h3 style="font-size: 1.15rem; color: #fff;">${t.no_products}</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 6px;">
+              ${t.no_products_sub}
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      productsGrid.innerHTML = products.map(p => {
+        const status = (p.status || 'available').toLowerCase();
+        const stock = Number(p.stockQuantity || 0);
+        const unit = p.unit || 'KG';
+        const price = Number(p.basePrice || 0).toLocaleString('en-IN');
+
+        let badgeClass = 'available';
+        let badgeLabel = t.status_available;
+        if (status === 'out_of_stock' || stock <= 0) {
+          badgeClass = 'out_of_stock';
+          badgeLabel = t.status_out_of_stock;
+        } else if (status === 'hidden') {
+          badgeClass = 'hidden';
+          badgeLabel = t.status_hidden;
+        }
+
+        let stockClass = 'stock-in';
+        if (stock <= 0) stockClass = 'stock-out';
+        else if (stock <= 5) stockClass = 'stock-low';
+
+        const imageUrl = p.imageUrl || 'https://via.placeholder.com/300?text=No+Image';
+
+        // Toggle button text
+        let quickToggleText = t.toggle_stockout;
+        if (status === 'hidden') quickToggleText = t.toggle_show;
+        else if (status === 'out_of_stock') quickToggleText = t.toggle_available;
+
+        return `
+          <article class="product-card" id="card_${p.productId}">
+            <div class="card-thumb-wrap">
+              <img 
+                src="${escapeHTML(imageUrl)}" 
+                class="card-thumb" 
+                alt="${escapeHTML(p.productName)}"
+                loading="lazy"
+                onerror="this.onerror=null; this.src='https://via.placeholder.com/300?text=Invalid+Image+URL';"
+              />
+              <span class="status-badge ${badgeClass}">${badgeLabel}</span>
+              <span class="category-chip">${escapeHTML(p.category || 'Poultry')}</span>
+            </div>
+
+            <div class="card-body">
+              <h3 class="product-title" title="${escapeHTML(p.productName)}">${escapeHTML(p.productName)}</h3>
+              <p class="product-desc">${escapeHTML(p.description || (currentLang === 'bn' ? 'কোনো বিবরণ দেওয়া নেই।' : 'No description provided.'))}</p>
+
+              <div class="meta-row">
+                <div>
+                  <span class="price-tag">৳ ${price}</span>
+                  <span class="price-unit">/ ${escapeHTML(unit)}</span>
+                </div>
+                <span class="stock-tag ${stockClass}">
+                  ${t.stock_label}: ${stock} ${escapeHTML(unit)}
+                </span>
+              </div>
+
+              <div class="qty-limit">
+                <span>${t.min_label}: <strong>${p.minOrderQuantity || 1} ${escapeHTML(unit)}</strong></span>
+                <span>${t.max_label}: <strong>${p.maxOrderQuantity || 50} ${escapeHTML(unit)}</strong></span>
+              </div>
+
+              <div class="card-actions">
+                <button class="btn-action" onclick="toggleQuickStatus('${p.productId}', '${status}')" title="Change Status">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48 2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48 2.83-2.83"/>
+                  </svg>
+                  <span>${quickToggleText}</span>
+                </button>
+
+                <button class="btn-action" onclick="openEditModal('${p.productId}')" title="Edit Product">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                  <span>${t.edit_btn}</span>
+                </button>
+
+                <button class="btn-action btn-delete" onclick="promptDeleteProduct('${p.productId}', '${escapeHTML(p.productName)}')" title="Delete Product">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                </button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    // ==========================================================
+    // MODAL CONTROL: ADD & EDIT
+    // ==========================================================
+    function openModal() { productModal.style.display = 'flex'; }
+    function closeModal() {
+      productModal.style.display = 'none';
+      productForm.reset();
+      formProductId.value = '';
+      liveImgPreview.src = 'https://via.placeholder.com/150?text=No+Image';
+      previewStatusText.textContent = i18n[currentLang].preview_hint;
+      previewStatusText.style.color = 'var(--text-muted)';
+      btnSaveProduct.disabled = false;
+    }
+
+    btnOpenAddModal.addEventListener('click', () => {
+      modalFormTitle.textContent = i18n[currentLang].modal_add_title;
+      btnSaveText.textContent = i18n[currentLang].btn_save_prod;
+      productForm.reset();
+      formProductId.value = '';
+      prodStatus.value = 'available';
+      prodUnit.value = 'KG';
+      prodMinQty.value = 1;
+      prodMaxQty.value = 50;
+      openModal();
+    });
+
+    [btnCloseModal, btnCancelModal].forEach(btn => btn.addEventListener('click', closeModal));
+
+    prodImageUrl.addEventListener('input', validateAndPreviewImage);
+
+    function validateAndPreviewImage() {
+      const url = prodImageUrl.value.trim();
+      if (!url) {
+        liveImgPreview.src = 'https://via.placeholder.com/150?text=No+Image';
+        previewStatusText.textContent = i18n[currentLang].preview_hint;
+        previewStatusText.style.color = 'var(--text-muted)';
+        return;
+      }
+
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        previewStatusText.textContent = currentLang === 'bn' ? 'URL অবশ্যই http:// বা https:// দিয়ে শুরু হতে হবে' : 'URL must start with http:// or https://';
+        previewStatusText.style.color = 'var(--status-outofstock)';
+        return;
+      }
+
+      const img = new Image();
+      img.onload = () => {
+        liveImgPreview.src = url;
+        previewStatusText.textContent = currentLang === 'bn' ? 'ছবিটি সফলভাবে লোড হয়েছে ✓' : 'Image loaded successfully ✓';
+        previewStatusText.style.color = 'var(--status-available)';
+      };
+      img.onerror = () => {
+        liveImgPreview.src = 'https://via.placeholder.com/150?text=Load+Error';
+        previewStatusText.textContent = currentLang === 'bn' ? 'এই লিংক থেকে ছবি লোড করা যায়নি ✕' : 'Could not load image from this URL ✕';
+        previewStatusText.style.color = 'var(--status-outofstock)';
+      };
+      img.src = url;
+    }
+
+    window.openEditModal = function(productId) {
+      const product = allProducts.find(p => p.productId === productId);
+      if (!product) return;
+
+      modalFormTitle.textContent = i18n[currentLang].modal_edit_title;
+      btnSaveText.textContent = i18n[currentLang].btn_update_prod;
+
+      formProductId.value = product.productId;
+      prodName.value = product.productName || '';
+      prodCategory.value = product.category || '';
+      prodUnit.value = product.unit || 'KG';
+      prodBasePrice.value = product.basePrice || '';
+      prodStock.value = product.stockQuantity ?? 0;
+      prodMinQty.value = product.minOrderQuantity || 1;
+      prodMaxQty.value = product.maxOrderQuantity || 50;
+      prodStatus.value = product.status || 'available';
+      prodImageUrl.value = product.imageUrl || '';
+      prodDescription.value = product.description || '';
+
+      validateAndPreviewImage();
+      openModal();
+    };
+
+    // Form Save
+    productForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = prodName.value.trim();
+      const category = prodCategory.value;
+      const unit = prodUnit.value;
+      const basePrice = parseFloat(prodBasePrice.value);
+      const stockQuantity = parseFloat(prodStock.value);
+      const minQty = parseFloat(prodMinQty.value);
+      const maxQty = parseFloat(prodMaxQty.value);
+      const status = prodStatus.value;
+      const imageUrl = prodImageUrl.value.trim();
+      const description = prodDescription.value.trim();
+
+      if (!name || !category || !unit || isNaN(basePrice) || isNaN(stockQuantity) || !imageUrl) {
+        showToast(currentLang === 'bn' ? "সকল প্রয়োজনীয় তথ্য পূরণ করুন।" : "Please fill in all required fields.", "error");
+        return;
+      }
+
+      btnSaveProduct.disabled = true;
+      btnSaveText.textContent = currentLang === 'bn' ? "সংরক্ষণ করা হচ্ছে..." : "Saving...";
+
+      const targetId = formProductId.value;
+
+      try {
+        if (targetId) {
+          const productRef = ref(db, `products/${targetId}`);
+          await update(productRef, {
+            productName: name,
+            category: category,
+            unit: unit,
+            basePrice: basePrice,
+            stockQuantity: stockQuantity,
+            minOrderQuantity: minQty,
+            maxOrderQuantity: maxQty,
+            status: status,
+            imageUrl: imageUrl,
+            description: description,
+            updatedAt: serverTimestamp(),
+            updatedBy: currentUser.uid
+          });
+
+          showToast(currentLang === 'bn' ? "পণ্য সফলভাবে আপডেট হয়েছে!" : "Product updated successfully!", "success");
+        } else {
+          const productsListRef = ref(db, 'products');
+          const newProductRef = push(productsListRef);
+
+          await set(newProductRef, {
+            productId: newProductRef.key,
+            productName: name,
+            category: category,
+            unit: unit,
+            basePrice: basePrice,
+            stockQuantity: stockQuantity,
+            minOrderQuantity: minQty,
+            maxOrderQuantity: maxQty,
+            status: status,
+            imageUrl: imageUrl,
+            description: description,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+            createdBy: currentUser.uid,
+            updatedBy: currentUser.uid
+          });
+
+          showToast(currentLang === 'bn' ? "নতুন পণ্য সফলভাবে যোগ করা হয়েছে!" : "Product added successfully!", "success");
+        }
+
+        closeModal();
+
+      } catch (error) {
+        console.error("Save Error:", error);
+        showToast(error.message, "error");
+        btnSaveProduct.disabled = false;
+        btnSaveText.textContent = targetId ? i18n[currentLang].btn_update_prod : i18n[currentLang].btn_save_prod;
+      }
+    });
+
+    // Quick Status Toggle
+    window.toggleQuickStatus = async function(productId, currentStatus) {
+      let nextStatus = 'available';
+      if (currentStatus === 'available') nextStatus = 'out_of_stock';
+      else if (currentStatus === 'out_of_stock') nextStatus = 'available';
+      else if (currentStatus === 'hidden') nextStatus = 'available';
+
+      try {
+        const productRef = ref(db, `products/${productId}`);
+        await update(productRef, {
+          status: nextStatus,
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        });
+
+        showToast(currentLang === 'bn' ? `স্ট্যাটাস পরিবর্তিত হয়েছে: ${nextStatus}` : `Status updated to ${nextStatus}`, "success");
+      } catch (err) {
+        showToast(err.message, "error");
+      }
+    };
+
+    // Delete flow
+    window.promptDeleteProduct = function(productId, productName) {
+      pendingDeleteId = productId;
+      deleteTargetName.textContent = productName;
+      deleteConfirmModal.style.display = 'flex';
+    };
+
+    function closeDeleteModal() {
+      deleteConfirmModal.style.display = 'none';
+      pendingDeleteId = null;
+    }
+
+    [btnCloseDeleteModal, btnCancelDelete].forEach(b => b.addEventListener('click', closeDeleteModal));
+
+    btnConfirmDelete.addEventListener('click', async () => {
+      if (!pendingDeleteId) return;
+
+      btnConfirmDelete.disabled = true;
+      btnConfirmDelete.textContent = currentLang === 'bn' ? "ডিলিট হচ্ছে..." : "Deleting...";
+
+      try {
+        const productRef = ref(db, `products/${pendingDeleteId}`);
+        await remove(productRef);
+
+        showToast(currentLang === 'bn' ? "পণ্যটি স্থায়ীভাবে মুছে ফেলা হয়েছে।" : "Product deleted permanently.", "success");
+        closeDeleteModal();
+      } catch (err) {
+        showToast(err.message, "error");
+      } finally {
+        btnConfirmDelete.disabled = false;
+        btnConfirmDelete.textContent = i18n[currentLang].btn_del_confirm;
+      }
+    });
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Initialize Default Language on Boot
+    setLanguage(currentLang);
+  </script>
+</body>
+</html>

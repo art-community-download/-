@@ -1,0 +1,1930 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stock Management | Poultry Shop Panel</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================
+       CSS RESET & DESIGN TOKENS (BLACK & GOLD OBSIDIAN)
+       ========================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-body: #07080b;
+      --bg-sidebar: #0d0f15;
+      --bg-card: rgba(18, 20, 28, 0.78);
+      --bg-card-hover: rgba(26, 29, 40, 0.88);
+      --border-gold: rgba(212, 175, 55, 0.22);
+      --border-gold-bright: rgba(212, 175, 55, 0.6);
+      --gold-primary: #d4af37;
+      --gold-light: #f5d77f;
+      --gold-dark: #997519;
+      --gold-gradient: linear-gradient(135deg, #f7df87 0%, #d4af37 50%, #997519 100%);
+      --text-main: #f3f4f6;
+      --text-muted: #94a3b8;
+      --text-dark: #07080b;
+
+      --status-available: #10b981;
+      --status-outofstock: #ef4444;
+      --status-warning: #f59e0b;
+      --status-info: #3b82f6;
+
+      --sidebar-width: 260px;
+      --header-height: 75px;
+      --gold-glow: 0 0 25px rgba(212, 175, 55, 0.2);
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #08090d; }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 4px; }
+
+    .ambient-glow {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      filter: blur(140px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.12;
+      background: radial-gradient(circle, var(--gold-primary), transparent 70%);
+      top: -80px;
+      right: -80px;
+    }
+
+    /* ==========================================================
+       SIDEBAR NAVIGATION (EXACT 14 ADMIN LINKS)
+       ========================================================== */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-gold);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-brand {
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 22px;
+      border-bottom: 1px solid var(--border-gold);
+      flex-shrink: 0;
+    }
+
+    .brand-logo-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 30% 30%, #2a251b, #111216);
+      border: 1.5px solid var(--gold-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--gold-glow);
+    }
+
+    .brand-logo-badge svg { width: 22px; height: 22px; stroke: var(--gold-primary); }
+
+    .brand-text h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.08rem;
+      font-weight: 700;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-text span {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .sidebar-user {
+      padding: 14px 18px;
+      margin: 14px 14px 6px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--gold-gradient);
+      color: #07080b;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .user-meta { flex: 1; overflow: hidden; }
+    .role-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+      text-transform: uppercase;
+      background: rgba(212, 175, 55, 0.2);
+      color: var(--gold-light);
+      border: 1px solid var(--border-gold);
+    }
+    .user-email {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 3px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px 24px;
+    }
+
+    .nav-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #64748b;
+      letter-spacing: 1.2px;
+      padding: 12px 14px 6px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.86rem;
+      font-weight: 500;
+      border-radius: 10px;
+      margin-bottom: 3px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link svg { width: 18px; height: 18px; stroke: currentColor; flex-shrink: 0; }
+
+    .nav-link:hover {
+      background: rgba(212, 175, 55, 0.08);
+      color: var(--gold-light);
+      transform: translateX(3px);
+    }
+
+    .nav-link.active {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+    }
+
+    .nav-link.active svg { stroke: var(--text-dark); }
+
+    .nav-link.logout-link {
+      color: #f87171;
+      margin-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 12px;
+    }
+    .nav-link.logout-link:hover {
+      background: rgba(239, 68, 68, 0.12);
+      color: #fca5a5;
+    }
+
+    /* ==========================================================
+       MAIN CONTENT WRAPPER
+       ========================================================== */
+    .main-wrapper {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+      z-index: 10;
+    }
+
+    .top-header {
+      height: var(--header-height);
+      background: rgba(13, 15, 21, 0.85);
+      backdrop-filter: blur(15px);
+      border-bottom: 1px solid var(--border-gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: 1px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .breadcrumbs a { color: var(--gold-light); text-decoration: none; }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-lang-toggle {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.25s ease;
+    }
+
+    .btn-lang-toggle:hover {
+      background: rgba(212, 175, 55, 0.15);
+      border-color: var(--gold-primary);
+    }
+
+    .content-area {
+      padding: 26px 30px 60px;
+      flex: 1;
+    }
+
+    /* ==========================================================
+       6 REALTIME STOCK STATISTICS CARDS
+       ========================================================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-gold);
+      border-radius: 16px;
+      padding: 18px 20px;
+      transition: all 0.25s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-gold-bright);
+      box-shadow: var(--gold-glow);
+    }
+
+    .stat-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .stat-title {
+      font-size: 0.76rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+    }
+
+    .stat-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      color: var(--gold-light);
+    }
+
+    .stat-icon svg { width: 18px; height: 18px; stroke: currentColor; }
+
+    .stat-value {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .stat-subtext {
+      font-size: 0.72rem;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    /* ==========================================================
+       TOOLBAR & FILTERS
+       ========================================================== */
+    .toolbar-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 18px;
+      padding: 16px 20px;
+      margin-bottom: 26px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 250px;
+      position: relative;
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 17px;
+      height: 17px;
+      stroke: var(--gold-primary);
+      opacity: 0.75;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 44px;
+      background: rgba(10, 11, 16, 0.75);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 0 16px 0 42px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+    }
+
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .filter-select {
+      height: 44px;
+      background: rgba(10, 11, 16, 0.75);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 0 14px;
+      color: #e2e8f0;
+      font-family: inherit;
+      font-size: 0.84rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .filter-select:focus { border-color: var(--gold-primary); }
+
+    .btn-clear {
+      height: 44px;
+      padding: 0 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-clear:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    /* ==========================================================
+       STOCK TABLE (DESKTOP) & CARDS (MOBILE)
+       ========================================================== */
+    .table-container {
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-gold);
+      border-radius: 20px;
+      overflow-x: auto;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      margin-bottom: 34px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      background: rgba(10, 11, 16, 0.95);
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--gold-light);
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border-gold);
+    }
+
+    td {
+      font-size: 0.86rem;
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #e2e8f0;
+      vertical-align: middle;
+    }
+
+    tr:hover td { background: rgba(212, 175, 55, 0.03); }
+
+    .product-meta-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 220px;
+    }
+
+    .table-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: #111216;
+      border: 1px solid var(--border-gold);
+    }
+
+    .product-info-text h4 { font-size: 0.92rem; color: #fff; font-weight: 600; }
+    .product-info-text span { font-size: 0.74rem; color: var(--text-muted); }
+
+    .stock-badge {
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    .stock-in { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .stock-low { background: rgba(245, 158, 11, 0.15); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .stock-out { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    .btn-action-stock {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      border: none;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+      transition: all 0.2s ease;
+    }
+
+    .btn-action-stock:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(212, 175, 55, 0.4);
+    }
+
+    /* ==========================================================
+       STOCK AUDIT HISTORY SECTION
+       ========================================================== */
+    .section-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 20px;
+      padding: 24px;
+      margin-top: 10px;
+    }
+
+    .section-header-flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .section-header-flex h3 { font-size: 1.1rem; color: #fff; font-weight: 700; }
+    .section-header-flex p { font-size: 0.78rem; color: var(--text-muted); }
+
+    .history-type-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .type-add { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .type-remove { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .type-set { background: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
+
+    /* ==========================================================
+       MODAL: UPDATE STOCK
+       ========================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .modal-dialog {
+      background: #0d0f15;
+      border: 1px solid var(--border-gold);
+      border-radius: 22px;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), var(--gold-glow);
+      animation: modalScaleUp 0.25s ease-out;
+      overflow: hidden;
+      margin: auto;
+    }
+
+    @keyframes modalScaleUp {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.15rem;
+      color: var(--gold-light);
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.4rem;
+      line-height: 1;
+    }
+
+    .modal-body {
+      padding: 24px;
+      max-height: calc(85vh - 140px);
+      overflow-y: auto;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #e2e8f0;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      background: #08090d;
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+    }
+
+    /* Calculation Preview Box */
+    .calc-preview-box {
+      background: rgba(212, 175, 55, 0.08);
+      border: 1px dashed var(--border-gold);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .calc-preview-label { font-size: 0.8rem; color: var(--text-muted); }
+    .calc-preview-val { font-size: 1.25rem; font-weight: 700; color: var(--gold-light); }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-modal {
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-modal-cancel {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-gold);
+      color: #e2e8f0;
+    }
+
+    .btn-modal-save {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    }
+
+    .btn-modal-save:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Toast Container */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1100;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: #141720;
+      border: 1px solid var(--border-gold);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      animation: toastSlideIn 0.3s ease-out;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.success { border-color: var(--status-available); color: #6ee7b7; }
+    .toast.error { border-color: var(--status-outofstock); color: #fca5a5; }
+
+    @keyframes toastSlideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-left: 0; }
+      .menu-toggle { display: block; }
+      .content-area { padding: 20px 16px; }
+      .top-header { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+
+  <!-- ==========================================================
+       SIDEBAR NAVIGATION (ALL 14 WORKING ADMIN LINKS)
+       ========================================================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2C8.5 2 6 4.5 6 8c0 2 .8 3.8 2.2 5.1L5 22h14l-3.2-8.9C17.2 11.8 18 10 18 8c0-3.5-2.5-6-6-6z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h2>POULTRY ERP</h2>
+        <span data-i18n="shop_mgmt">Admin + Shopkeeper Panel</span>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="userAvatar">A</div>
+      <div class="user-meta">
+        <span class="role-badge" id="userRoleBadge">CHECKING...</span>
+        <div class="user-email" id="userEmail">Loading user...</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label" data-i18n="grp_main">Core Operations</div>
+      
+      <!-- 1. Dashboard -->
+      <a href="admin-dashboard.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span data-i18n="m_dashboard">Dashboard</span>
+      </a>
+
+      <!-- 2. Orders -->
+      <a href="admin-orders.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span data-i18n="m_orders">Orders</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_catalog">Catalog & Pricing</div>
+
+      <!-- 3. Products -->
+      <a href="admin-products.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+        <span data-i18n="m_products">Products</span>
+      </a>
+
+      <!-- 4. Prices -->
+      <a href="admin-prices.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span data-i18n="m_prices">Prices</span>
+      </a>
+
+      <!-- 5. Stock Management (ACTIVE) -->
+      <a href="admin-stock.html" class="nav-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        <span data-i18n="m_stock">Stock Management</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_crm">CRM & Staff</div>
+
+      <!-- 6. Customers -->
+      <a href="admin-customers.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span data-i18n="m_customers">Customers</span>
+      </a>
+
+      <!-- 7. Shop Management -->
+      <a href="admin-shopkeepers.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span data-i18n="m_shopkeepers">Shop Management</span>
+      </a>
+
+      <!-- 8. Referral Codes -->
+      <a href="admin-referrals.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span data-i18n="m_referrals">Referral Codes</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_config">Store Setup & Reports</div>
+
+      <!-- 9. Delivery Settings -->
+      <a href="admin-delivery.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <span data-i18n="m_delivery">Delivery Settings</span>
+      </a>
+
+      <!-- 10. Reports -->
+      <a href="admin-reports.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span data-i18n="m_reports">Reports</span>
+      </a>
+
+      <!-- 11. Shop Settings -->
+      <a href="admin-settings.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span data-i18n="m_settings">Shop Settings</span>
+      </a>
+
+      <!-- 12. Reviews -->
+      <a href="admin-reviews.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span data-i18n="m_reviews">Reviews</span>
+      </a>
+
+      <!-- 13. Customer Requests -->
+      <a href="admin-requests.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+        <span data-i18n="m_requests">Customer Requests</span>
+      </a>
+
+      <!-- 14. Logout Action -->
+      <a href="javascript:void(0)" class="nav-link logout-link" id="btnLogout">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span data-i18n="m_logout">Logout</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ==========================================================
+       MAIN CONTENT WRAPPER
+       ========================================================== -->
+  <div class="main-wrapper">
+
+    <!-- Top Consistent Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <button class="menu-toggle" id="menuToggleBtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div>
+          <div class="breadcrumbs">
+            <a href="admin-dashboard.html" data-i18n="bc_home">Home</a> / <span data-i18n="bc_stock">Stock Management</span>
+          </div>
+          <h1 style="font-size: 1.25rem; font-weight: 700; color: #fff;" data-i18n="header_title">Stock & Inventory Control</h1>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Language Switcher -->
+        <button class="btn-lang-toggle" id="btnLangToggle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="langButtonText">English</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="content-area">
+
+      <!-- 6 Realtime Stock Statistics -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_total">Total Products</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg></div>
+          </div>
+          <div class="stat-value" id="statTotalProducts">0</div>
+          <div class="stat-subtext" data-i18n="st_total_sub">All products registered</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_available">Available</span>
+            <div class="stat-icon" style="color: var(--status-available); border-color: rgba(16,185,129,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+          </div>
+          <div class="stat-value" id="statAvailableProducts" style="color: var(--status-available);">0</div>
+          <div class="stat-subtext" data-i18n="st_available_sub">Active in store</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_outofstock">Out of Stock</span>
+            <div class="stat-icon" style="color: var(--status-outofstock); border-color: rgba(239,68,68,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
+          </div>
+          <div class="stat-value" id="statOutOfStockProducts" style="color: var(--status-outofstock);">0</div>
+          <div class="stat-subtext" data-i18n="st_outofstock_sub">Immediate restock needed</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_lowstock">Low Stock Alerts</span>
+            <div class="stat-icon" style="color: var(--status-warning); border-color: rgba(245,158,11,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+          </div>
+          <div class="stat-value" id="statLowStockProducts" style="color: var(--status-warning);">0</div>
+          <div class="stat-subtext" data-i18n="st_lowstock_sub">Stock below alert limit</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_total_units">Total Units (Stock)</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+          </div>
+          <div class="stat-value" id="statTotalStockUnits" style="color: var(--gold-light);">0</div>
+          <div class="stat-subtext" data-i18n="st_total_units_sub">Combined KG & pieces</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_recent_updates">Updated (24h)</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          </div>
+          <div class="stat-value" id="statRecentlyUpdated">0</div>
+          <div class="stat-subtext" data-i18n="st_recent_updates_sub">Recent inventory edits</div>
+        </div>
+      </section>
+
+      <!-- Toolbar & Filters -->
+      <section class="toolbar-panel">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" class="search-input" data-i18n-ph="search_placeholder" placeholder="Search by product name..." />
+        </div>
+
+        <div class="filter-group">
+          <!-- Category Filter -->
+          <select id="filterCategory" class="filter-select">
+            <option value="all" data-i18n="cat_all">All Categories</option>
+            <option value="Broiler Chicken" data-i18n="cat_broiler">Broiler Chicken</option>
+            <option value="Sonali Chicken" data-i18n="cat_sonali">Sonali Chicken</option>
+            <option value="Deshi Chicken" data-i18n="cat_deshi">Deshi Chicken</option>
+            <option value="Layer Chicken" data-i18n="cat_layer">Layer Chicken</option>
+            <option value="Whole Chicken" data-i18n="cat_whole">Whole Chicken</option>
+            <option value="Chicken Leg Pieces" data-i18n="cat_leg">Chicken Leg Pieces</option>
+            <option value="Chicken Wings" data-i18n="cat_wings">Chicken Wings</option>
+            <option value="Boneless Chicken" data-i18n="cat_boneless">Boneless Chicken</option>
+            <option value="Mixed Chicken Cuts" data-i18n="cat_mixed">Mixed Chicken Cuts</option>
+            <option value="Duck" data-i18n="cat_duck">Duck</option>
+            <option value="Duck Meat" data-i18n="cat_duck_meat">Duck Meat</option>
+            <option value="Duck Cuts" data-i18n="cat_duck_cuts">Duck Cuts</option>
+            <option value="Other Poultry Products" data-i18n="cat_other">Other Poultry Products</option>
+          </select>
+
+          <!-- Unit Filter -->
+          <select id="filterUnit" class="filter-select">
+            <option value="all" data-i18n="filter_unit_all">All Units</option>
+            <option value="KG">KG (Kilogram)</option>
+            <option value="Piece">Piece (পিস)</option>
+          </select>
+
+          <!-- Status Filter -->
+          <select id="filterStockStatus" class="filter-select">
+            <option value="all" data-i18n="filter_status_all">All Stock Status</option>
+            <option value="available" data-i18n="status_available">Available</option>
+            <option value="low" data-i18n="status_low">Low Stock (Alert)</option>
+            <option value="out_of_stock" data-i18n="status_out">Out of Stock</option>
+            <option value="hidden" data-i18n="status_hidden">Hidden</option>
+          </select>
+
+          <!-- Sort -->
+          <select id="filterSort" class="filter-select">
+            <option value="lowest" data-i18n="sort_lowest">Stock: Lowest First</option>
+            <option value="highest" data-i18n="sort_highest">Stock: Highest First</option>
+            <option value="name_asc" data-i18n="sort_name_asc">Name: A to Z</option>
+          </select>
+
+          <button class="btn-clear" id="btnClearFilters" title="Reset Filters">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <span data-i18n="btn_reset">Reset</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Live Stock Table -->
+      <section class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="th_product">Product</th>
+              <th data-i18n="th_unit">Unit</th>
+              <th data-i18n="th_current_stock">Current Stock</th>
+              <th data-i18n="th_min_alert">Min Stock Alert</th>
+              <th data-i18n="th_status">Status</th>
+              <th data-i18n="th_last_updated">Last Updated</th>
+              <th data-i18n="th_action">Action</th>
+            </tr>
+          </thead>
+          <tbody id="stockTableBody">
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 30px; color: var(--text-muted);">Loading real-time product stock...</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Stock Change Audit History Section -->
+      <section class="section-card">
+        <div class="section-header-flex">
+          <div>
+            <h3 data-i18n="history_title">Stock Change Audit History</h3>
+            <p data-i18n="history_sub">Immutable audit log of all manual stock adjustments and corrections</p>
+          </div>
+        </div>
+
+        <div class="table-container" style="box-shadow: none; margin-bottom: 0;">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="th_hist_product">Product</th>
+                <th data-i18n="th_hist_change">Change</th>
+                <th data-i18n="th_hist_prev">Previous</th>
+                <th data-i18n="th_hist_new">New Stock</th>
+                <th data-i18n="th_hist_reason">Reason</th>
+                <th data-i18n="th_hist_user">Updated By</th>
+                <th data-i18n="th_hist_time">Date & Time</th>
+              </tr>
+            </thead>
+            <tbody id="stockHistoryBody">
+              <tr>
+                <td colspan="7" style="text-align: center; padding: 24px; color: var(--text-muted);">Loading stock audit logs...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ==========================================================
+       MODAL: UPDATE STOCK
+       ========================================================== -->
+  <div class="modal-backdrop" id="updateStockModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" data-i18n="modal_update_title">Adjust Inventory Stock</h3>
+        <button class="modal-close" id="btnCloseStockModal">&times;</button>
+      </div>
+
+      <form id="updateStockForm" autocomplete="off">
+        <div class="modal-body">
+          <input type="hidden" id="stockProductId" />
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="modal_prod_name">Product Name (Read-only)</label>
+            <input type="text" id="modalProductName" class="form-input" readonly style="opacity: 0.8; background: #11131a;" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="modal_current_stock">Current Available Stock</label>
+            <input type="text" id="modalCurrentStock" class="form-input" readonly style="color: var(--gold-light); font-weight: 700; background: #11131a;" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="modal_update_type">Stock Adjustment Type *</label>
+            <select id="stockUpdateType" class="form-select" required>
+              <option value="add" data-i18n="type_opt_add">Add Stock (+)</option>
+              <option value="remove" data-i18n="type_opt_remove">Remove Stock (-)</option>
+              <option value="set" data-i18n="type_opt_set">Set Exact Stock Quantity (=)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="modal_quantity">Quantity *</label>
+            <input type="number" step="any" min="0.01" id="stockQuantityInput" class="form-input" placeholder="e.g. 25" required />
+          </div>
+
+          <!-- Dynamic Live Calculation Preview -->
+          <div class="calc-preview-box">
+            <span class="calc-preview-label" data-i18n="modal_preview_label">Resulting Stock Level:</span>
+            <span class="calc-preview-val" id="calcNewStockPreview">0</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="modal_min_alert">Low Stock Alert Limit</label>
+            <input type="number" step="any" min="0" id="stockMinAlertInput" class="form-input" placeholder="e.g. 10" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="modal_reason">Reason for Adjustment *</label>
+            <input type="text" id="stockReasonInput" class="form-input" placeholder="e.g. Farm fresh batch received / Spoilage deduction" required />
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-modal btn-modal-cancel" id="btnCancelStockModal" data-i18n="btn_cancel">Cancel</button>
+          <button type="submit" class="btn-modal btn-modal-save" id="btnSaveStock">
+            <span data-i18n="btn_save_stock">Save Stock</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ==========================================================
+       MODULAR FIREBASE SDK (v10) & REALTIME SCRIPT
+       ========================================================== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      getDatabase, 
+      ref, 
+      onValue, 
+      push, 
+      set, 
+      update, 
+      serverTimestamp, 
+      get 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // 1. Firebase Configuration Placeholder (Matching Project)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDYPsjlOmRwH2F5P8fFoiirP1FLjgh3c8A",
+      authDomain: "murgi-dfd67.firebaseapp.com",
+      databaseURL: "https://murgi-dfd67-default-rtdb.firebaseio.com",
+      projectId: "murgi-dfd67",
+      storageBucket: "murgi-dfd67.firebasestorage.app",
+      messagingSenderId: "209696889864",
+      appId: "1:209696889864:web:3eaa16034f00cca45505bd"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // ==========================================================
+    // MULTI-LANGUAGE TRANSLATION DICTIONARY (EN & BN)
+    // ==========================================================
+    const i18n = {
+      en: {
+        shop_mgmt: "Admin + Shopkeeper Panel",
+        grp_main: "Core Operations",
+        m_dashboard: "Dashboard",
+        m_orders: "Orders",
+        grp_catalog: "Catalog & Pricing",
+        m_products: "Products",
+        m_prices: "Prices",
+        m_stock: "Stock Management",
+        grp_crm: "CRM & Staff",
+        m_customers: "Customers",
+        m_shopkeepers: "Shop Management",
+        m_referrals: "Referral Codes",
+        grp_config: "Store Setup & Reports",
+        m_delivery: "Delivery Settings",
+        m_reports: "Reports",
+        m_settings: "Shop Settings",
+        m_reviews: "Reviews",
+        m_requests: "Customer Requests",
+        m_logout: "Logout",
+        bc_home: "Home",
+        bc_stock: "Stock Management",
+        header_title: "Stock & Inventory Control",
+        st_total: "Total Products",
+        st_total_sub: "All products registered",
+        st_available: "Available",
+        st_available_sub: "Active in store",
+        st_outofstock: "Out of Stock",
+        st_outofstock_sub: "Immediate restock needed",
+        st_lowstock: "Low Stock Alerts",
+        st_lowstock_sub: "Stock below alert limit",
+        st_total_units: "Total Units (Stock)",
+        st_total_units_sub: "Combined KG & pieces",
+        st_recent_updates: "Updated (24h)",
+        st_recent_updates_sub: "Recent inventory edits",
+        search_placeholder: "Search by product name...",
+        cat_all: "All Categories",
+        cat_broiler: "Broiler Chicken",
+        cat_sonali: "Sonali Chicken",
+        cat_deshi: "Deshi Chicken",
+        cat_layer: "Layer Chicken",
+        cat_whole: "Whole Chicken",
+        cat_leg: "Chicken Leg Pieces",
+        cat_wings: "Chicken Wings",
+        cat_boneless: "Boneless Chicken",
+        cat_mixed: "Mixed Chicken Cuts",
+        cat_duck: "Duck",
+        cat_duck_meat: "Duck Meat",
+        cat_duck_cuts: "Duck Cuts",
+        cat_other: "Other Poultry Products",
+        filter_unit_all: "All Units",
+        filter_status_all: "All Stock Status",
+        status_available: "Available",
+        status_low: "Low Stock (Alert)",
+        status_out: "Out of Stock",
+        status_hidden: "Hidden",
+        sort_lowest: "Stock: Lowest First",
+        sort_highest: "Stock: Highest First",
+        sort_name_asc: "Name: A to Z",
+        btn_reset: "Reset",
+        th_product: "Product",
+        th_unit: "Unit",
+        th_current_stock: "Current Stock",
+        th_min_alert: "Min Stock Alert",
+        th_status: "Status",
+        th_last_updated: "Last Updated",
+        th_action: "Action",
+        btn_update_stock: "Update Stock",
+        history_title: "Stock Change Audit History",
+        history_sub: "Immutable audit log of all manual stock adjustments and corrections",
+        th_hist_product: "Product",
+        th_hist_change: "Change",
+        th_hist_prev: "Previous",
+        th_hist_new: "New Stock",
+        th_hist_reason: "Reason",
+        th_hist_user: "Updated By",
+        th_hist_time: "Date & Time",
+        modal_update_title: "Adjust Inventory Stock",
+        modal_prod_name: "Product Name (Read-only)",
+        modal_current_stock: "Current Available Stock",
+        modal_update_type: "Stock Adjustment Type *",
+        type_opt_add: "Add Stock (+)",
+        type_opt_remove: "Remove Stock (-)",
+        type_opt_set: "Set Exact Stock Quantity (=)",
+        modal_quantity: "Quantity *",
+        modal_preview_label: "Resulting Stock Level:",
+        modal_min_alert: "Low Stock Alert Limit",
+        modal_reason: "Reason for Adjustment *",
+        btn_cancel: "Cancel",
+        btn_save_stock: "Save Stock",
+        lang_switch_to: "বাংলা",
+        negative_error: "Resulting stock cannot be negative!",
+        confirm_remove: "Are you sure you want to remove stock from this product?",
+        confirm_set: "Are you sure you want to overwrite the exact stock quantity?",
+        save_success: "Stock updated successfully!"
+      },
+      bn: {
+        shop_mgmt: "অ্যাডমিন ও শপকিপার প্যানেল",
+        grp_main: "প্রধান কার্যক্রম",
+        m_dashboard: "ড্যাশবোর্ড",
+        m_orders: "অর্ডারসমূহ",
+        grp_catalog: "পণ্য ও মূল্যতালিকা",
+        m_products: "পণ্য ক্যাটালগ",
+        m_prices: "ক্যাটাগরি মূল্য",
+        m_stock: "স্টক ম্যানেজমেন্ট",
+        grp_crm: "গ্রাহক ও কর্মী",
+        m_customers: "গ্রাহকবৃন্দ",
+        m_shopkeepers: "দোকান পরিচালনা",
+        m_referrals: "রেফারেল কোড",
+        grp_config: "সেটআপ ও রিপোর্ট",
+        m_delivery: "ডেলিভারি সেটিংস",
+        m_reports: "রিপোর্ট ও অ্যানালিটিক্স",
+        m_settings: "শপ সেটিংস",
+        m_reviews: "রিভিউ ও রেটিং",
+        m_requests: "গ্রাহক অনুরোধ",
+        m_logout: "লগআউট",
+        bc_home: "হোম",
+        bc_stock: "স্টক ম্যানেজমেন্ট",
+        header_title: "স্টক ও ইনভেন্টরি কন্ট্রোল",
+        st_total: "মোট পণ্য",
+        st_total_sub: "ক্যাটালগে নিবন্ধিত পণ্য",
+        st_available: "উপলব্ধ পণ্য",
+        st_available_sub: "গ্রাহক অ্যাপে সক্রিয়",
+        st_outofstock: "স্টক শেষ",
+        st_outofstock_sub: "দ্রুত রিফিল প্রয়োজন",
+        st_lowstock: "লো স্টক অ্যালার্ট",
+        st_lowstock_sub: "সতর্কবার্তা সীমার নিচে",
+        st_total_units: "মোট একক (মজুদ)",
+        st_total_units_sub: "কেজি ও পিস মিলিয়ে মোট",
+        st_recent_updates: "আপডেট (২৪ ঘণ্টা)",
+        st_recent_updates_sub: "সাম্প্রতিক স্টক এন্ট্রি",
+        search_placeholder: "পণ্যের নাম দিয়ে খুঁজুন...",
+        cat_all: "সকল ক্যাটাগরি",
+        cat_broiler: "ব্রয়লার মুরগি",
+        cat_sonali: "সোনালী মুরগি",
+        cat_deshi: "দেশি মুরগি",
+        cat_layer: "লেয়ার মুরগি",
+        cat_whole: "আস্ত মুরগি (Whole)",
+        cat_leg: "মুরগির রান / লেগ পিস",
+        cat_wings: "মুরগির পাখা (Wings)",
+        cat_boneless: "হাড় ছাড়া মাংস (Boneless)",
+        cat_mixed: "মিক্সড কাট মাংস",
+        cat_duck: "হাঁস (জীবন্ত)",
+        cat_duck_meat: "হাঁসের মাংস",
+        cat_duck_cuts: "হাঁসের মাংসের কাট",
+        cat_other: "অন্যান্য পোল্ট্রি পণ্য",
+        filter_unit_all: "সকল পরিমাপক একক",
+        filter_status_all: "সকল স্টক অবস্থা",
+        status_available: "উপলব্ধ (Available)",
+        status_low: "লো স্টক (Low Stock)",
+        status_out: "স্টক শেষ (Out of Stock)",
+        status_hidden: "লুকানো (Hidden)",
+        sort_lowest: "স্টক: সর্বনিম্ন আগে",
+        sort_highest: "স্টক: সর্বোচ্চ আগে",
+        sort_name_asc: "নাম: A থেকে Z",
+        btn_reset: "রিসেট",
+        th_product: "পণ্য",
+        th_unit: "একক",
+        th_current_stock: "বর্তমান স্টক",
+        th_min_alert: "অ্যালার্ট সীমা",
+        th_status: "স্ট্যাটাস",
+        th_last_updated: "সর্বশেষ আপডেট",
+        th_action: "অ্যাকশন",
+        btn_update_stock: "স্টক আপডেট",
+        history_title: "স্টক পরিবর্তনের অডিট হিস্ট্রি",
+        history_sub: "সকল স্টক হ্রাস-বৃদ্ধি ও সমন্বয়ের নিরাপদ রেকর্ড",
+        th_hist_product: "পণ্য",
+        th_hist_change: "পরিবর্তন",
+        th_hist_prev: "পূর্ববর্তী",
+        th_hist_new: "নতুন স্টক",
+        th_hist_reason: "কারণ",
+        th_hist_user: "আপডেটকারী",
+        th_hist_time: "তারিখ ও সময়",
+        modal_update_title: "পণ্যের স্টক সমন্বয় করুন",
+        modal_prod_name: "পণ্যের নাম (অপরিবর্তনযোগ্য)",
+        modal_current_stock: "বর্তমানে মজুত স্টক",
+        modal_update_type: "সমন্বয়ের ধরন *",
+        type_opt_add: "স্টক যোগ করুন (+)",
+        type_opt_remove: "স্টক কমান (-)",
+        type_opt_set: "সরাসরি পরিমাণ নির্ধারণ করুন (=)",
+        modal_quantity: "পরিমাণ *",
+        modal_preview_label: "ফলাফল পরবর্তী মোট স্টক:",
+        modal_min_alert: "লো স্টক অ্যালার্ট সীমা",
+        modal_reason: "স্টক পরিবর্তনের কারণ *",
+        btn_cancel: "বাতিল",
+        btn_save_stock: "স্টক সংরক্ষণ করুন",
+        lang_switch_to: "English",
+        negative_error: "স্টক কখনো ঋণাত্মক (শূন্যের নিচে) হতে পারে না!",
+        confirm_remove: "আপনি কি নিশ্চিতভাবে এই পণ্য থেকে স্টক কমাতে চান?",
+        confirm_set: "আপনি কি নিশ্চিতভাবে সরাসরি স্টক সংখ্যা নির্ধারণ করতে চান?",
+        save_success: "স্টক সফলভাবে আপডেট করা হয়েছে!"
+      }
+    };
+
+    let currentLang = localStorage.getItem('poultry_admin_lang') || 'bn';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('poultry_admin_lang', lang);
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang][key]) el.textContent = i18n[lang][key];
+      });
+
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const key = el.getAttribute('data-i18n-ph');
+        if (i18n[lang][key]) el.placeholder = i18n[lang][key];
+      });
+
+      document.getElementById('langButtonText').textContent = i18n[lang].lang_switch_to;
+      renderStockTable();
+      renderStockHistory();
+    }
+
+    document.getElementById('btnLangToggle').addEventListener('click', () => {
+      setLanguage(currentLang === 'en' ? 'bn' : 'en');
+    });
+
+    // App State
+    let currentUser = null;
+    let currentUserRole = null;
+    let allProducts = [];
+    let allStockHistory = [];
+    let selectedProductForStock = null;
+
+    // DOM Elements
+    const statTotal = document.getElementById('statTotalProducts');
+    const statAvailable = document.getElementById('statAvailableProducts');
+    const statOutOfStock = document.getElementById('statOutOfStockProducts');
+    const statLowStock = document.getElementById('statLowStockProducts');
+    const statTotalStockUnits = document.getElementById('statTotalStockUnits');
+    const statRecentlyUpdated = document.getElementById('statRecentlyUpdated');
+
+    const searchInput = document.getElementById('searchInput');
+    const filterCategory = document.getElementById('filterCategory');
+    const filterUnit = document.getElementById('filterUnit');
+    const filterStockStatus = document.getElementById('filterStockStatus');
+    const filterSort = document.getElementById('filterSort');
+    const btnClearFilters = document.getElementById('btnClearFilters');
+
+    const stockTableBody = document.getElementById('stockTableBody');
+    const stockHistoryBody = document.getElementById('stockHistoryBody');
+
+    // Modal DOM
+    const updateStockModal = document.getElementById('updateStockModal');
+    const btnCloseStockModal = document.getElementById('btnCloseStockModal');
+    const btnCancelStockModal = document.getElementById('btnCancelStockModal');
+    const updateStockForm = document.getElementById('updateStockForm');
+    const stockProductId = document.getElementById('stockProductId');
+    const modalProductName = document.getElementById('modalProductName');
+    const modalCurrentStock = document.getElementById('modalCurrentStock');
+    const stockUpdateType = document.getElementById('stockUpdateType');
+    const stockQuantityInput = document.getElementById('stockQuantityInput');
+    const calcNewStockPreview = document.getElementById('calcNewStockPreview');
+    const stockMinAlertInput = document.getElementById('stockMinAlertInput');
+    const stockReasonInput = document.getElementById('stockReasonInput');
+    const btnSaveStock = document.getElementById('btnSaveStock');
+
+    // Toast
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // ==========================================================
+    // AUTHENTICATION GUARD
+    // ==========================================================
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.replace('admin-login.html');
+        return;
+      }
+
+      currentUser = user;
+      document.getElementById('userEmail').textContent = user.email;
+      document.getElementById('userAvatar').textContent = (user.email.charAt(0) || 'A').toUpperCase();
+
+      try {
+        const roleRef = ref(db, `users/${user.uid}/role`);
+        const snapshot = await get(roleRef);
+        const role = snapshot.val();
+
+        if (!role) {
+          showToast("অননুমোদিত অ্যাকাউন্ট!", "error");
+          await signOut(auth);
+          window.location.replace('admin-login.html');
+          return;
+        }
+
+        const normalizedRole = role.toString().toLowerCase().trim();
+        if (normalizedRole !== 'admin' && normalizedRole !== 'shopkeeper') {
+          showToast("অননুমোদিত রোল!", "error");
+          await signOut(auth);
+          window.location.replace('admin-login.html');
+          return;
+        }
+
+        currentUserRole = normalizedRole;
+        document.getElementById('userRoleBadge').textContent = normalizedRole.toUpperCase();
+
+        listenToStockRealtime();
+        listenToStockHistoryRealtime();
+
+      } catch (err) {
+        console.error("Auth Guard Error:", err);
+      }
+    });
+
+    document.getElementById('btnLogout').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.replace('admin-login.html');
+    });
+
+    const menuToggleBtn = document.getElementById('menuToggleBtn');
+    const sidebar = document.getElementById('sidebar');
+    menuToggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+
+    // ==========================================================
+    // REALTIME LISTENERS: PRODUCTS & STOCK
+    // ==========================================================
+    function listenToStockRealtime() {
+      const productsRef = ref(db, 'products');
+
+      onValue(productsRef, (snapshot) => {
+        allProducts = [];
+        let totalCount = 0;
+        let availableCount = 0;
+        let outOfStockCount = 0;
+        let lowStockCount = 0;
+        let totalUnits = 0;
+        let recentUpdatesCount = 0;
+
+        const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
+
+        snapshot.forEach((childSnap) => {
+          const item = childSnap.val();
+          item.productId = childSnap.key;
+          allProducts.push(item);
+          totalCount++;
+
+          const stock = Number(item.stockQuantity ?? 0);
+          const minAlert = Number(item.minStockAlert ?? 5);
+          const st = (item.status || 'available').toLowerCase();
+          const updatedTime = item.updatedAt ? new Date(item.updatedAt).getTime() : 0;
+
+          totalUnits += stock;
+
+          if (st === 'out_of_stock' || stock <= 0) {
+            outOfStockCount++;
+          } else if (st === 'available') {
+            availableCount++;
+          }
+
+          if (stock > 0 && stock <= minAlert) {
+            lowStockCount++;
+          }
+
+          if (updatedTime >= oneDayAgo) {
+            recentUpdatesCount++;
+          }
+        });
+
+        statTotal.textContent = totalCount;
+        statAvailable.textContent = availableCount;
+        statOutOfStock.textContent = outOfStockCount;
+        statLowStock.textContent = lowStockCount;
+        statTotalStockUnits.textContent = totalUnits.toLocaleString('en-IN');
+        statRecentlyUpdated.textContent = recentUpdatesCount;
+
+        renderStockTable();
+      }, (error) => {
+        console.error(error);
+        showToast("Error syncing stock: " + error.message, "error");
+      });
+    }
+
+    function listenToStockHistoryRealtime() {
+      const historyRef = ref(db, 'stockHistory');
+
+      onValue(historyRef, (snapshot) => {
+        allStockHistory = [];
+        snapshot.forEach(childSnap => {
+          const entry = childSnap.val();
+          entry.historyId = childSnap.key;
+          allStockHistory.push(entry);
+        });
+
+        // Sort latest first
+        allStockHistory.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        renderStockHistory();
+      });
+    }
+
+    // ==========================================================
+    // FILTER & TABLE RENDER
+    // ==========================================================
+    [searchInput, filterCategory, filterUnit, filterStockStatus, filterSort].forEach(el => {
+      el.addEventListener('input', renderStockTable);
+      el.addEventListener('change', renderStockTable);
+    });
+
+    btnClearFilters.addEventListener('click', () => {
+      searchInput.value = '';
+      filterCategory.value = 'all';
+      filterUnit.value = 'all';
+      filterStockStatus.value = 'all';
+      filterSort.value = 'lowest';
+      renderStockTable();
+    });
+
+    function renderStockTable() {
+      const q = searchInput.value.toLowerCase().trim();
+      const cat = filterCategory.value;
+      const unit = filterUnit.value;
+      const stFilter = filterStockStatus.value;
+      const sort = filterSort.value;
+      const t = i18n[currentLang];
+
+      let filtered = allProducts.filter(item => {
+        const name = (item.productName || '').toLowerCase();
+        const matchSearch = !q || name.includes(q);
+        const matchCat = (cat === 'all') || (item.category === cat);
+        const matchUnit = (unit === 'all') || (item.unit === unit);
+
+        const stock = Number(item.stockQuantity ?? 0);
+        const minAlert = Number(item.minStockAlert ?? 5);
+        const status = (item.status || 'available').toLowerCase();
+
+        let matchStatus = true;
+        if (stFilter === 'available') matchStatus = (status === 'available' && stock > 0);
+        else if (stFilter === 'low') matchStatus = (stock > 0 && stock <= minAlert);
+        else if (stFilter === 'out_of_stock') matchStatus = (stock <= 0 || status === 'out_of_stock');
+        else if (stFilter === 'hidden') matchStatus = (status === 'hidden');
+
+        return matchSearch && matchCat && matchUnit && matchStatus;
+      });
+
+      // Sorting
+      filtered.sort((a, b) => {
+        const stockA = Number(a.stockQuantity ?? 0);
+        const stockB = Number(b.stockQuantity ?? 0);
+        if (sort === 'lowest') return stockA - stockB;
+        if (sort === 'highest') return stockB - stockA;
+        if (sort === 'name_asc') return (a.productName || '').localeCompare(b.productName || '');
+        return 0;
+      });
+
+      if (!filtered || filtered.length === 0) {
+        stockTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px; color: var(--text-muted);">${t.st_total_sub}</td></tr>`;
+        return;
+      }
+
+      stockTableBody.innerHTML = filtered.map(p => {
+        const stock = Number(p.stockQuantity ?? 0);
+        const minAlert = Number(p.minStockAlert ?? 5);
+        const unitLabel = p.unit || 'KG';
+        const st = (p.status || 'available').toLowerCase();
+        const img = p.imageUrl || 'https://via.placeholder.com/60?text=No+Image';
+
+        let badgeClass = 'stock-in';
+        let statusText = t.status_available;
+
+        if (st === 'hidden') {
+          badgeClass = 'stock-out';
+          statusText = t.status_hidden;
+        } else if (stock <= 0 || st === 'out_of_stock') {
+          badgeClass = 'stock-out';
+          statusText = t.status_out;
+        } else if (stock <= minAlert) {
+          badgeClass = 'stock-low';
+          statusText = t.status_low;
+        }
+
+        let updateTimeStr = 'Recently';
+        if (p.updatedAt) {
+          const d = new Date(p.updatedAt);
+          updateTimeStr = !isNaN(d) ? d.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : p.updatedAt;
+        }
+
+        return `
+          <tr>
+            <td>
+              <div class="product-meta-cell">
+                <img src="${escapeHTML(img)}" class="table-thumb" alt="${escapeHTML(p.productName)}" onerror="this.src='https://via.placeholder.com/60?text=No+Image';"/>
+                <div class="product-info-text">
+                  <h4>${escapeHTML(p.productName)}</h4>
+                  <span>${escapeHTML(p.category || 'Poultry')}</span>
+                </div>
+              </div>
+            </td>
+            <td><strong>${escapeHTML(unitLabel)}</strong></td>
+            <td>
+              <span class="stock-badge ${badgeClass}">${stock} ${escapeHTML(unitLabel)}</span>
+            </td>
+            <td>
+              <span style="color: var(--text-muted);">${minAlert} ${escapeHTML(unitLabel)}</span>
+            </td>
+            <td>
+              <span style="font-size: 0.8rem; font-weight: 600;">${statusText}</span>
+            </td>
+            <td style="font-size: 0.78rem; color: var(--text-muted);">${updateTimeStr}</td>
+            <td>
+              <button class="btn-action-stock" onclick="openStockModal('${p.productId}')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                <span>${t.btn_update_stock}</span>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderStockHistory() {
+      const t = i18n[currentLang];
+      if (!allStockHistory || allStockHistory.length === 0) {
+        stockHistoryBody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 24px; color: var(--text-muted);">No stock adjustment records yet.</td></tr>`;
+        return;
+      }
+
+      stockHistoryBody.innerHTML = allStockHistory.slice(0, 15).map(h => {
+        let pillClass = 'type-add';
+        let changePrefix = '+';
+        if (h.updateType === 'remove') {
+          pillClass = 'type-remove';
+          changePrefix = '';
+        } else if (h.updateType === 'set') {
+          pillClass = 'type-set';
+          changePrefix = '=';
+        }
+
+        let timeStr = 'N/A';
+        if (h.timestamp) {
+          const d = new Date(h.timestamp);
+          timeStr = !isNaN(d) ? d.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+        }
+
+        return `
+          <tr>
+            <td><strong>${escapeHTML(h.productName || 'Product')}</strong></td>
+            <td>
+              <span class="history-type-pill ${pillClass}">
+                ${changePrefix}${h.changeQuantity} ${escapeHTML(h.unit || 'KG')}
+              </span>
+            </td>
+            <td style="color: var(--text-muted);">${h.previousStock} ${escapeHTML(h.unit || 'KG')}</td>
+            <td style="color: var(--gold-light); font-weight: 700;">${h.updatedStock} ${escapeHTML(h.unit || 'KG')}</td>
+            <td style="font-size: 0.8rem;">${escapeHTML(h.reason || 'Inventory sync')}</td>
+            <td style="font-size: 0.78rem; color: var(--text-muted);">${escapeHTML(h.updatedByEmail || h.updatedByRole || 'Admin')}</td>
+            <td style="font-size: 0.76rem; color: var(--text-muted);">${timeStr}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // ==========================================================
+    // MODAL CONTROL: ADJUST STOCK
+    // ==========================================================
+    window.openStockModal = function(productId) {
+      selectedProductForStock = allProducts.find(p => p.productId === productId);
+      if (!selectedProductForStock) return;
+
+      stockProductId.value = selectedProductForStock.productId;
+      modalProductName.value = selectedProductForStock.productName;
+      const currentStock = Number(selectedProductForStock.stockQuantity ?? 0);
+      modalCurrentStock.value = `${currentStock} ${selectedProductForStock.unit || 'KG'}`;
+      stockMinAlertInput.value = selectedProductForStock.minStockAlert ?? 5;
+      stockQuantityInput.value = '';
+      stockReasonInput.value = '';
+      stockUpdateType.value = 'add';
+
+      updateCalculationPreview();
+      updateStockModal.style.display = 'flex';
+    };
+
+    function closeStockModal() {
+      updateStockModal.style.display = 'none';
+      selectedProductForStock = null;
+      updateStockForm.reset();
+    }
+
+    [btnCloseStockModal, btnCancelStockModal].forEach(b => b.addEventListener('click', closeStockModal));
+
+    [stockUpdateType, stockQuantityInput].forEach(el => {
+      el.addEventListener('input', updateCalculationPreview);
+    });
+
+    function updateCalculationPreview() {
+      if (!selectedProductForStock) return;
+      const cur = Number(selectedProductForStock.stockQuantity ?? 0);
+      const qty = parseFloat(stockQuantityInput.value) || 0;
+      const type = stockUpdateType.value;
+      const unit = selectedProductForStock.unit || 'KG';
+
+      let result = cur;
+      if (type === 'add') result = cur + qty;
+      else if (type === 'remove') result = cur - qty;
+      else if (type === 'set') result = qty;
+
+      calcNewStockPreview.textContent = `${result.toFixed(2)} ${unit}`;
+      calcNewStockPreview.style.color = result < 0 ? 'var(--status-outofstock)' : 'var(--gold-light)';
+    }
+
+    // Form Submit: Save Stock & Write Audit Log
+    updateStockForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!selectedProductForStock) return;
+
+      const t = i18n[currentLang];
+      const curStock = Number(selectedProductForStock.stockQuantity ?? 0);
+      const qty = parseFloat(stockQuantityInput.value);
+      const type = stockUpdateType.value;
+      const reason = stockReasonInput.value.trim();
+      const minAlert = parseFloat(stockMinAlertInput.value) || 5;
+
+      if (isNaN(qty) || qty < 0) {
+        showToast("Please enter a valid quantity.", "error");
+        return;
+      }
+
+      let newStock = curStock;
+      if (type === 'add') newStock = curStock + qty;
+      else if (type === 'remove') newStock = curStock - qty;
+      else if (type === 'set') newStock = qty;
+
+      if (newStock < 0) {
+        showToast(t.negative_error, "error");
+        return;
+      }
+
+      // Confirmation before destructive remove or set
+      if (type === 'remove' && !confirm(t.confirm_remove)) return;
+      if (type === 'set' && !confirm(t.confirm_set)) return;
+
+      btnSaveStock.disabled = true;
+
+      try {
+        const prodId = selectedProductForStock.productId;
+        const currentProdStatus = selectedProductForStock.status || 'available';
+
+        // Auto update product status based on new stock level
+        let resultingStatus = currentProdStatus;
+        if (newStock <= 0) {
+          resultingStatus = 'out_of_stock';
+        } else if (newStock > 0 && currentProdStatus === 'out_of_stock') {
+          // Only restore to available if it wasn't manually marked 'hidden'
+          resultingStatus = 'available';
+        }
+
+        // 1. Update Product Node
+        const productRef = ref(db, `products/${prodId}`);
+        await update(productRef, {
+          stockQuantity: newStock,
+          minStockAlert: minAlert,
+          status: resultingStatus,
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        });
+
+        // 2. Append to Immutable Stock Audit History
+        const historyRef = ref(db, 'stockHistory');
+        const newHistoryRef = push(historyRef);
+
+        const changeQty = type === 'remove' ? -qty : (type === 'add' ? qty : (newStock - curStock));
+
+        await set(newHistoryRef, {
+          productId: prodId,
+          productName: selectedProductForStock.productName,
+          previousStock: curStock,
+          updatedStock: newStock,
+          changeQuantity: changeQty,
+          updateType: type,
+          reason: reason,
+          unit: selectedProductForStock.unit || 'KG',
+          updatedByUid: currentUser.uid,
+          updatedByEmail: currentUser.email,
+          updatedByRole: currentUserRole,
+          timestamp: serverTimestamp()
+        });
+
+        showToast(t.save_success, "success");
+        closeStockModal();
+
+      } catch (err) {
+        console.error("Stock save error:", err);
+        showToast("Error updating stock: " + err.message, "error");
+      } finally {
+        btnSaveStock.disabled = false;
+      }
+    });
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    setLanguage(currentLang);
+  </script>
+</body>
+</html>

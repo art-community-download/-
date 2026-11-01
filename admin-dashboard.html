@@ -3,24 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin & Shop Dashboard | Poultry Shop Management</title>
+  <title>Admin Dashboard | Poultry Shop Panel</title>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Chart.js for Analytics -->
+  <!-- Chart.js for Live Analytics -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- Firebase Compatibility SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <style>
     /* ==========================================================
-       CSS RESET & DESIGN SYSTEM (GOLDEN OBSIDIAN THEME)
+       CSS RESET & DESIGN TOKENS (BLACK & GOLD OBSIDIAN)
        ========================================================== */
     *, *::before, *::after {
       box-sizing: border-box;
@@ -31,24 +26,26 @@
     :root {
       --bg-body: #07080b;
       --bg-sidebar: #0d0f15;
-      --bg-card: rgba(18, 20, 28, 0.75);
-      --bg-card-hover: rgba(26, 29, 40, 0.85);
+      --bg-card: rgba(18, 20, 28, 0.78);
+      --bg-card-hover: rgba(26, 29, 40, 0.88);
       --border-gold: rgba(212, 175, 55, 0.22);
-      --border-gold-bright: rgba(212, 175, 55, 0.55);
+      --border-gold-bright: rgba(212, 175, 55, 0.6);
       --gold-primary: #d4af37;
       --gold-light: #f5d77f;
       --gold-dark: #997519;
       --gold-gradient: linear-gradient(135deg, #f7df87 0%, #d4af37 50%, #997519 100%);
       --text-main: #f3f4f6;
       --text-muted: #94a3b8;
-      --text-dark: #0d0f14;
-      --danger: #ef4444;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --info: #3b82f6;
-      --sidebar-width: 270px;
+      --text-dark: #07080b;
+
+      --status-available: #10b981;
+      --status-outofstock: #ef4444;
+      --status-warning: #f59e0b;
+      --status-info: #3b82f6;
+
+      --sidebar-width: 260px;
       --header-height: 75px;
-      --gold-glow: 0 0 25px rgba(212, 175, 55, 0.18);
+      --gold-glow: 0 0 25px rgba(212, 175, 55, 0.2);
     }
 
     body {
@@ -60,20 +57,12 @@
       overflow-x: hidden;
     }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #090a0f;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: var(--gold-dark);
-      border-radius: 4px;
-    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #08090d; }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 4px; }
 
-    /* Ambient Background Glow */
+    /* Ambient Glow */
     .ambient-glow {
       position: fixed;
       width: 500px;
@@ -84,12 +73,12 @@
       z-index: 0;
       opacity: 0.12;
       background: radial-gradient(circle, var(--gold-primary), transparent 70%);
-      top: -100px;
-      right: -100px;
+      top: -80px;
+      right: -80px;
     }
 
     /* ==========================================================
-       SIDEBAR NAVIGATION
+       SIDEBAR NAVIGATION (EXACT ADMIN HTML LINKS)
        ========================================================== */
     .sidebar {
       width: var(--sidebar-width);
@@ -102,7 +91,7 @@
       bottom: 0;
       left: 0;
       z-index: 100;
-      transition: transform 0.3s ease;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .sidebar-brand {
@@ -110,8 +99,9 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 0 24px;
+      padding: 0 22px;
       border-bottom: 1px solid var(--border-gold);
+      flex-shrink: 0;
     }
 
     .brand-logo-badge {
@@ -119,89 +109,70 @@
       height: 42px;
       border-radius: 12px;
       background: radial-gradient(circle at 30% 30%, #2a251b, #111216);
-      border: 1px solid var(--gold-primary);
+      border: 1.5px solid var(--gold-primary);
       display: flex;
       align-items: center;
       justify-content: center;
       box-shadow: var(--gold-glow);
     }
 
-    .brand-logo-badge svg {
-      width: 24px;
-      height: 24px;
-      stroke: var(--gold-primary);
-    }
+    .brand-logo-badge svg { width: 22px; height: 22px; stroke: var(--gold-primary); }
 
     .brand-text h2 {
       font-family: 'Cinzel', serif;
-      font-size: 1.1rem;
+      font-size: 1.08rem;
       font-weight: 700;
-      letter-spacing: 1.2px;
       background: var(--gold-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
     }
 
     .brand-text span {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
       letter-spacing: 0.8px;
       text-transform: uppercase;
     }
 
     .sidebar-user {
-      padding: 16px 20px;
-      margin: 14px 16px;
+      padding: 14px 18px;
+      margin: 14px 14px 6px;
       background: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(212, 175, 55, 0.15);
       border-radius: 14px;
       display: flex;
       align-items: center;
       gap: 12px;
+      flex-shrink: 0;
     }
 
     .user-avatar {
-      width: 40px;
-      height: 40px;
+      width: 38px;
+      height: 38px;
       border-radius: 10px;
       background: var(--gold-gradient);
-      color: #000;
+      color: #07080b;
       font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.1rem;
+      font-size: 1rem;
     }
 
-    .user-meta {
-      flex: 1;
-      overflow: hidden;
-    }
-
-    .user-meta .role-pill {
-      display: inline-block;
+    .user-meta { flex: 1; overflow: hidden; }
+    .role-badge {
       font-size: 0.68rem;
       font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 6px;
+      padding: 2px 7px;
+      border-radius: 5px;
       text-transform: uppercase;
-      letter-spacing: 0.8px;
-    }
-
-    .role-admin {
       background: rgba(212, 175, 55, 0.2);
       color: var(--gold-light);
       border: 1px solid var(--border-gold);
     }
-
-    .role-shopkeeper {
-      background: rgba(16, 185, 129, 0.2);
-      color: #6ee7b7;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    .user-meta .user-email {
-      font-size: 0.78rem;
+    .user-email {
+      font-size: 0.76rem;
       color: var(--text-muted);
       white-space: nowrap;
       overflow: hidden;
@@ -212,16 +183,16 @@
     .sidebar-nav {
       flex: 1;
       overflow-y: auto;
-      padding: 10px 14px 20px;
+      padding: 10px 12px 24px;
     }
 
     .nav-label {
       font-size: 0.68rem;
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
       color: #64748b;
       letter-spacing: 1.2px;
-      padding: 14px 12px 6px;
+      padding: 12px 14px 6px;
     }
 
     .nav-link {
@@ -231,49 +202,43 @@
       padding: 10px 14px;
       color: var(--text-muted);
       text-decoration: none;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       font-weight: 500;
       border-radius: 10px;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
       transition: all 0.2s ease;
     }
 
-    .nav-link svg {
-      width: 18px;
-      height: 18px;
-      stroke: currentColor;
-      transition: transform 0.2s ease;
-    }
+    .nav-link svg { width: 18px; height: 18px; stroke: currentColor; flex-shrink: 0; }
 
     .nav-link:hover {
       background: rgba(212, 175, 55, 0.08);
       color: var(--gold-light);
-      transform: translateX(4px);
+      transform: translateX(3px);
     }
 
     .nav-link.active {
       background: var(--gold-gradient);
-      color: #0b0c10;
+      color: var(--text-dark);
       font-weight: 600;
       box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
     }
 
-    .nav-link.active svg {
-      stroke: #0b0c10;
-    }
+    .nav-link.active svg { stroke: var(--text-dark); }
 
     .nav-link.logout-link {
       color: #f87171;
-      margin-top: 10px;
+      margin-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 12px;
     }
-
     .nav-link.logout-link:hover {
-      background: rgba(239, 68, 68, 0.1);
+      background: rgba(239, 68, 68, 0.12);
       color: #fca5a5;
     }
 
     /* ==========================================================
-       MAIN CONTENT WRAPPER
+       MAIN WRAPPER & TOP BAR (CONSISTENT HEADER)
        ========================================================== */
     .main-wrapper {
       margin-left: var(--sidebar-width);
@@ -285,10 +250,9 @@
       z-index: 10;
     }
 
-    /* Header */
     .top-header {
       height: var(--header-height);
-      background: rgba(13, 15, 21, 0.8);
+      background: rgba(13, 15, 21, 0.85);
       backdrop-filter: blur(15px);
       border-bottom: 1px solid var(--border-gold);
       display: flex;
@@ -316,173 +280,85 @@
       cursor: pointer;
     }
 
-    .page-title h1 {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: #fff;
-    }
-
-    .page-title p {
-      font-size: 0.78rem;
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
       color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .breadcrumbs a {
+      color: var(--gold-light);
+      text-decoration: none;
     }
 
-    .header-right {
+    .header-actions {
       display: flex;
       align-items: center;
-      gap: 18px;
+      gap: 12px;
     }
 
-    .shop-quick-status {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 14px;
-      border-radius: 30px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-gold);
-    }
-
-    .status-dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: var(--success);
-      box-shadow: 0 0 8px var(--success);
-    }
-
-    .status-text {
-      font-size: 0.8rem;
+    /* Language Switcher */
+    .btn-lang-toggle {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.84rem;
       font-weight: 600;
-      color: #e2e8f0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.25s ease;
+    }
+
+    .btn-lang-toggle:hover {
+      background: rgba(212, 175, 55, 0.15);
+      border-color: var(--gold-primary);
+    }
+
+    /* Notification Bell */
+    .btn-notification {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-gold);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold-light);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--status-outofstock);
+      box-shadow: 0 0 6px var(--status-outofstock);
     }
 
     /* Content Area */
     .content-area {
-      padding: 28px 30px 50px;
+      padding: 26px 30px 60px;
       flex: 1;
     }
 
-    /* Shop Info Hero Card */
-    .shop-profile-card {
-      background: var(--bg-card);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--border-gold);
-      border-radius: 20px;
-      padding: 24px 28px;
-      margin-bottom: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 20px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .shop-profile-card::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 150px;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.05));
-      pointer-events: none;
-    }
-
-    .shop-flex {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .shop-avatar {
-      width: 68px;
-      height: 68px;
-      border-radius: 18px;
-      background: #171923;
-      border: 1.5px solid var(--gold-primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      box-shadow: var(--gold-glow);
-    }
-
-    .shop-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .shop-avatar span {
-      font-family: 'Cinzel', serif;
-      font-size: 1.5rem;
-      color: var(--gold-light);
-      font-weight: 700;
-    }
-
-    .shop-details h2 {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .shop-meta-list {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      margin-top: 6px;
-      flex-wrap: wrap;
-    }
-
-    .shop-meta-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.84rem;
-      color: var(--text-muted);
-    }
-
-    .shop-meta-item svg {
-      width: 15px;
-      height: 15px;
-      stroke: var(--gold-primary);
-    }
-
-    .shop-action-btn {
-      padding: 10px 18px;
-      border-radius: 12px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(212, 175, 55, 0.12);
-      border: 1px solid var(--border-gold);
-      color: var(--gold-light);
-      transition: all 0.25s ease;
-    }
-
-    .shop-action-btn:hover {
-      background: var(--gold-gradient);
-      color: #0b0c10;
-      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-    }
-
     /* ==========================================================
-       STATS GRID
+       DASHBOARD STATISTICS GRID (9 REALTIME STATS)
        ========================================================== */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 18px;
+      gap: 16px;
       margin-bottom: 28px;
     }
 
@@ -490,74 +366,65 @@
       background: var(--bg-card);
       backdrop-filter: blur(14px);
       border: 1px solid var(--border-gold);
-      border-radius: 18px;
-      padding: 20px;
-      transition: all 0.3s ease;
+      border-radius: 16px;
+      padding: 18px 20px;
+      transition: all 0.25s ease;
       position: relative;
     }
 
     .stat-card:hover {
       transform: translateY(-3px);
       border-color: var(--border-gold-bright);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 15px rgba(212, 175, 55, 0.12);
+      box-shadow: var(--gold-glow);
     }
 
     .stat-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .stat-title {
-      font-size: 0.78rem;
-      font-weight: 500;
-      color: var(--text-muted);
+      font-size: 0.76rem;
+      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.6px;
+      color: var(--text-muted);
     }
 
     .stat-icon {
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
       border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
       background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.25);
       color: var(--gold-light);
-      border: 1px solid rgba(212, 175, 55, 0.2);
     }
 
-    .stat-icon svg {
-      width: 18px;
-      height: 18px;
-      stroke: currentColor;
-    }
+    .stat-icon svg { width: 18px; height: 18px; stroke: currentColor; }
 
     .stat-value {
-      font-size: 1.55rem;
+      font-size: 1.65rem;
       font-weight: 700;
       color: #fff;
-      letter-spacing: 0.5px;
-      display: flex;
-      align-items: baseline;
-      gap: 4px;
     }
 
-    .stat-foot {
-      margin-top: 8px;
-      font-size: 0.73rem;
+    .stat-subtext {
+      font-size: 0.72rem;
       color: #64748b;
+      margin-top: 4px;
     }
 
-    /* Skeleton Loading Animation */
+    /* Skeleton */
     .skeleton {
       background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
       background-size: 200% 100%;
       animation: skeletonShimmer 1.5s infinite;
       border-radius: 6px;
-      display: inline-block;
       color: transparent !important;
     }
 
@@ -647,11 +514,9 @@
     }
 
     .status-pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-    .status-accepted { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
     .status-completed { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-    .status-cancelled { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
 
-    /* Low Stock List */
+    /* Stock List */
     .stock-item {
       display: flex;
       align-items: center;
@@ -659,21 +524,7 @@
       padding: 12px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
-
-    .stock-item:last-child {
-      border-bottom: none;
-    }
-
-    .stock-item-info h4 {
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: #fff;
-    }
-
-    .stock-item-info p {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
+    .stock-item:last-child { border-bottom: none; }
 
     .stock-tag {
       font-size: 0.75rem;
@@ -685,22 +536,12 @@
       border: 1px solid rgba(239, 68, 68, 0.3);
     }
 
-    /* Empty state */
-    .empty-state {
-      text-align: center;
-      padding: 30px 10px;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-    }
-
-    /* ==========================================================
-       TOAST NOTIFICATIONS
-       ========================================================== */
+    /* Toast */
     .toast-container {
       position: fixed;
       bottom: 24px;
       right: 24px;
-      z-index: 1000;
+      z-index: 1100;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -714,49 +555,25 @@
       border-radius: 12px;
       font-size: 0.85rem;
       box-shadow: 0 10px 25px rgba(0,0,0,0.6);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      animation: slideInToast 0.3s ease-out;
-      min-width: 260px;
+      animation: toastSlideIn 0.3s ease-out;
     }
 
-    .toast.error { border-color: var(--danger); color: #fca5a5; }
-    .toast.success { border-color: var(--success); color: #6ee7b7; }
-
-    @keyframes slideInToast {
+    @keyframes toastSlideIn {
       from { transform: translateX(100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
     }
 
-    /* ==========================================================
-       RESPONSIVE ADJUSTMENTS
-       ========================================================== */
     @media (max-width: 1080px) {
-      .section-grid {
-        grid-template-columns: 1fr;
-      }
+      .section-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 900px) {
-      .sidebar {
-        transform: translateX(-100%);
-      }
-      .sidebar.open {
-        transform: translateX(0);
-      }
-      .main-wrapper {
-        margin-left: 0;
-      }
-      .menu-toggle {
-        display: block;
-      }
-      .content-area {
-        padding: 20px 16px;
-      }
-      .top-header {
-        padding: 0 16px;
-      }
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-left: 0; }
+      .menu-toggle { display: block; }
+      .content-area { padding: 20px 16px; }
+      .top-header { padding: 0 16px; }
     }
   </style>
 </head>
@@ -765,7 +582,7 @@
   <div class="ambient-glow"></div>
 
   <!-- ==========================================================
-       SIDEBAR NAVIGATION
+       1. COMPLETE ADMIN SIDEBAR (ALL EXACT HTML LINKS)
        ========================================================== -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
@@ -776,258 +593,253 @@
       </div>
       <div class="brand-text">
         <h2>POULTRY ERP</h2>
-        <span>Shop Management</span>
+        <span data-i18n="shop_mgmt">Admin + Shopkeeper Panel</span>
       </div>
     </div>
 
     <div class="sidebar-user">
-      <div class="user-avatar" id="userAvatarText">A</div>
+      <div class="user-avatar" id="userAvatar">A</div>
       <div class="user-meta">
-        <span class="role-pill role-admin" id="roleBadge">ADMIN</span>
-        <div class="user-email" id="userEmailText">loading...</div>
+        <span class="role-badge" id="userRoleBadge">CHECKING...</span>
+        <div class="user-email" id="userEmail">Loading user...</div>
       </div>
     </div>
 
+    <!-- Exact Navigation Menu Items -->
     <nav class="sidebar-nav">
-      <div class="nav-label">Core</div>
+      <div class="nav-label" data-i18n="grp_main">Core Operations</div>
+      
+      <!-- 1. Dashboard -->
       <a href="admin-dashboard.html" class="nav-link active">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        <span>Dashboard</span>
+        <span data-i18n="m_dashboard">Dashboard</span>
       </a>
-      <a href="orders.html" class="nav-link">
+
+      <!-- 2. Orders -->
+      <a href="admin-orders.html" class="nav-link">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-        <span>Orders</span>
+        <span data-i18n="m_orders">Orders</span>
       </a>
 
-      <div class="nav-label">Inventory & Catalog</div>
-      <a href="products.html" class="nav-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>
-        <span>Products</span>
+      <div class="nav-label" data-i18n="grp_catalog">Catalog & Pricing</div>
+
+      <!-- 3. Products -->
+      <a href="admin-products.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+        <span data-i18n="m_products">Products</span>
       </a>
-      <a href="add-product.html" class="nav-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
-        <span>Add Product</span>
-      </a>
-      <a href="prices.html" class="nav-link">
+
+      <!-- 4. Prices -->
+      <a href="admin-prices.html" class="nav-link">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        <span>Prices</span>
+        <span data-i18n="m_prices">Prices</span>
       </a>
-      <a href="stock.html" class="nav-link">
+
+      <!-- 5. Stock Management -->
+      <a href="admin-stock.html" class="nav-link">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-        <span>Stock</span>
+        <span data-i18n="m_stock">Stock Management</span>
       </a>
 
-      <div class="nav-label admin-only-block">Admin Controls</div>
-      <a href="customers.html" class="nav-link admin-only-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        <span>Customers</span>
+      <div class="nav-label" data-i18n="grp_crm">CRM & Staff</div>
+
+      <!-- 6. Customers -->
+      <a href="admin-customers.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span data-i18n="m_customers">Customers</span>
       </a>
-      <a href="referrals.html" class="nav-link admin-only-link">
+
+      <!-- 7. Shop Management -->
+      <a href="admin-shopkeepers.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span data-i18n="m_shopkeepers">Shop Management</span>
+      </a>
+
+      <!-- 8. Referral Codes -->
+      <a href="admin-referrals.html" class="nav-link">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-        <span>Referrals</span>
+        <span data-i18n="m_referrals">Referral Codes</span>
       </a>
-      <a href="delivery-settings.html" class="nav-link admin-only-link">
+
+      <div class="nav-label" data-i18n="grp_config">Store Setup & Reports</div>
+
+      <!-- 9. Delivery Settings -->
+      <a href="admin-delivery.html" class="nav-link">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-        <span>Delivery Settings</span>
+        <span data-i18n="m_delivery">Delivery Settings</span>
       </a>
 
-      <div class="nav-label">Shop Configuration</div>
-      <a href="shop-settings.html" class="nav-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-        <span>Shop Settings</span>
-      </a>
-      <a href="shop-branding.html" class="nav-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 5 22 5 22 11"/><line x1="22" y1="5" x2="11" y2="16"/></svg>
-        <span>Shop Logo & Name</span>
-      </a>
-      <a href="reports.html" class="nav-link">
+      <!-- 10. Reports -->
+      <a href="admin-reports.html" class="nav-link">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        <span>Reports</span>
-      </a>
-      <a href="reviews.html" class="nav-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        <span>Reviews</span>
-      </a>
-      <a href="category-requests.html" class="nav-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
-        <span>Category Requests</span>
+        <span data-i18n="m_reports">Reports</span>
       </a>
 
-      <div class="nav-label">Session</div>
-      <a href="javascript:void(0)" class="nav-link logout-link" id="logoutBtn">
+      <!-- 11. Shop Settings -->
+      <a href="admin-settings.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span data-i18n="m_settings">Shop Settings</span>
+      </a>
+
+      <!-- 12. Reviews -->
+      <a href="admin-reviews.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span data-i18n="m_reviews">Reviews</span>
+      </a>
+
+      <!-- 13. Customer Requests -->
+      <a href="admin-requests.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+        <span data-i18n="m_requests">Customer Requests</span>
+      </a>
+
+      <!-- 14. Logout Action -->
+      <a href="javascript:void(0)" class="nav-link logout-link" id="btnLogout">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        <span>Logout</span>
+        <span data-i18n="m_logout">Logout</span>
       </a>
     </nav>
   </aside>
 
   <!-- ==========================================================
        MAIN CONTENT CONTAINER
-       ========================================================== */ -->
+       ========================================================== -->
   <div class="main-wrapper">
-    
-    <!-- Top Header -->
+
+    <!-- Top Consistent Header -->
     <header class="top-header">
       <div class="header-left">
         <button class="menu-toggle" id="menuToggleBtn">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
-        <div class="page-title">
-          <h1>ড্যাশবোর্ড ওভারভিউ</h1>
-          <p id="todayDate">তারিখ লোড হচ্ছে...</p>
+        <div>
+          <div class="breadcrumbs">
+            <a href="admin-dashboard.html" data-i18n="bc_home">Home</a> / <span data-i18n="bc_dashboard">Dashboard</span>
+          </div>
+          <h1 style="font-size: 1.25rem; font-weight: 700; color: #fff;" data-i18n="header_title">Dashboard Overview</h1>
         </div>
       </div>
 
-      <div class="header-right">
-        <div class="shop-quick-status">
-          <span class="status-dot" id="shopStatusDot"></span>
-          <span class="status-text" id="shopStatusText">দোকান খোলা আছে</span>
-        </div>
+      <div class="header-actions">
+        <!-- Language Switcher -->
+        <button class="btn-lang-toggle" id="btnLangToggle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="langButtonText">English</span>
+        </button>
+
+        <!-- Notification Bell -->
+        <button class="btn-notification" onclick="window.location.href='admin-orders.html'" title="Notifications">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notification-badge" id="notifDot" style="display: none;"></span>
+        </button>
       </div>
     </header>
 
-    <!-- Main Body Area -->
+    <!-- Main Content Area -->
     <main class="content-area">
 
-      <!-- Shop Information Hero Card -->
-      <section class="shop-profile-card">
-        <div class="shop-flex">
-          <div class="shop-avatar" id="shopLogoContainer">
-            <span id="shopLogoInitial">P</span>
-          </div>
-          <div class="shop-details">
-            <h2 id="displayShopName">লোড হচ্ছে...</h2>
-            <div class="shop-meta-list">
-              <div class="shop-meta-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                <span id="displayShopkeeper">পরিচালক: লোড হচ্ছে...</span>
-              </div>
-              <div class="shop-meta-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                <span id="displayWhatsapp">WhatsApp: লোড হচ্ছে...</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <a href="shop-branding.html" class="shop-action-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-          <span>প্রোফাইল পরিবর্তন</span>
-        </a>
-      </section>
-
-      <!-- 10 Statistics Cards Grid -->
+      <!-- 9 Realtime Dashboard Statistics -->
       <section class="stats-grid">
         
         <!-- 1. Total Customers -->
         <div class="stat-card">
           <div class="stat-head">
-            <span class="stat-title">মোট গ্রাহক</span>
+            <span class="stat-title" data-i18n="st_customers">Total Customers</span>
             <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
           </div>
           <div class="stat-value skeleton" id="statCustomers">0</div>
-          <div class="stat-foot">নিবন্ধিত কাস্টমার সংখ্যা</div>
+          <div class="stat-subtext" data-i18n="st_customers_sub">Registered customer profiles</div>
         </div>
 
         <!-- 2. Total Orders -->
         <div class="stat-card">
           <div class="stat-head">
-            <span class="stat-title">সর্বমোট অর্ডার</span>
+            <span class="stat-title" data-i18n="st_orders">Total Orders</span>
             <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
           </div>
-          <div class="stat-value skeleton" id="statOrders">0</div>
-          <div class="stat-foot">শুরু থেকে আজ পর্যন্ত</div>
+          <div class="stat-value skeleton" id="statTotalOrders">0</div>
+          <div class="stat-subtext" data-i18n="st_orders_sub">Lifetime received orders</div>
         </div>
 
-        <!-- 3. Today's Orders -->
+        <!-- 3. Pending Orders -->
         <div class="stat-card">
           <div class="stat-head">
-            <span class="stat-title">আজকের অর্ডার</span>
-            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            <span class="stat-title" data-i18n="st_pending">Pending Orders</span>
+            <div class="stat-icon" style="color: var(--status-warning); border-color: rgba(245,158,11,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
           </div>
-          <div class="stat-value skeleton" id="statTodayOrders">0</div>
-          <div class="stat-foot">আজকের নতুন রিকুয়েস্ট</div>
+          <div class="stat-value skeleton" id="statPendingOrders" style="color: var(--status-warning);">0</div>
+          <div class="stat-subtext" data-i18n="st_pending_sub">Requires approval action</div>
         </div>
 
-        <!-- 4. Pending Orders -->
+        <!-- 4. Completed Orders -->
         <div class="stat-card">
           <div class="stat-head">
-            <span class="stat-title">অপেক্ষমাণ অর্ডার</span>
-            <div class="stat-icon" style="color: var(--warning); border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.1);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <span class="stat-title" data-i18n="st_completed">Completed Orders</span>
+            <div class="stat-icon" style="color: var(--status-available); border-color: rgba(16,185,129,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
           </div>
-          <div class="stat-value skeleton" id="statPendingOrders">0</div>
-          <div class="stat-foot">একশন নেওয়ার বাকি</div>
+          <div class="stat-value skeleton" id="statCompletedOrders" style="color: var(--status-available);">0</div>
+          <div class="stat-subtext" data-i18n="st_completed_sub">Successfully delivered</div>
         </div>
 
-        <!-- 5. Accepted Orders -->
+        <!-- 5. Total Products -->
         <div class="stat-card">
           <div class="stat-head">
-            <span class="stat-title">গৃহীত অর্ডার</span>
-            <div class="stat-icon" style="color: var(--info); border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.1);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
-          </div>
-          <div class="stat-value skeleton" id="statAcceptedOrders">0</div>
-          <div class="stat-foot">প্রস্তুত হচ্ছে বা ডেলিভারিতে</div>
-        </div>
-
-        <!-- 6. Completed Orders -->
-        <div class="stat-card">
-          <div class="stat-head">
-            <span class="stat-title">সম্পন্ন অর্ডার</span>
-            <div class="stat-icon" style="color: var(--success); border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.1);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-          </div>
-          <div class="stat-value skeleton" id="statCompletedOrders">0</div>
-          <div class="stat-foot">সফলভাবে ডেলিভার্ড</div>
-        </div>
-
-        <!-- 7. Total Sales -->
-        <div class="stat-card">
-          <div class="stat-head">
-            <span class="stat-title">মোট বিক্রি (Sales)</span>
-            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-          </div>
-          <div class="stat-value skeleton" id="statTotalSales">৳ 0</div>
-          <div class="stat-foot">সম্পন্ন অর্ডারের রেভিনিউ</div>
-        </div>
-
-        <!-- 8. Total Products -->
-        <div class="stat-card">
-          <div class="stat-head">
-            <span class="stat-title">মোট পণ্য</span>
-            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+            <span class="stat-title" data-i18n="st_products">Total Products</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg></div>
           </div>
           <div class="stat-value skeleton" id="statTotalProducts">0</div>
-          <div class="stat-foot">ক্যাটালগে সক্রিয় আইটেম</div>
+          <div class="stat-subtext" data-i18n="st_products_sub">Catalog products registered</div>
         </div>
 
-        <!-- 9. Out of Stock -->
+        <!-- 6. Available Products -->
         <div class="stat-card">
           <div class="stat-head">
-            <span class="stat-title">স্টক নেই (Stock Out)</span>
-            <div class="stat-icon" style="color: var(--danger); border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.1);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
+            <span class="stat-title" data-i18n="st_available">Available Products</span>
+            <div class="stat-icon" style="color: var(--status-available); border-color: rgba(16,185,129,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
           </div>
-          <div class="stat-value skeleton" id="statStockOut">0</div>
-          <div class="stat-foot">অবিলম্বে স্টক আপডেট দরকার</div>
+          <div class="stat-value skeleton" id="statAvailableProducts" style="color: var(--status-available);">0</div>
+          <div class="stat-subtext" data-i18n="st_available_sub">Active in Customer App</div>
         </div>
 
-        <!-- 10. Reviews -->
+        <!-- 7. Out of Stock -->
         <div class="stat-card">
           <div class="stat-head">
-            <span class="stat-title">রিভিউ সংখ্যা</span>
-            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+            <span class="stat-title" data-i18n="st_outofstock">Out of Stock</span>
+            <div class="stat-icon" style="color: var(--status-outofstock); border-color: rgba(239,68,68,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
           </div>
-          <div class="stat-value skeleton" id="statReviews">0</div>
-          <div class="stat-foot">কাস্টমার মতামত</div>
+          <div class="stat-value skeleton" id="statStockOut" style="color: var(--status-outofstock);">0</div>
+          <div class="stat-subtext" data-i18n="st_outofstock_sub">Immediate restock required</div>
+        </div>
+
+        <!-- 8. Today's Sales -->
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_today_sales">Today's Sales</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          </div>
+          <div class="stat-value skeleton" id="statTodaySales" style="color: var(--gold-light);">৳ 0</div>
+          <div class="stat-subtext" data-i18n="st_today_sales_sub">Delivered orders today</div>
+        </div>
+
+        <!-- 9. Total Sales -->
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_total_sales">Total Sales</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          </div>
+          <div class="stat-value skeleton" id="statTotalSales" style="color: var(--gold-light);">৳ 0</div>
+          <div class="stat-subtext" data-i18n="st_total_sales_sub">Lifetime revenue generated</div>
         </div>
 
       </section>
 
-      <!-- Analytics Charts Section -->
+      <!-- Charts & Stock Alerts Section -->
       <section class="section-grid">
         <div class="card-box">
           <div class="card-header-flex">
             <div>
-              <h3 class="card-title">অর্ডার ও সেলস ট্র্যাকিং</h3>
-              <p class="card-subtitle">সাম্প্রতিক অর্ডারসমূহের স্ট্যাটাস বিশ্লেষণ</p>
+              <h3 class="card-title" data-i18n="chart_title">Order Distribution & Sales Analytics</h3>
+              <p class="card-subtitle" data-i18n="chart_sub">Real-time status breakdown</p>
             </div>
           </div>
           <div style="height: 280px; position: relative;">
@@ -1038,13 +850,13 @@
         <div class="card-box">
           <div class="card-header-flex">
             <div>
-              <h3 class="card-title">স্টক অ্যালার্ট (Low Stock)</h3>
-              <p class="card-subtitle">দ্রুত স্টক শেষ হতে চলা পণ্য</p>
+              <h3 class="card-title" data-i18n="alert_title">Low Stock Alert</h3>
+              <p class="card-subtitle" data-i18n="alert_sub">Poultry stock below 5 units</p>
             </div>
-            <a href="stock.html" style="font-size: 0.78rem; color: var(--gold-light); text-decoration: none;">সব দেখুন</a>
+            <a href="admin-stock.html" style="font-size: 0.8rem; color: var(--gold-light); text-decoration: none;" data-i18n="view_all">View All</a>
           </div>
           <div id="lowStockList">
-            <div class="empty-state">কোনো স্টক এলার্ট নেই</div>
+            <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 30px 0;">Loading stock alerts...</p>
           </div>
         </div>
       </section>
@@ -1053,27 +865,26 @@
       <section class="card-box">
         <div class="card-header-flex">
           <div>
-            <h3 class="card-title">সাম্প্রতিক অর্ডারসমূহ (Live Orders)</h3>
-            <p class="card-subtitle">রিয়েলটাইম আপডেট হওয়া সর্বশেষ ৫টি অর্ডার</p>
+            <h3 class="card-title" data-i18n="recent_title">Recent Orders</h3>
+            <p class="card-subtitle" data-i18n="recent_sub">Live stream of latest customer orders</p>
           </div>
-          <a href="orders.html" class="shop-action-btn" style="padding: 6px 14px;">সব অর্ডার</a>
+          <a href="admin-orders.html" style="padding: 7px 14px; background: var(--gold-gradient); color: #000; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 0.82rem;" data-i18n="manage_orders">Manage Orders</a>
         </div>
 
         <div class="table-container">
           <table>
             <thead>
               <tr>
-                <th>অর্ডার আইডি</th>
-                <th>গ্রাহকের নাম / ফোন</th>
-                <th>পণ্য / আইটেম</th>
-                <th>মূল্য</th>
-                <th>স্ট্যাটাস</th>
-                <th>তারিখ ও সময়</th>
+                <th data-i18n="th_order_id">Order ID</th>
+                <th data-i18n="th_customer">Customer</th>
+                <th data-i18n="th_amount">Amount</th>
+                <th data-i18n="th_status">Status</th>
+                <th data-i18n="th_time">Timestamp</th>
               </tr>
             </thead>
             <tbody id="recentOrdersBody">
               <tr>
-                <td colspan="6" class="empty-state">অর্ডারের তথ্য লোড হচ্ছে...</td>
+                <td colspan="5" style="text-align: center; padding: 30px 0; color: var(--text-muted);">Loading recent orders...</td>
               </tr>
             </tbody>
           </table>
@@ -1083,14 +894,17 @@
     </main>
   </div>
 
-  <!-- Toast Notification Container -->
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- ==========================================================
-       JAVASCRIPT & FIREBASE LOGIC
+       MODULAR FIREBASE SDK (v10) & REALTIME SCRIPT
        ========================================================== -->
-  <script>
-    // 1. Firebase Configuration
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // Firebase Configuration Placeholder (Matching Project)
     const firebaseConfig = {
       apiKey: "AIzaSyDYPsjlOmRwH2F5P8fFoiirP1FLjgh3c8A",
       authDomain: "murgi-dfd67.firebaseapp.com",
@@ -1101,259 +915,291 @@
       appId: "1:209696889864:web:3eaa16034f00cca45505bd"
     };
 
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // ==========================================================
+    // MULTI-LANGUAGE TRANSLATION DICTIONARY (EN & BN)
+    // ==========================================================
+    const i18n = {
+      en: {
+        shop_mgmt: "Admin + Shopkeeper Panel",
+        grp_main: "Core Operations",
+        m_dashboard: "Dashboard",
+        m_orders: "Orders",
+        grp_catalog: "Catalog & Pricing",
+        m_products: "Products",
+        m_prices: "Prices",
+        m_stock: "Stock Management",
+        grp_crm: "CRM & Staff",
+        m_customers: "Customers",
+        m_shopkeepers: "Shop Management",
+        m_referrals: "Referral Codes",
+        grp_config: "Store Setup & Reports",
+        m_delivery: "Delivery Settings",
+        m_reports: "Reports",
+        m_settings: "Shop Settings",
+        m_reviews: "Reviews",
+        m_requests: "Customer Requests",
+        m_logout: "Logout",
+        bc_home: "Home",
+        bc_dashboard: "Dashboard",
+        header_title: "Dashboard Overview",
+        st_customers: "Total Customers",
+        st_customers_sub: "Registered customer profiles",
+        st_orders: "Total Orders",
+        st_orders_sub: "Lifetime received orders",
+        st_pending: "Pending Orders",
+        st_pending_sub: "Requires approval action",
+        st_completed: "Completed Orders",
+        st_completed_sub: "Successfully delivered",
+        st_products: "Total Products",
+        st_products_sub: "Catalog products registered",
+        st_available: "Available Products",
+        st_available_sub: "Active in Customer App",
+        st_outofstock: "Out of Stock",
+        st_outofstock_sub: "Immediate restock required",
+        st_today_sales: "Today's Sales",
+        st_today_sales_sub: "Delivered orders today",
+        st_total_sales: "Total Sales",
+        st_total_sales_sub: "Lifetime revenue generated",
+        chart_title: "Order Distribution & Sales Analytics",
+        chart_sub: "Real-time status breakdown",
+        alert_title: "Low Stock Alert",
+        alert_sub: "Poultry stock below 5 units",
+        view_all: "View All",
+        recent_title: "Recent Orders",
+        recent_sub: "Live stream of latest customer orders",
+        manage_orders: "Manage Orders",
+        th_order_id: "Order ID",
+        th_customer: "Customer",
+        th_amount: "Amount",
+        th_status: "Status",
+        th_time: "Timestamp",
+        lang_switch_to: "বাংলা"
+      },
+      bn: {
+        shop_mgmt: "অ্যাডমিন ও শপকিপার প্যানেল",
+        grp_main: "প্রধান কার্যক্রম",
+        m_dashboard: "ড্যাশবোর্ড",
+        m_orders: "অর্ডারসমূহ",
+        grp_catalog: "পণ্য ও মূল্যতালিকা",
+        m_products: "পণ্য ক্যাটালগ",
+        m_prices: "ক্যাটাগরি মূল্য",
+        m_stock: "স্টক ম্যানেজমেন্ট",
+        grp_crm: "গ্রাহক ও কর্মী",
+        m_customers: "গ্রাহকবৃন্দ",
+        m_shopkeepers: "দোকান পরিচালনা",
+        m_referrals: "রেফারেল কোড",
+        grp_config: "সেটআপ ও রিপোর্ট",
+        m_delivery: "ডেলিভারি সেটিংস",
+        m_reports: "রিপোর্ট ও অ্যানালিটিক্স",
+        m_settings: "শপ সেটিংস",
+        m_reviews: "রিভিউ ও রেটিং",
+        m_requests: "গ্রাহক অনুরোধ",
+        m_logout: "লগআউট",
+        bc_home: "হোম",
+        bc_dashboard: "ড্যাশবোর্ড",
+        header_title: "ড্যাশবোর্ড ওভারভিউ",
+        st_customers: "মোট গ্রাহক",
+        st_customers_sub: "নিবন্ধিত গ্রাহক সংখ্যা",
+        st_orders: "সর্বমোট অর্ডার",
+        st_orders_sub: "শুরু থেকে আজ পর্যন্ত",
+        st_pending: "অপেক্ষমাণ অর্ডার",
+        st_pending_sub: "অনুমোদন বা প্রস্তুতি দরকার",
+        st_completed: "সম্পন্ন অর্ডার",
+        st_completed_sub: "সফলভাবে ডেলিভার্ড",
+        st_products: "মোট পণ্য",
+        st_products_sub: "ক্যাটালগে সক্রিয় পণ্য",
+        st_available: "উপলব্ধ পণ্য",
+        st_available_sub: "গ্রাহক অ্যাপে সক্রিয়",
+        st_outofstock: "স্টক শেষ",
+        st_outofstock_sub: "দ্রুত স্টক রিফিল প্রয়োজন",
+        st_today_sales: "আজকের মোট বিক্রি",
+        st_today_sales_sub: "আজকের সম্পন্ন ডেলিভারি",
+        st_total_sales: "সর্বমোট বিক্রি",
+        st_total_sales_sub: "সর্বমোট সংগৃহীত আয়",
+        chart_title: "অর্ডার ও সেলস ট্র্যাকিং",
+        chart_sub: "লাইভ স্ট্যাটাস বিশ্লেষণ",
+        alert_title: "লো স্টক অ্যালার্ট",
+        alert_sub: "৫ এর নিচে থাকা পণ্যসমূহ",
+        view_all: "সব দেখুন",
+        recent_title: "সাম্প্রতিক অর্ডারসমূহ",
+        recent_sub: "সদ্য প্রাপ্ত অর্ডারের লাইভ তালিকা",
+        manage_orders: "অর্ডার পরিচালনা",
+        th_order_id: "অর্ডার আইডি",
+        th_customer: "গ্রাহক",
+        th_amount: "মূল্য",
+        th_status: "স্ট্যাটাস",
+        th_time: "সময়",
+        lang_switch_to: "English"
+      }
+    };
+
+    let currentLang = localStorage.getItem('poultry_admin_lang') || 'bn';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('poultry_admin_lang', lang);
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang][key]) el.textContent = i18n[lang][key];
+      });
+
+      document.getElementById('langButtonText').textContent = i18n[lang].lang_switch_to;
     }
-    const auth = firebase.auth();
-    const database = firebase.database();
 
-    let currentUserRole = null;
-    let analyticsChartInstance = null;
+    document.getElementById('btnLangToggle').addEventListener('click', () => {
+      setLanguage(currentLang === 'en' ? 'bn' : 'en');
+    });
 
-    // Toast Notification System
-    function showToast(message, type = 'info') {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      toast.textContent = message;
-      container.appendChild(toast);
-      setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 300);
-      }, 3500);
-    }
-
-    // Set Current Date in Bengali
-    function setDateBanner() {
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      const today = new Date().toLocaleDateString('bn-BD', options);
-      document.getElementById('todayDate').textContent = today;
-    }
-    setDateBanner();
-
-    // Mobile Sidebar Toggle
+    // Mobile Sidebar
     const menuToggleBtn = document.getElementById('menuToggleBtn');
     const sidebar = document.getElementById('sidebar');
-    menuToggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('open');
-    });
+    menuToggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
 
-    // Close sidebar when clicked outside on mobile
-    document.addEventListener('click', (e) => {
-      if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !menuToggleBtn.contains(e.target)) {
-        sidebar.classList.remove('open');
-      }
-    });
+    let analyticsChart = null;
 
     // ==========================================================
-    // AUTHENTICATION & ROLE-BASED ACCESS CONTROL
+    // AUTHENTICATION GUARD
     // ==========================================================
-    auth.onAuthStateChanged(async (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        // যদি লগইন না থাকে, সরাসরি লগইন পেজে রিডাইরেক্ট
         window.location.replace('admin-login.html');
         return;
       }
 
-      // ইমেইল UI-তে বসানো
-      document.getElementById('userEmailText').textContent = user.email;
-      document.getElementById('userAvatarText').textContent = user.email.charAt(0).toUpperCase();
+      document.getElementById('userEmail').textContent = user.email;
+      document.getElementById('userAvatar').textContent = (user.email.charAt(0) || 'A').toUpperCase();
 
       try {
-        // Database থেকে Role যাচাই: users/{uid}/role
-        const roleSnapshot = await database.ref(`users/${user.uid}/role`).once('value');
-        const role = roleSnapshot.val();
+        const roleRef = ref(db, `users/${user.uid}/role`);
+        const snapshot = await get(roleRef);
+        const role = snapshot.val();
 
         if (!role) {
-          showToast("অননুমোদিত অ্যাক্সেস! কোনো রোল পাওয়া যায়নি।", "error");
-          await auth.signOut();
-          setTimeout(() => window.location.replace('admin-login.html'), 1500);
-          return;
-        }
-
-        currentUserRole = role.toString().toLowerCase().trim();
-
-        // UI তে রোল আপডেট
-        const roleBadge = document.getElementById('roleBadge');
-        if (currentUserRole === 'admin') {
-          roleBadge.textContent = 'ADMIN';
-          roleBadge.className = 'role-pill role-admin';
-          // Admin-এর জন্য সব লিঙ্ক খোলা
-        } else if (currentUserRole === 'shopkeeper') {
-          roleBadge.textContent = 'SHOPKEEPER';
-          roleBadge.className = 'role-pill role-shopkeeper';
-          
-          // Shopkeeper-এর থেকে Admin Only লিঙ্কগুলো লুকিয়ে ফেলা
-          document.querySelectorAll('.admin-only-link, .admin-only-block').forEach(el => {
-            el.style.display = 'none';
-          });
-        } else {
-          showToast("অ্যাক্সেস ডিনাইড: আপনার এই প্যানেলের অনুমতি নেই।", "error");
-          await auth.signOut();
+          await signOut(auth);
           window.location.replace('admin-login.html');
           return;
         }
 
-        // সফলভাবে ভেরিফাই হলে ডাটাবেজ লিসেনারগুলো চালু করা
-        initializeRealtimeListeners(user.uid, currentUserRole);
+        const normalizedRole = role.toString().toLowerCase().trim();
+        if (normalizedRole !== 'admin' && normalizedRole !== 'shopkeeper') {
+          await signOut(auth);
+          window.location.replace('admin-login.html');
+          return;
+        }
+
+        document.getElementById('userRoleBadge').textContent = normalizedRole.toUpperCase();
+
+        // Start Live Realtime Listeners
+        initRealtimeDashboard();
 
       } catch (err) {
         console.error("Auth Guard Error:", err);
-        showToast("নিরাপত্তা যাচাইকরণে ত্রুটি ঘটেছে।", "error");
       }
     });
 
-    // Logout Functionality
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      try {
-        await auth.signOut();
-        showToast("সফলভাবে লগআউট হয়েছেন।", "success");
-        setTimeout(() => {
-          window.location.replace('admin-login.html');
-        }, 800);
-      } catch (e) {
-        showToast("লগআউট হতে সমস্যা হচ্ছে।", "error");
-      }
+    document.getElementById('btnLogout').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.replace('admin-login.html');
     });
 
     // ==========================================================
     // REALTIME DATABASE LISTENERS
     // ==========================================================
-    function initializeRealtimeListeners(uid, role) {
-      
-      // 1. Shop Profile Info Listener: `shop/profile`
-      database.ref('shop/profile').on('value', (snap) => {
-        const shop = snap.val() || {};
-        
-        document.getElementById('displayShopName').textContent = shop.shopName || "পোল্ট্রি শপ ম্যানেজমেন্ট";
-        document.getElementById('displayShopkeeper').textContent = `পরিচালক: ${shop.shopkeeperName || "অনুপলব্ধ"}`;
-        document.getElementById('displayWhatsapp').textContent = `WhatsApp: ${shop.whatsapp || "নম্বর দেওয়া নেই"}`;
-
-        // Status (Open/Closed)
-        const isClosed = shop.isClosed === true;
-        const statusDot = document.getElementById('shopStatusDot');
-        const statusText = document.getElementById('shopStatusText');
-
-        if (isClosed) {
-          statusDot.style.background = 'var(--danger)';
-          statusDot.style.boxShadow = '0 0 8px var(--danger)';
-          statusText.textContent = 'দোকান বন্ধ আছে';
-        } else {
-          statusDot.style.background = 'var(--success)';
-          statusDot.style.boxShadow = '0 0 8px var(--success)';
-          statusText.textContent = 'দোকান খোলা আছে';
-        }
-
-        // Logo Handler
-        const logoContainer = document.getElementById('shopLogoContainer');
-        if (shop.logoUrl) {
-          logoContainer.innerHTML = `<img src="${shop.logoUrl}" alt="Shop Logo" onerror="this.onerror=null; this.parentElement.innerHTML='<span>P</span>';"/>`;
-        } else {
-          const firstChar = (shop.shopName || "P").charAt(0).toUpperCase();
-          logoContainer.innerHTML = `<span>${firstChar}</span>`;
-        }
+    function initRealtimeDashboard() {
+      // 1. Customers Count
+      onValue(ref(db, 'customers'), (snap) => {
+        updateStat('statCustomers', snap.numChildren());
       });
 
-      // 2. Customers Count Listener: `customers`
-      database.ref('customers').on('value', (snap) => {
-        const count = snap.numChildren();
-        updateStatValue('statCustomers', count);
-      });
+      // 2. Products & Stock Counts
+      onValue(ref(db, 'products'), (snap) => {
+        let total = 0;
+        let available = 0;
+        let outOfStock = 0;
+        const lowStock = [];
 
-      // 3. Products & Stock Listener: `products`
-      database.ref('products').on('value', (snap) => {
-        let totalCount = 0;
-        let outOfStockCount = 0;
-        const lowStockItems = [];
+        snap.forEach(child => {
+          total++;
+          const p = child.val();
+          const stock = Number(p.stockQuantity ?? p.stock ?? 0);
+          const st = (p.status || 'available').toLowerCase();
 
-        snap.forEach((child) => {
-          totalCount++;
-          const prod = child.val();
-          const stock = Number(prod.stock || 0);
-
-          if (stock <= 0 || prod.inStock === false) {
-            outOfStockCount++;
+          if (st === 'out_of_stock' || stock <= 0) {
+            outOfStock++;
+          } else if (st === 'available') {
+            available++;
           }
 
           if (stock > 0 && stock <= 5) {
-            lowStockItems.push({
-              name: prod.name || prod.productName || "নামহীন পণ্য",
-              stock: stock,
-              unit: prod.unit || "কেজি"
-            });
+            lowStock.push({ name: p.productName || p.name || 'Product', stock, unit: p.unit || 'KG' });
           }
         });
 
-        updateStatValue('statTotalProducts', totalCount);
-        updateStatValue('statStockOut', outOfStockCount);
+        updateStat('statTotalProducts', total);
+        updateStat('statAvailableProducts', available);
+        updateStat('statStockOut', outOfStock);
 
-        // Render Low Stock alert list
-        renderLowStockAlerts(lowStockItems);
+        renderLowStock(lowStock);
       });
 
-      // 4. Reviews Count Listener: `reviews`
-      database.ref('reviews').on('value', (snap) => {
-        const count = snap.numChildren();
-        updateStatValue('statReviews', count);
-      });
-
-      // 5. Orders Listener & Live Sales Calculation: `orders`
-      database.ref('orders').on('value', (snap) => {
+      // 3. Orders & Revenue Calculation
+      onValue(ref(db, 'orders'), (snap) => {
         let totalOrders = 0;
-        let todayOrders = 0;
         let pending = 0;
-        let accepted = 0;
         let completed = 0;
-        let totalSales = 0;
-        const recentOrdersList = [];
+        let totalRevenue = 0;
+        let todayRevenue = 0;
+        const recentOrders = [];
 
         const startOfToday = new Date();
         startOfToday.setHours(0, 0, 0, 0);
+        const todayTs = startOfToday.getTime();
 
-        snap.forEach((child) => {
+        snap.forEach(child => {
           totalOrders++;
-          const order = child.val();
-          order.id = child.key;
-          recentOrdersList.push(order);
+          const ord = child.val();
+          ord.id = child.key;
+          recentOrders.push(ord);
 
-          const status = (order.status || 'pending').toLowerCase();
+          const status = (ord.status || 'pending').toLowerCase();
+          const amount = Number(ord.pricing?.totalAmount ?? ord.totalAmount ?? 0);
+          const time = ord.createdAt ? new Date(ord.createdAt).getTime() : 0;
 
-          // Order Counts
           if (status === 'pending') pending++;
-          else if (status === 'accepted') accepted++;
-          else if (status === 'completed') {
+          if (status === 'completed') {
             completed++;
-            totalSales += Number(order.totalAmount || order.totalPrice || 0);
-          }
-
-          // Check Today's Orders
-          if (order.createdAt) {
-            const orderDate = new Date(order.createdAt);
-            if (orderDate >= startOfToday) {
-              todayOrders++;
+            totalRevenue += amount;
+            if (time >= todayTs) {
+              todayRevenue += amount;
             }
           }
         });
 
-        // Update Stat Cards
-        updateStatValue('statOrders', totalOrders);
-        updateStatValue('statTodayOrders', todayOrders);
-        updateStatValue('statPendingOrders', pending);
-        updateStatValue('statAcceptedOrders', accepted);
-        updateStatValue('statCompletedOrders', completed);
-        updateStatValue('statTotalSales', `৳ ${totalSales.toLocaleString('en-IN')}`);
+        updateStat('statTotalOrders', totalOrders);
+        updateStat('statPendingOrders', pending);
+        updateStat('statCompletedOrders', completed);
+        updateStat('statTodaySales', `৳ ${todayRevenue.toLocaleString('en-IN')}`);
+        updateStat('statTotalSales', `৳ ${totalRevenue.toLocaleString('en-IN')}`);
 
-        // Update Analytics Chart
-        updateChartData(pending, accepted, completed, (totalOrders - (pending + accepted + completed)));
+        // Update Notification Bell Dot if pending orders exist
+        document.getElementById('notifDot').style.display = pending > 0 ? 'block' : 'none';
 
-        // Render Recent Orders (Last 5 orders)
-        recentOrdersList.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-        renderRecentOrdersTable(recentOrdersList.slice(0, 5));
+        // Update Chart
+        updateChart(pending, completed, Math.max(0, totalOrders - (pending + completed)));
+
+        // Recent Orders Table (Last 5)
+        recentOrders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        renderRecentOrders(recentOrders.slice(0, 5));
       });
     }
 
-    // Helper: Remove Skeleton and Update Value
-    function updateStatValue(elementId, value) {
+    function updateStat(elementId, value) {
       const el = document.getElementById(elementId);
       if (el) {
         el.classList.remove('skeleton');
@@ -1361,86 +1207,73 @@
       }
     }
 
-    // Render Low Stock Widget
-    function renderLowStockAlerts(items) {
-      const container = document.getElementById('lowStockList');
+    function renderLowStock(items) {
+      const box = document.getElementById('lowStockList');
       if (!items || items.length === 0) {
-        container.innerHTML = `<div class="empty-state">সব পণ্যের পর্যাপ্ত স্টক রয়েছে।</div>`;
+        box.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 24px 0;">সব পণ্যের পর্যাপ্ত স্টক রয়েছে ✓</p>`;
         return;
       }
 
-      container.innerHTML = items.slice(0, 4).map(item => `
+      box.innerHTML = items.slice(0, 4).map(it => `
         <div class="stock-item">
-          <div class="stock-item-info">
-            <h4>${escapeHTML(item.name)}</h4>
-            <p>বর্তমান স্টক: ${item.stock} ${escapeHTML(item.unit)}</p>
+          <div>
+            <h4 style="font-size: 0.88rem; color: #fff;">${escapeHTML(it.name)}</h4>
+            <p style="font-size: 0.74rem; color: var(--text-muted);">স্টক: ${it.stock} ${escapeHTML(it.unit)}</p>
           </div>
-          <span class="stock-tag">লো স্টক (${item.stock})</span>
+          <span class="stock-tag">লো স্টক (${it.stock})</span>
         </div>
       `).join('');
     }
 
-    // Render Recent Orders Table
-    function renderRecentOrdersTable(orders) {
+    function renderRecentOrders(orders) {
       const tbody = document.getElementById('recentOrdersBody');
       if (!orders || orders.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="empty-state">এখনো কোনো অর্ডার পাওয়া যায়নি।</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 24px 0; color: var(--text-muted);">কোনো অর্ডার পাওয়া যায়নি।</td></tr>`;
         return;
       }
 
       tbody.innerHTML = orders.map(ord => {
-        const orderId = (ord.orderId || ord.id || '').substring(0, 8).toUpperCase();
-        const customer = ord.customerName || ord.customerPhone || 'সাধারণ গ্রাহক';
-        const items = ord.items ? (Array.isArray(ord.items) ? `${ord.items.length} টি পণ্য` : 'আইটেম তালিকা') : 'পোল্ট্রি আইটেম';
-        const amount = `৳ ${(ord.totalAmount || ord.totalPrice || 0).toLocaleString('en-IN')}`;
-        const status = (ord.status || 'pending').toLowerCase();
-        
-        let statusBadge = `<span class="order-status status-pending">পেন্ডিং</span>`;
-        if (status === 'accepted') statusBadge = `<span class="order-status status-accepted">গৃহীত</span>`;
-        if (status === 'completed') statusBadge = `<span class="order-status status-completed">সম্পন্ন</span>`;
-        if (status === 'cancelled') statusBadge = `<span class="order-status status-cancelled">বাতিল</span>`;
+        const id = (ord.orderId || ord.id || '').substring(0, 8).toUpperCase();
+        const cust = ord.customer?.name || ord.customerName || 'Customer';
+        const amt = `৳ ${Number(ord.pricing?.totalAmount ?? ord.totalAmount ?? 0).toLocaleString('en-IN')}`;
+        const st = (ord.status || 'pending').toLowerCase();
+        const badge = st === 'completed' 
+          ? `<span class="order-status status-completed">Completed</span>` 
+          : `<span class="order-status status-pending">Pending</span>`;
 
-        let timeStr = 'সদ্য প্রাপ্ত';
+        let timeStr = 'Just now';
         if (ord.createdAt) {
           const d = new Date(ord.createdAt);
-          timeStr = !isNaN(d) ? d.toLocaleDateString('bn-BD', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : ord.createdAt;
+          timeStr = !isNaN(d) ? d.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ord.createdAt;
         }
 
         return `
           <tr>
-            <td><strong>#${escapeHTML(orderId)}</strong></td>
-            <td>${escapeHTML(customer)}</td>
-            <td>${escapeHTML(items)}</td>
-            <td style="color: var(--gold-light); font-weight: 600;">${amount}</td>
-            <td>${statusBadge}</td>
+            <td><strong>#${escapeHTML(id)}</strong></td>
+            <td>${escapeHTML(cust)}</td>
+            <td style="color: var(--gold-light); font-weight: 700;">${amt}</td>
+            <td>${badge}</td>
             <td style="font-size: 0.78rem; color: var(--text-muted);">${timeStr}</td>
           </tr>
         `;
       }).join('');
     }
 
-    // Update Chart.js Instance
-    function updateChartData(pending, accepted, completed, cancelled) {
+    function updateChart(pending, completed, other) {
       const ctx = document.getElementById('orderAnalyticsChart').getContext('2d');
-
-      if (analyticsChartInstance) {
-        analyticsChartInstance.data.datasets[0].data = [pending, accepted, completed, Math.max(0, cancelled)];
-        analyticsChartInstance.update();
+      if (analyticsChart) {
+        analyticsChart.data.datasets[0].data = [pending, completed, other];
+        analyticsChart.update();
         return;
       }
 
-      analyticsChartInstance = new Chart(ctx, {
+      analyticsChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-          labels: ['পেন্ডিং', 'গৃহীত', 'সম্পন্ন', 'অন্যান্য/বাতিল'],
+          labels: ['পেন্ডিং (Pending)', 'সম্পন্ন (Completed)', 'অন্যান্য (Other)'],
           datasets: [{
-            data: [pending, accepted, completed, Math.max(0, cancelled)],
-            backgroundColor: [
-              '#f59e0b',
-              '#3b82f6',
-              '#10b981',
-              '#ef4444'
-            ],
+            data: [pending, completed, other],
+            backgroundColor: ['#f59e0b', '#10b981', '#3b82f6'],
             borderColor: '#0d0f15',
             borderWidth: 3
           }]
@@ -1451,27 +1284,20 @@
           plugins: {
             legend: {
               position: 'bottom',
-              labels: {
-                color: '#94a3b8',
-                font: { family: 'Outfit', size: 12 }
-              }
+              labels: { color: '#94a3b8', font: { family: 'Outfit', size: 12 } }
             }
           },
-          cutout: '70%'
+          cutout: '72%'
         }
       });
     }
 
-    // Security Helper: Escape HTML to avoid XSS
     function escapeHTML(str) {
       if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
+
+    setLanguage(currentLang);
   </script>
 </body>
 </html>

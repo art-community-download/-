@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Management | Poultry Shop Admin</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase Compatibility SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <style>
+    /* ==========================================================
+       DESIGN SYSTEM (GOLDEN OBSIDIAN THEME)
+       ========================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-body: #07080b;
+      --bg-sidebar: #0d0f15;
+      --bg-card: rgba(18, 20, 28, 0.78);
+      --bg-card-hover: rgba(25, 28, 38, 0.9);
+      --border-gold: rgba(212, 175, 55, 0.22);
+      --border-gold-bright: rgba(212, 175, 55, 0.55);
+      --gold-primary: #d4af37;
+      --gold-light: #f5d77f;
+      --gold-dark: #997519;
+      --gold-gradient: linear-gradient(135deg, #f7df87 0%, #d4af37 50%, #997519 100%);
+      --text-main: #f3f4f6;
+      --text-muted: #94a3b8;
+      --text-dark: #07080b;
+      
+      /* Status Colors */
+      --color-pending: #f59e0b;
+      --color-accepted: #3b82f6;
+      --color-preparing: #8b5cf6;
+      --color-ontheway: #06b6d4;
+      --color-completed: #10b981;
+      --color-rejected: #ef4444;
+      --color-cancelled: #64748b;
+
+      --sidebar-width: 260px;
+      --gold-glow: 0 0 25px rgba(212, 175, 55, 0.2);
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #090a0f; }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 4px; }
+
+    /* Ambient Glow */
+    .ambient-glow {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      filter: blur(140px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.12;
+      background: radial-gradient(circle, var(--gold-primary), transparent 70%);
+      top: -100px;
+      right: -100px;
+    }
+
+    /* ==========================================================
+       SIDEBAR NAVIGATION
+       ========================================================== */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-gold);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-brand {
+      height: 75px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 22px;
+      border-bottom: 1px solid var(--border-gold);
+    }
+
+    .brand-logo-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: radial-gradient(circle at 30% 30%, #2a251b, #111216);
+      border: 1px solid var(--gold-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--gold-glow);
+    }
+
+    .brand-logo-badge svg { width: 22px; height: 22px; stroke: var(--gold-primary); }
+
+    .brand-text h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text span {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 12px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      border-radius: 10px;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link svg { width: 18px; height: 18px; stroke: currentColor; }
+
+    .nav-link:hover {
+      background: rgba(212, 175, 55, 0.08);
+      color: var(--gold-light);
+      transform: translateX(4px);
+    }
+
+    .nav-link.active {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+    }
+
+    .nav-link.active svg { stroke: var(--text-dark); }
+
+    /* ==========================================================
+       MAIN WRAPPER & TOP BAR
+       ========================================================== */
+    .main-wrapper {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+      z-index: 10;
+    }
+
+    .top-header {
+      height: 75px;
+      background: rgba(13, 15, 21, 0.85);
+      backdrop-filter: blur(15px);
+      border-bottom: 1px solid var(--border-gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: 1px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .page-title h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .page-title p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .shop-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-gold);
+      font-size: 0.82rem;
+    }
+
+    /* Content Area */
+    .content-area {
+      padding: 26px 30px 60px;
+      flex: 1;
+    }
+
+    /* ==========================================================
+       8 ORDER STATISTICS COUNTERS
+       ========================================================== */
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .stat-box {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-gold);
+      border-radius: 14px;
+      padding: 14px 16px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .stat-box:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-gold-bright);
+    }
+
+    .stat-box::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+    }
+
+    .box-total::before { background: var(--gold-primary); }
+    .box-pending::before { background: var(--color-pending); }
+    .box-accepted::before { background: var(--color-accepted); }
+    .box-preparing::before { background: var(--color-preparing); }
+    .box-ontheway::before { background: var(--color-ontheway); }
+    .box-completed::before { background: var(--color-completed); }
+    .box-rejected::before { background: var(--color-rejected); }
+    .box-cancelled::before { background: var(--color-cancelled); }
+
+    .stat-label {
+      font-size: 0.74rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-number {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 4px;
+    }
+
+    /* ==========================================================
+       FILTER & SEARCH BAR
+       ========================================================== */
+    .filter-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 18px;
+      padding: 18px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .search-group {
+      flex: 1;
+      min-width: 260px;
+      position: relative;
+    }
+
+    .search-group svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 17px;
+      height: 17px;
+      stroke: var(--gold-primary);
+      opacity: 0.75;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 44px;
+      background: rgba(10, 11, 16, 0.75);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 0 16px 0 42px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+    }
+
+    .filter-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .filter-select {
+      height: 44px;
+      background: rgba(10, 11, 16, 0.75);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 0 14px;
+      color: #e2e8f0;
+      font-family: inherit;
+      font-size: 0.84rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .filter-select:focus { border-color: var(--gold-primary); }
+
+    /* ==========================================================
+       ORDER CARDS GRID
+       ========================================================== */
+    .orders-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 20px;
+    }
+
+    .order-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-gold);
+      border-radius: 18px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .order-card:hover {
+      border-color: var(--border-gold-bright);
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.6), var(--gold-glow);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+    }
+
+    .order-code {
+      font-family: 'Cinzel', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--gold-light);
+      letter-spacing: 0.5px;
+    }
+
+    .order-time {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .badge-pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .badge-accepted { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+    .badge-preparing { background: rgba(139, 92, 246, 0.15); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.4); }
+    .badge-ontheway { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4); }
+    .badge-completed { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .badge-rejected { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .badge-cancelled { background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.4); }
+
+    /* Customer Info Section */
+    .cust-info-box {
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .cust-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .cust-name {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .cust-category-tag {
+      font-size: 0.68rem;
+      background: rgba(212, 175, 55, 0.15);
+      color: var(--gold-light);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+
+    .cust-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .cust-row svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--gold-primary);
+      flex-shrink: 0;
+    }
+
+    .cust-row a {
+      color: var(--gold-light);
+      text-decoration: none;
+    }
+
+    .cust-row a:hover { text-decoration: underline; }
+
+    /* Items Section */
+    .items-list {
+      max-height: 160px;
+      overflow-y: auto;
+      margin-bottom: 14px;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+      padding-bottom: 10px;
+    }
+
+    .order-item-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+    }
+
+    .item-img {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: #171923;
+      object-fit: cover;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    .item-info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .item-name {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-meta {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .item-price {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--gold-light);
+    }
+
+    /* Pricing Summary */
+    .pricing-table {
+      font-size: 0.8rem;
+      margin-bottom: 14px;
+    }
+
+    .price-line {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+
+    .price-line.total-line {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 6px;
+      margin-top: 6px;
+    }
+
+    .price-line.total-line span:last-child {
+      color: var(--gold-light);
+    }
+
+    /* Live Countdown Box (For Accepted/Preparing orders) */
+    .countdown-bar {
+      background: rgba(212, 175, 55, 0.08);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.76rem;
+      color: var(--gold-light);
+      margin-bottom: 14px;
+    }
+
+    .countdown-val {
+      font-weight: 700;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+
+    /* Card Actions */
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .btn {
+      flex: 1;
+      min-width: 90px;
+      height: 38px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-accept {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+    }
+
+    .btn-accept:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(212, 175, 55, 0.4); }
+
+    .btn-reject {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+    }
+
+    .btn-reject:hover { background: rgba(239, 68, 68, 0.3); }
+
+    .btn-status {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-gold);
+      color: #e2e8f0;
+    }
+
+    .btn-status:hover { background: rgba(212, 175, 55, 0.15); color: var(--gold-light); }
+
+    .btn-whatsapp {
+      background: rgba(37, 211, 102, 0.12);
+      border: 1px solid rgba(37, 211, 102, 0.35);
+      color: #86efac;
+      padding: 0 12px;
+      flex: initial;
+    }
+
+    .btn-whatsapp:hover { background: rgba(37, 211, 102, 0.25); }
+
+    /* ==========================================================
+       MODAL DIALOGS
+       ========================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-box {
+      background: #0f121a;
+      border: 1px solid var(--border-gold);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), var(--gold-glow);
+      animation: modalFadeIn 0.25s ease-out;
+      overflow: hidden;
+    }
+
+    @keyframes modalFadeIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.15rem;
+      color: var(--gold-light);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.3rem;
+    }
+
+    .modal-body {
+      padding: 22px 24px;
+    }
+
+    .modal-form-group {
+      margin-bottom: 18px;
+    }
+
+    .modal-label {
+      display: block;
+      font-size: 0.82rem;
+      color: #e2e8f0;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .modal-select, .modal-input, .modal-textarea {
+      width: 100%;
+      background: #07080b;
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .modal-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    /* Empty State */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--bg-card);
+      border: 1px dashed var(--border-gold);
+      border-radius: 20px;
+    }
+
+    .empty-state svg {
+      width: 50px;
+      height: 50px;
+      stroke: var(--gold-primary);
+      margin-bottom: 14px;
+      opacity: 0.6;
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1100;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: #141720;
+      border: 1px solid var(--border-gold);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      animation: slideInToast 0.3s ease-out;
+    }
+
+    .toast.success { border-color: var(--color-completed); color: #6ee7b7; }
+    .toast.error { border-color: var(--color-rejected); color: #fca5a5; }
+
+    @keyframes slideInToast {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-left: 0; }
+      .menu-toggle { display: block; }
+      .content-area { padding: 18px 14px; }
+      .top-header { padding: 0 16px; }
+      .orders-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+
+  <!-- ==========================================================
+       SIDEBAR NAVIGATION
+       ========================================================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2C8.5 2 6 4.5 6 8c0 2 .8 3.8 2.2 5.1L5 22h14l-3.2-8.9C17.2 11.8 18 10 18 8c0-3.5-2.5-6-6-6z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h2>POULTRY ERP</h2>
+        <span>Shop Management</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="admin-dashboard.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="admin-orders.html" class="nav-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span>Orders Management</span>
+      </a>
+      <a href="products.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+        <span>Products</span>
+      </a>
+      <a href="stock.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        <span>Stock</span>
+      </a>
+      <a href="customers.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span>Customers</span>
+      </a>
+      <a href="shop-settings.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Shop Settings</span>
+      </a>
+      <a href="javascript:void(0)" class="nav-link" id="logoutBtn" style="color: #f87171; margin-top: 20px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span>Logout</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ==========================================================
+       MAIN CONTENT CONTAINER
+       ========================================================== -->
+  <div class="main-wrapper">
+    
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <button class="menu-toggle" id="menuToggleBtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="page-title">
+          <h1>অর্ডার ম্যানেজমেন্ট</h1>
+          <p>সকল কাস্টমার অর্ডার এবং লাইভ ট্র্যাকিং</p>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="shop-pill">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
+          <span id="roleLabel">ADMIN MODE</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="content-area">
+
+      <!-- 8 Order Statistics Counters -->
+      <section class="stats-container">
+        <div class="stat-box box-total" onclick="setQuickFilter('all')">
+          <div class="stat-label">সর্বমোট অর্ডার</div>
+          <div class="stat-number" id="countTotal">0</div>
+        </div>
+        <div class="stat-box box-pending" onclick="setQuickFilter('pending')">
+          <div class="stat-label">পেন্ডিং</div>
+          <div class="stat-number" id="countPending" style="color: var(--color-pending);">0</div>
+        </div>
+        <div class="stat-box box-accepted" onclick="setQuickFilter('accepted')">
+          <div class="stat-label">গৃহীত</div>
+          <div class="stat-number" id="countAccepted" style="color: var(--color-accepted);">0</div>
+        </div>
+        <div class="stat-box box-preparing" onclick="setQuickFilter('preparing')">
+          <div class="stat-label">প্রস্তুত হচ্ছে</div>
+          <div class="stat-number" id="countPreparing" style="color: var(--color-preparing);">0</div>
+        </div>
+        <div class="stat-box box-ontheway" onclick="setQuickFilter('on_the_way')">
+          <div class="stat-label">ডেলিভারিতে</div>
+          <div class="stat-number" id="countOnTheWay" style="color: var(--color-ontheway);">0</div>
+        </div>
+        <div class="stat-box box-completed" onclick="setQuickFilter('completed')">
+          <div class="stat-label">সম্পন্ন</div>
+          <div class="stat-number" id="countCompleted" style="color: var(--color-completed);">0</div>
+        </div>
+        <div class="stat-box box-rejected" onclick="setQuickFilter('rejected')">
+          <div class="stat-label">বাতিলকৃত (দোকান)</div>
+          <div class="stat-number" id="countRejected" style="color: var(--color-rejected);">0</div>
+        </div>
+        <div class="stat-box box-cancelled" onclick="setQuickFilter('cancelled')">
+          <div class="stat-label">গ্রাহক বাতিল</div>
+          <div class="stat-number" id="countCancelled" style="color: var(--color-cancelled);">0</div>
+        </div>
+      </section>
+
+      <!-- Search & Filters -->
+      <section class="filter-panel">
+        <div class="search-group">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" class="search-input" placeholder="অর্ডার আইডি, গ্রাহকের নাম বা ফোন নম্বর খুঁজুন..." />
+        </div>
+
+        <div class="filter-actions">
+          <!-- Status Filter -->
+          <select id="statusFilter" class="filter-select">
+            <option value="all">সকল স্ট্যাটাস</option>
+            <option value="pending">পেন্ডিং (Pending)</option>
+            <option value="accepted">গৃহীত (Accepted)</option>
+            <option value="preparing">প্রস্তুত হচ্ছে (Preparing)</option>
+            <option value="on_the_way">অন দ্য ওয়ে (On The Way)</option>
+            <option value="completed">সম্পন্ন (Completed)</option>
+            <option value="rejected">বাতিলকৃত (Rejected)</option>
+            <option value="cancelled">গ্রাহক বাতিল (Cancelled)</option>
+          </select>
+
+          <!-- Customer Category Filter -->
+          <select id="categoryFilter" class="filter-select">
+            <option value="all">সকল গ্রাহক ক্যাটাগরি</option>
+            <option value="retail">খুচরা (Retail)</option>
+            <option value="wholesale">পাইকারি (Wholesale)</option>
+            <option value="restaurant">হোটেল / রেস্তোরাঁ</option>
+          </select>
+
+          <!-- Date Filter -->
+          <select id="dateFilter" class="filter-select">
+            <option value="all">সকল সময়</option>
+            <option value="today">আজকের অর্ডার</option>
+            <option value="yesterday">গতকালের অর্ডার</option>
+            <option value="week">এই সপ্তাহের</option>
+          </select>
+
+          <!-- Sort Filter -->
+          <select id="sortFilter" class="filter-select">
+            <option value="newest">নতুন অর্ডার আগে</option>
+            <option value="oldest">পুরাতন অর্ডার আগে</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Orders Live Grid -->
+      <section class="orders-grid" id="ordersGrid">
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <h3>অর্ডার লোড হচ্ছে...</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 6px;">ডাটাবেজ থেকে রিয়েলটাইম অর্ডার সংগ্রহ করা হচ্ছে</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ==========================================================
+       MODAL 1: ACCEPT ORDER WITH DELIVERY TIMER
+       ========================================================== -->
+  <div class="modal-backdrop" id="acceptModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">অর্ডার গ্রহণ ও ডেলিভারি সময়</h3>
+        <button class="modal-close" onclick="closeModal('acceptModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+          অর্ডারটি অনুমোদন করতে আনুমানিক ডেলিভারি সময় নির্বাচন করুন। গ্রাহকের অ্যাপে স্বয়ংক্রিয় কাউন্টডাউন শুরু হবে।
+        </p>
+
+        <div class="modal-form-group">
+          <label class="modal-label">আনুমানিক ডেলিভারি সময় (Estimated Time)</label>
+          <select id="deliveryTimeSelect" class="modal-select">
+            <option value="30">৩০ মিনিট (30 Minutes)</option>
+            <option value="45">৪৫ মিনিট (45 Minutes)</option>
+            <option value="60" selected>১ ঘণ্টা (1 Hour)</option>
+            <option value="120">২ ঘণ্টা (2 Hours)</option>
+            <option value="180">৩ ঘণ্টা (3 Hours)</option>
+            <option value="custom">কাস্টম মিনিট লিখুন...</option>
+          </select>
+        </div>
+
+        <div class="modal-form-group" id="customTimeGroup" style="display: none;">
+          <label class="modal-label">কাস্টম সময় (মিনিট হিসেবে)</label>
+          <input type="number" id="customMinutesInput" class="modal-input" placeholder="উদাহরণ: 75" min="5" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-status" onclick="closeModal('acceptModal')">বাতিল</button>
+        <button class="btn btn-accept" id="confirmAcceptBtn">অর্ডার একসেপ্ট করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       MODAL 2: REJECT ORDER WITH REASON
+       ========================================================== -->
+  <div class="modal-backdrop" id="rejectModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" style="color: var(--color-rejected);">অর্ডার প্রত্যাখ্যানের কারণ</h3>
+        <button class="modal-close" onclick="closeModal('rejectModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-form-group">
+          <label class="modal-label">কারণ নির্বাচন বা টাইপ করুন</label>
+          <select id="rejectPresetSelect" class="modal-select" onchange="handleRejectPreset(this.value)">
+            <option value="স্টক শেষ হয়ে গেছে">পণ্যটির পর্যাপ্ত স্টক নেই</option>
+            <option value="ডেলিভারি লোকেশন পৌঁছানো সম্ভব নয়">আমাদের ডেলিভারি এলাকার বাইরে</option>
+            <option value="দোকান সাময়িকভাবে বন্ধ আছে">দোকান সাময়িকভাবে বন্ধ রয়েছে</option>
+            <option value="custom">অন্যান্য কারণ (নিচে লিখুন)</option>
+          </select>
+        </div>
+
+        <div class="modal-form-group">
+          <label class="modal-label">গ্রাহককে দেখানোর বার্তা</label>
+          <textarea id="rejectReasonText" class="modal-textarea">পণ্যটির পর্যাপ্ত স্টক নেই</textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-status" onclick="closeModal('rejectModal')">ফিরে যান</button>
+        <button class="btn btn-reject" id="confirmRejectBtn">রিজেক্ট নিশ্চিত করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       MODAL 3: STATUS CHANGE STEPPER
+       ========================================================== -->
+  <div class="modal-backdrop" id="statusModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">অর্ডার স্ট্যাটাস পরিবর্তন</h3>
+        <button class="modal-close" onclick="closeModal('statusModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-form-group">
+          <label class="modal-label">নতুন স্ট্যাটাস নির্ধারণ করুন</label>
+          <select id="changeStatusSelect" class="modal-select">
+            <option value="pending">পেন্ডিং (Pending)</option>
+            <option value="accepted">গৃহীত (Accepted)</option>
+            <option value="preparing">প্রস্তুত হচ্ছে (Preparing)</option>
+            <option value="on_the_way">অন দ্য ওয়ে (On The Way)</option>
+            <option value="completed">সম্পন্ন / ডেলিভার্ড (Completed)</option>
+            <option value="cancelled">গ্রাহক বা অ্যাডমিন বাতিল (Cancelled)</option>
+          </select>
+        </div>
+        <p style="font-size: 0.78rem; color: var(--text-muted);">
+          * 'Completed' নির্বাচন করলে গ্রাহকের অ্যাপের অ্যাক্টিভ অর্ডার থেকে অর্ডারটি কমপ্লিট সেকশনে স্থানান্তরিত হবে।
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-status" onclick="closeModal('statusModal')">বন্ধ করুন</button>
+        <button class="btn btn-accept" id="confirmStatusChangeBtn">স্ট্যাটাস আপডেট করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ==========================================================
+       JAVASCRIPT & FIREBASE IMPLEMENTATION
+       ========================================================== -->
+  <script>
+    // 1. Firebase Configuration (Matches Project Credentials)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDYPsjlOmRwH2F5P8fFoiirP1FLjgh3c8A",
+      authDomain: "murgi-dfd67.firebaseapp.com",
+      databaseURL: "https://murgi-dfd67-default-rtdb.firebaseio.com",
+      projectId: "murgi-dfd67",
+      storageBucket: "murgi-dfd67.firebasestorage.app",
+      messagingSenderId: "209696889864",
+      appId: "1:209696889864:web:3eaa16034f00cca45505bd"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const database = firebase.database();
+
+    // App State
+    let rawOrdersList = [];
+    let currentSelectedOrderId = null;
+    let shopWhatsappNumber = "";
+    let shopName = "পোল্ট্রি শপ";
+    let currentUserRole = "admin";
+
+    // Toast UI
+    function showToast(msg, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+      t.textContent = msg;
+      container.appendChild(t);
+      setTimeout(() => {
+        t.style.opacity = '0';
+        setTimeout(() => t.remove(), 300);
+      }, 3500);
+    }
+
+    // Modal Helpers
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    document.getElementById('deliveryTimeSelect').addEventListener('change', (e) => {
+      document.getElementById('customTimeGroup').style.display = e.target.value === 'custom' ? 'block' : 'none';
+    });
+
+    function handleRejectPreset(val) {
+      if (val !== 'custom') {
+        document.getElementById('rejectReasonText').value = val;
+      } else {
+        document.getElementById('rejectReasonText').value = '';
+        document.getElementById('rejectReasonText').focus();
+      }
+    }
+
+    // Mobile Sidebar
+    const menuToggleBtn = document.getElementById('menuToggleBtn');
+    const sidebar = document.getElementById('sidebar');
+    menuToggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+
+    // ==========================================================
+    // AUTHENTICATION GUARD
+    // ==========================================================
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.replace('admin-login.html');
+        return;
+      }
+
+      try {
+        const roleSnap = await database.ref(`users/${user.uid}/role`).once('value');
+        const role = roleSnap.val();
+
+        if (!role) {
+          await auth.signOut();
+          window.location.replace('admin-login.html');
+          return;
+        }
+
+        currentUserRole = role.toString().toLowerCase().trim();
+        document.getElementById('roleLabel').textContent = currentUserRole === 'admin' ? 'ADMIN CONSOLE' : 'SHOPKEEPER';
+
+        // Load Shop Profile
+        database.ref('shop/profile').once('value', (snap) => {
+          const s = snap.val() || {};
+          shopWhatsappNumber = s.whatsapp || "";
+          shopName = s.shopName || "পোল্ট্রি শপ";
+        });
+
+        // Initialize Live Orders Listener
+        initLiveOrders(user.uid, currentUserRole);
+
+      } catch (err) {
+        console.error(err);
+        showToast("নিরাপত্তা যাচাই ব্যর্থ হয়েছে।", "error");
+      }
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await auth.signOut();
+      window.location.replace('admin-login.html');
+    });
+
+    // ==========================================================
+    // REALTIME ORDERS LISTENER & COUNTERS
+    // ==========================================================
+    function initLiveOrders(uid, role) {
+      const ordersRef = database.ref('orders');
+
+      ordersRef.on('value', (snap) => {
+        rawOrdersList = [];
+        let countTotal = 0;
+        let countPending = 0;
+        let countAccepted = 0;
+        let countPreparing = 0;
+        let countOnTheWay = 0;
+        let countCompleted = 0;
+        let countRejected = 0;
+        let countCancelled = 0;
+
+        snap.forEach((child) => {
+          const ord = child.val();
+          ord.id = child.key;
+
+          // Shopkeeper isolation: filter if shopkeeper has assigned shopId
+          if (role === 'shopkeeper' && ord.shopId && ord.shopId !== uid) {
+            return;
+          }
+
+          rawOrdersList.push(ord);
+          countTotal++;
+
+          const status = (ord.status || 'pending').toLowerCase();
+          if (status === 'pending') countPending++;
+          else if (status === 'accepted') countAccepted++;
+          else if (status === 'preparing') countPreparing++;
+          else if (status === 'on_the_way') countOnTheWay++;
+          else if (status === 'completed') countCompleted++;
+          else if (status === 'rejected') countRejected++;
+          else if (status === 'cancelled') countCancelled++;
+        });
+
+        // Update Stat Elements
+        document.getElementById('countTotal').textContent = countTotal;
+        document.getElementById('countPending').textContent = countPending;
+        document.getElementById('countAccepted').textContent = countAccepted;
+        document.getElementById('countPreparing').textContent = countPreparing;
+        document.getElementById('countOnTheWay').textContent = countOnTheWay;
+        document.getElementById('countCompleted').textContent = countCompleted;
+        document.getElementById('countRejected').textContent = countRejected;
+        document.getElementById('countCancelled').textContent = countCancelled;
+
+        // Render current filtered list
+        applyFiltersAndRender();
+      });
+    }
+
+    // ==========================================================
+    // SEARCH, FILTER & RENDER
+    // ==========================================================
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const dateFilter = document.getElementById('dateFilter');
+    const sortFilter = document.getElementById('sortFilter');
+
+    [searchInput, statusFilter, categoryFilter, dateFilter, sortFilter].forEach(el => {
+      el.addEventListener('input', applyFiltersAndRender);
+      el.addEventListener('change', applyFiltersAndRender);
+    });
+
+    function setQuickFilter(statusKey) {
+      statusFilter.value = statusKey;
+      applyFiltersAndRender();
+    }
+
+    function applyFiltersAndRender() {
+      const q = searchInput.value.toLowerCase().trim();
+      const statusVal = statusFilter.value;
+      const catVal = categoryFilter.value;
+      const dateVal = dateFilter.value;
+      const sortVal = sortFilter.value;
+
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      const startOfYesterday = startOfToday - (24 * 60 * 60 * 1000);
+      const startOfWeek = startOfToday - (7 * 24 * 60 * 60 * 1000);
+
+      let filtered = rawOrdersList.filter(item => {
+        const orderId = (item.orderId || item.id || '').toLowerCase();
+        const customer = item.customer || {};
+        const custName = (customer.name || '').toLowerCase();
+        const custPhone = (customer.phone || customer.whatsapp || '').toLowerCase();
+
+        // 1. Search Query
+        const matchSearch = !q || orderId.includes(q) || custName.includes(q) || custPhone.includes(q);
+
+        // 2. Status
+        const st = (item.status || 'pending').toLowerCase();
+        const matchStatus = statusVal === 'all' || st === statusVal;
+
+        // 3. Category
+        const cCat = (customer.category || 'retail').toLowerCase();
+        const matchCategory = catVal === 'all' || cCat === catVal;
+
+        // 4. Date Filter
+        let matchDate = true;
+        const itemTime = item.createdAt ? new Date(item.createdAt).getTime() : 0;
+        if (dateVal === 'today') {
+          matchDate = itemTime >= startOfToday;
+        } else if (dateVal === 'yesterday') {
+          matchDate = itemTime >= startOfYesterday && itemTime < startOfToday;
+        } else if (dateVal === 'week') {
+          matchDate = itemTime >= startOfWeek;
+        }
+
+        return matchSearch && matchStatus && matchCategory && matchDate;
+      });
+
+      // Sorting
+      filtered.sort((a, b) => {
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return sortVal === 'oldest' ? timeA - timeB : timeB - timeA;
+      });
+
+      renderOrdersGrid(filtered);
+    }
+
+    function renderOrdersGrid(orders) {
+      const grid = document.getElementById('ordersGrid');
+
+      if (!orders || orders.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            <h3>কোনো অর্ডার পাওয়া যায়নি</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 6px;">আপনার ফিল্টার বা সার্চ অনুযায়ী কোনো ফলাফল নেই।</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = orders.map(ord => {
+        const orderIdDisplay = (ord.orderId || ord.id || '').toUpperCase();
+        const customer = ord.customer || {};
+        const pricing = ord.pricing || {};
+        const items = ord.items || [];
+        const status = (ord.status || 'pending').toLowerCase();
+        const phone = customer.whatsapp || customer.phone || '';
+
+        // Status Badge Logic
+        let badgeClass = 'badge-pending';
+        let badgeLabel = 'পেন্ডিং';
+        if (status === 'accepted') { badgeClass = 'badge-accepted'; badgeLabel = 'গৃহীত'; }
+        else if (status === 'preparing') { badgeClass = 'badge-preparing'; badgeLabel = 'প্রস্তুত হচ্ছে'; }
+        else if (status === 'on_the_way') { badgeClass = 'badge-ontheway'; badgeLabel = 'ডেলিভারিতে'; }
+        else if (status === 'completed') { badgeClass = 'badge-completed'; badgeLabel = 'সম্পন্ন'; }
+        else if (status === 'rejected') { badgeClass = 'badge-rejected'; badgeLabel = 'বাতিলকৃত'; }
+        else if (status === 'cancelled') { badgeClass = 'badge-cancelled'; badgeLabel = 'গ্রাহক বাতিল'; }
+
+        // Date Format
+        let dateString = "তারিখ অনুপলব্ধ";
+        if (ord.createdAt) {
+          const d = new Date(ord.createdAt);
+          dateString = !isNaN(d) ? d.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ord.createdAt;
+        }
+
+        // Category Tag
+        let catText = "খুচরা ক্রেতা";
+        if (customer.category === 'wholesale') catText = "পাইকারি";
+        if (customer.category === 'restaurant') catText = "রেস্তোরাঁ";
+
+        // GPS Link
+        let gpsHtml = '';
+        if (customer.lat && customer.lng) {
+          gpsHtml = `<div class="cust-row"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg><a href="https://maps.google.com/?q=${customer.lat},${customer.lng}" target="_blank">লাইভ জিপিএস ম্যাপ দেখুন</a></div>`;
+        }
+
+        // WhatsApp Prefill
+        const encodedMsg = encodeURIComponent(`আসসালামু আলাইকুম ${customer.name || ''}, আপনার অর্ডার #${orderIdDisplay} (${shopName})-এর বর্তমান স্ট্যাটাস: ${badgeLabel}।`);
+        const waLink = phone ? `https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${encodedMsg}` : '#';
+
+        // Delivery Countdown Box
+        let countdownHtml = '';
+        if (ord.deliveryDeadline && (status === 'accepted' || status === 'preparing' || status === 'on_the_way')) {
+          const deadlineDate = new Date(ord.deliveryDeadline);
+          const deadlineText = deadlineDate.toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' });
+          countdownHtml = `
+            <div class="countdown-bar">
+              <span>⏱️ ডেলিভারি লক্ষ্য:</span>
+              <span class="countdown-val">${deadlineText} এর মধ্যে</span>
+            </div>
+          `;
+        }
+
+        // 20-Minute Cancellation Notification
+        let cancelNotice = '';
+        if (ord.cancellation && ord.cancellation.requested) {
+          cancelNotice = `
+            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 0.76rem; color: #fca5a5;">
+              ⚠️ <strong>গ্রাহক বাতিলের অনুরোধ পাঠিয়েছেন:</strong> "${escapeHTML(ord.cancellation.reason || 'নির্দিষ্ট কারণ দেওয়া হয়নি')}"
+            </div>
+          `;
+        }
+
+        // Pricing Values
+        const subtotal = Number(pricing.subtotal || 0).toLocaleString('en-IN');
+        const deliveryCharge = Number(pricing.deliveryCharge || 0).toLocaleString('en-IN');
+        const total = Number(pricing.totalAmount || 0).toLocaleString('en-IN');
+
+        return `
+          <div class="order-card" id="card_${ord.id}">
+            <div class="card-top">
+              <div>
+                <span class="order-code">#${escapeHTML(orderIdDisplay)}</span>
+                <div class="order-time">${dateString}</div>
+              </div>
+              <span class="badge ${badgeClass}">${badgeLabel}</span>
+            </div>
+
+            <!-- Customer Details -->
+            <div class="cust-info-box">
+              <div class="cust-head">
+                <span class="cust-name">${escapeHTML(customer.name || 'নাম নেই')}</span>
+                <span class="cust-category-tag">${catText}</span>
+              </div>
+              ${customer.businessName ? `<div class="cust-row" style="color: var(--gold-light);">🏢 ${escapeHTML(customer.businessName)}</div>` : ''}
+              <div class="cust-row">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <span>${escapeHTML(phone || 'ফোন নম্বর নেই')}</span>
+              </div>
+              <div class="cust-row">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span>${escapeHTML(customer.address || 'ঠিকানা দেওয়া নেই')}</span>
+              </div>
+              ${gpsHtml}
+            </div>
+
+            ${cancelNotice}
+            ${countdownHtml}
+
+            <!-- Ordered Items List -->
+            <div class="items-list">
+              ${renderItemsList(items)}
+            </div>
+
+            <!-- Pricing Breakdown -->
+            <div class="pricing-table">
+              <div class="price-line"><span>সাবটোটাল</span><span>৳ ${subtotal}</span></div>
+              <div class="price-line"><span>ডেলিভারি চার্জ</span><span>৳ ${deliveryCharge}</span></div>
+              <div class="price-line total-line"><span>সর্বমোট মূল্য</span><span>৳ ${total}</span></div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="card-actions">
+              ${status === 'pending' ? `
+                <button class="btn btn-accept" onclick="openAcceptModal('${ord.id}')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  একসেপ্ট
+                </button>
+                <button class="btn btn-reject" onclick="openRejectModal('${ord.id}')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  বাতিল
+                </button>
+              ` : `
+                <button class="btn btn-status" onclick="openStatusModal('${ord.id}', '${status}')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                  স্ট্যাটাস
+                </button>
+              `}
+              <a href="${waLink}" target="_blank" class="btn btn-whatsapp" title="WhatsApp Message">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+              </a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderItemsList(items) {
+      if (!items || items.length === 0) return '<div style="font-size: 0.75rem; color: var(--text-muted);">কোনো পণ্যের বিবরণ পাওয়া যায়নি</div>';
+
+      const itemsArray = Array.isArray(items) ? items : Object.values(items);
+      return itemsArray.map(item => `
+        <div class="order-item-row">
+          <img src="${item.image || 'https://via.placeholder.com/40'}" class="item-img" alt="${escapeHTML(item.name || 'Product')}" onerror="this.src='https://via.placeholder.com/40';" />
+          <div class="item-info">
+            <div class="item-name">${escapeHTML(item.name || item.productName || 'আইটেম')}</div>
+            <div class="item-meta">${item.quantity || 1} ${escapeHTML(item.unit || 'কেজি')} × ৳ ${Number(item.unitPrice || 0).toLocaleString('en-IN')}</div>
+          </div>
+          <div class="item-price">৳ ${Number(item.subtotal || (item.quantity * item.unitPrice) || 0).toLocaleString('en-IN')}</div>
+        </div>
+      `).join('');
+    }
+
+    // ==========================================================
+    // ACTION HANDLERS: ACCEPT, REJECT, STATUS CHANGE
+    // ==========================================================
+    window.openAcceptModal = function(orderId) {
+      currentSelectedOrderId = orderId;
+      openModal('acceptModal');
+    };
+
+    window.openRejectModal = function(orderId) {
+      currentSelectedOrderId = orderId;
+      openModal('rejectModal');
+    };
+
+    window.openStatusModal = function(orderId, currentStatus) {
+      currentSelectedOrderId = orderId;
+      document.getElementById('changeStatusSelect').value = currentStatus;
+      openModal('statusModal');
+    };
+
+    // 1. Confirm Accept Order
+    document.getElementById('confirmAcceptBtn').addEventListener('click', async () => {
+      if (!currentSelectedOrderId) return;
+      const selectVal = document.getElementById('deliveryTimeSelect').value;
+      let minutes = selectVal === 'custom' ? parseInt(document.getElementById('customMinutesInput').value, 10) : parseInt(selectVal, 10);
+
+      if (isNaN(minutes) || minutes < 5) minutes = 60; // default 1 hour
+
+      const deadlineTimestamp = Date.now() + (minutes * 60 * 1000);
+
+      try {
+        const orderRef = database.ref(`orders/${currentSelectedOrderId}`);
+        
+        await orderRef.update({
+          status: 'accepted',
+          acceptedAt: new Date().toISOString(),
+          deliveryDeadline: deadlineTimestamp,
+          estimatedMinutes: minutes
+        });
+
+        // Send in-app notification to customer
+        await pushCustomerNotification(currentSelectedOrderId, 'অর্ডার অনুমোদিত হয়েছে!', `আপনার অর্ডারটি গ্রহণ করা হয়েছে। আনুমানিক ${minutes} মিনিটের মধ্যে ডেলিভারি সম্পন্ন হবে।`);
+
+        showToast("অর্ডারটি সফলভাবে গৃহীত হয়েছে।", "success");
+        closeModal('acceptModal');
+
+      } catch (err) {
+        console.error(err);
+        showToast("অর্ডার গ্রহণে ত্রুটি হয়েছে।", "error");
+      }
+    });
+
+    // 2. Confirm Reject Order
+    document.getElementById('confirmRejectBtn').addEventListener('click', async () => {
+      if (!currentSelectedOrderId) return;
+      const reason = document.getElementById('rejectReasonText').value.trim() || "দোকানের অনুপলব্ধতার কারণে";
+
+      try {
+        const orderRef = database.ref(`orders/${currentSelectedOrderId}`);
+        
+        await orderRef.update({
+          status: 'rejected',
+          rejectedAt: new Date().toISOString(),
+          rejectionReason: reason
+        });
+
+        await pushCustomerNotification(currentSelectedOrderId, 'অর্ডার বাতিল করা হয়েছে', `দুঃখিত, আপনার অর্ডারটি বাতিল করা হয়েছে। কারণ: ${reason}`);
+
+        showToast("অর্ডারটি প্রত্যাখ্যান করা হয়েছে।", "error");
+        closeModal('rejectModal');
+
+      } catch (err) {
+        console.error(err);
+        showToast("ত্রুটি ঘটেছে।", "error");
+      }
+    });
+
+    // 3. Confirm Status Change
+    document.getElementById('confirmStatusChangeBtn').addEventListener('click', async () => {
+      if (!currentSelectedOrderId) return;
+      const newStatus = document.getElementById('changeStatusSelect').value;
+
+      try {
+        const orderRef = database.ref(`orders/${currentSelectedOrderId}`);
+        const updates = {
+          status: newStatus,
+          statusUpdatedAt: new Date().toISOString()
+        };
+
+        if (newStatus === 'completed') {
+          updates.completedAt = new Date().toISOString();
+        }
+
+        await orderRef.update(updates);
+
+        let statusTextBengali = 'আপডেট হয়েছে';
+        if (newStatus === 'preparing') statusTextBengali = 'প্রস্তুত হচ্ছে';
+        if (newStatus === 'on_the_way') statusTextBengali = 'ডেলিভারি ম্যান নিয়ে বের হয়েছে';
+        if (newStatus === 'completed') statusTextBengali = 'সফলভাবে ডেলিভার্ড হয়েছে';
+
+        await pushCustomerNotification(currentSelectedOrderId, 'অর্ডার স্ট্যাটাস আপডেট', `আপনার অর্ডারের বর্তমান অবস্থা: ${statusTextBengali}`);
+
+        showToast("স্ট্যাটাস সফলভাবে আপডেট হয়েছে।", "success");
+        closeModal('statusModal');
+
+      } catch (err) {
+        console.error(err);
+        showToast("স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে।", "error");
+      }
+    });
+
+    // Helper: Push in-app Notification to customer
+    async function pushCustomerNotification(orderId, title, body) {
+      try {
+        const snap = await database.ref(`orders/${orderId}/customer/uid`).once('value');
+        const customerUid = snap.val();
+
+        if (customerUid) {
+          await database.ref(`notifications/${customerUid}`).push({
+            orderId: orderId,
+            title: title,
+            body: body,
+            createdAt: new Date().toISOString(),
+            read: false
+          });
+        }
+      } catch (e) {
+        console.warn("Could not dispatch customer notification:", e);
+      }
+    }
+
+    // Security Helper: Escape HTML
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>

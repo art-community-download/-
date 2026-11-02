@@ -3,21 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Order Management | Poultry Shop Admin</title>
+  <title>Orders Management | Poultry Shop Panel</title>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Firebase Compatibility SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
   <style>
     /* ==========================================================
-       DESIGN SYSTEM (GOLDEN OBSIDIAN THEME)
+       CSS RESET & DESIGN TOKENS (BLACK & GOLD OBSIDIAN)
        ========================================================== */
     *, *::before, *::after {
       box-sizing: border-box;
@@ -29,9 +24,9 @@
       --bg-body: #07080b;
       --bg-sidebar: #0d0f15;
       --bg-card: rgba(18, 20, 28, 0.78);
-      --bg-card-hover: rgba(25, 28, 38, 0.9);
+      --bg-card-hover: rgba(26, 29, 40, 0.88);
       --border-gold: rgba(212, 175, 55, 0.22);
-      --border-gold-bright: rgba(212, 175, 55, 0.55);
+      --border-gold-bright: rgba(212, 175, 55, 0.6);
       --gold-primary: #d4af37;
       --gold-light: #f5d77f;
       --gold-dark: #997519;
@@ -39,17 +34,18 @@
       --text-main: #f3f4f6;
       --text-muted: #94a3b8;
       --text-dark: #07080b;
-      
+
       /* Status Colors */
-      --color-pending: #f59e0b;
-      --color-accepted: #3b82f6;
-      --color-preparing: #8b5cf6;
-      --color-ontheway: #06b6d4;
-      --color-completed: #10b981;
-      --color-rejected: #ef4444;
-      --color-cancelled: #64748b;
+      --st-pending: #f59e0b;
+      --st-accepted: #3b82f6;
+      --st-preparing: #8b5cf6;
+      --st-ontheway: #06b6d4;
+      --st-delivered: #10b981;
+      --st-rejected: #ef4444;
+      --st-cancelled: #64748b;
 
       --sidebar-width: 260px;
+      --header-height: 75px;
       --gold-glow: 0 0 25px rgba(212, 175, 55, 0.2);
     }
 
@@ -62,12 +58,10 @@
       overflow-x: hidden;
     }
 
-    /* Scrollbar */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #090a0f; }
+    ::-webkit-scrollbar-track { background: #08090d; }
     ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 4px; }
 
-    /* Ambient Glow */
     .ambient-glow {
       position: fixed;
       width: 500px;
@@ -78,12 +72,12 @@
       z-index: 0;
       opacity: 0.12;
       background: radial-gradient(circle, var(--gold-primary), transparent 70%);
-      top: -100px;
-      right: -100px;
+      top: -80px;
+      right: -80px;
     }
 
     /* ==========================================================
-       SIDEBAR NAVIGATION
+       SIDEBAR NAVIGATION (EXACT 14 ADMIN LINKS)
        ========================================================== */
     .sidebar {
       width: var(--sidebar-width);
@@ -96,24 +90,25 @@
       bottom: 0;
       left: 0;
       z-index: 100;
-      transition: transform 0.3s ease;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .sidebar-brand {
-      height: 75px;
+      height: var(--header-height);
       display: flex;
       align-items: center;
       gap: 12px;
       padding: 0 22px;
       border-bottom: 1px solid var(--border-gold);
+      flex-shrink: 0;
     }
 
     .brand-logo-badge {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
       background: radial-gradient(circle at 30% 30%, #2a251b, #111216);
-      border: 1px solid var(--gold-primary);
+      border: 1.5px solid var(--gold-primary);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -124,11 +119,12 @@
 
     .brand-text h2 {
       font-family: 'Cinzel', serif;
-      font-size: 1.05rem;
+      font-size: 1.08rem;
       font-weight: 700;
       background: var(--gold-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
     }
 
     .brand-text span {
@@ -138,32 +134,86 @@
       text-transform: uppercase;
     }
 
+    .sidebar-user {
+      padding: 14px 18px;
+      margin: 14px 14px 6px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--gold-gradient);
+      color: #07080b;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .user-meta { flex: 1; overflow: hidden; }
+    .role-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+      text-transform: uppercase;
+      background: rgba(212, 175, 55, 0.2);
+      color: var(--gold-light);
+      border: 1px solid var(--border-gold);
+    }
+    .user-email {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 3px;
+    }
+
     .sidebar-nav {
       flex: 1;
       overflow-y: auto;
-      padding: 14px 12px;
+      padding: 10px 12px 24px;
+    }
+
+    .nav-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #64748b;
+      letter-spacing: 1.2px;
+      padding: 12px 14px 6px;
     }
 
     .nav-link {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 11px 14px;
+      padding: 10px 14px;
       color: var(--text-muted);
       text-decoration: none;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       font-weight: 500;
       border-radius: 10px;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
       transition: all 0.2s ease;
     }
 
-    .nav-link svg { width: 18px; height: 18px; stroke: currentColor; }
+    .nav-link svg { width: 18px; height: 18px; stroke: currentColor; flex-shrink: 0; }
 
     .nav-link:hover {
       background: rgba(212, 175, 55, 0.08);
       color: var(--gold-light);
-      transform: translateX(4px);
+      transform: translateX(3px);
     }
 
     .nav-link.active {
@@ -175,8 +225,19 @@
 
     .nav-link.active svg { stroke: var(--text-dark); }
 
+    .nav-link.logout-link {
+      color: #f87171;
+      margin-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 12px;
+    }
+    .nav-link.logout-link:hover {
+      background: rgba(239, 68, 68, 0.12);
+      color: #fca5a5;
+    }
+
     /* ==========================================================
-       MAIN WRAPPER & TOP BAR
+       MAIN CONTENT WRAPPER & TOP BAR
        ========================================================== */
     .main-wrapper {
       margin-left: var(--sidebar-width);
@@ -189,7 +250,7 @@
     }
 
     .top-header {
-      height: 75px;
+      height: var(--header-height);
       background: rgba(13, 15, 21, 0.85);
       backdrop-filter: blur(15px);
       border-bottom: 1px solid var(--border-gold);
@@ -218,117 +279,131 @@
       cursor: pointer;
     }
 
-    .page-title h1 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .page-title p {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-    }
-
-    .shop-pill {
+    .breadcrumbs {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 6px 14px;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-gold);
-      font-size: 0.82rem;
+      gap: 6px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .breadcrumbs a { color: var(--gold-light); text-decoration: none; }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
-    /* Content Area */
+    .btn-lang-toggle {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.25s ease;
+    }
+
+    .btn-lang-toggle:hover {
+      background: rgba(212, 175, 55, 0.15);
+      border-color: var(--gold-primary);
+    }
+
     .content-area {
       padding: 26px 30px 60px;
       flex: 1;
     }
 
     /* ==========================================================
-       8 ORDER STATISTICS COUNTERS
+       10 REALTIME ORDER STATISTICS CARDS
        ========================================================== */
-    .stats-container {
+    .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 14px;
-      margin-bottom: 24px;
+      margin-bottom: 26px;
     }
 
-    .stat-box {
+    .stat-card {
       background: var(--bg-card);
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(14px);
       border: 1px solid var(--border-gold);
-      border-radius: 14px;
-      padding: 14px 16px;
-      position: relative;
-      overflow: hidden;
+      border-radius: 16px;
+      padding: 16px 18px;
       transition: all 0.25s ease;
       cursor: pointer;
     }
 
-    .stat-box:hover {
-      transform: translateY(-2px);
+    .stat-card:hover {
+      transform: translateY(-3px);
       border-color: var(--border-gold-bright);
+      box-shadow: var(--gold-glow);
     }
 
-    .stat-box::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
+    .stat-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
     }
 
-    .box-total::before { background: var(--gold-primary); }
-    .box-pending::before { background: var(--color-pending); }
-    .box-accepted::before { background: var(--color-accepted); }
-    .box-preparing::before { background: var(--color-preparing); }
-    .box-ontheway::before { background: var(--color-ontheway); }
-    .box-completed::before { background: var(--color-completed); }
-    .box-rejected::before { background: var(--color-rejected); }
-    .box-cancelled::before { background: var(--color-cancelled); }
-
-    .stat-label {
+    .stat-title {
       font-size: 0.74rem;
-      font-weight: 500;
-      color: var(--text-muted);
+      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      color: var(--text-muted);
     }
 
-    .stat-number {
+    .stat-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      color: var(--gold-light);
+    }
+
+    .stat-icon svg { width: 16px; height: 16px; stroke: currentColor; }
+
+    .stat-value {
       font-size: 1.5rem;
       font-weight: 700;
       color: #fff;
-      margin-top: 4px;
     }
 
     /* ==========================================================
-       FILTER & SEARCH BAR
+       TOOLBAR & ADVANCED FILTERS
        ========================================================== */
-    .filter-panel {
+    .toolbar-panel {
       background: var(--bg-card);
       border: 1px solid var(--border-gold);
       border-radius: 18px;
-      padding: 18px 20px;
+      padding: 16px 20px;
       margin-bottom: 24px;
       display: flex;
       flex-wrap: wrap;
-      gap: 14px;
+      gap: 12px;
       align-items: center;
       justify-content: space-between;
     }
 
-    .search-group {
+    .search-box {
       flex: 1;
       min-width: 260px;
       position: relative;
     }
 
-    .search-group svg {
+    .search-box svg {
       position: absolute;
       left: 14px;
       top: 50%;
@@ -341,7 +416,7 @@
 
     .search-input {
       width: 100%;
-      height: 44px;
+      height: 42px;
       background: rgba(10, 11, 16, 0.75);
       border: 1px solid var(--border-gold);
       border-radius: 10px;
@@ -355,10 +430,10 @@
 
     .search-input:focus {
       border-color: var(--gold-primary);
-      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
     }
 
-    .filter-actions {
+    .filter-group {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
@@ -366,7 +441,7 @@
     }
 
     .filter-select {
-      height: 44px;
+      height: 42px;
       background: rgba(10, 11, 16, 0.75);
       border: 1px solid var(--border-gold);
       border-radius: 10px;
@@ -380,8 +455,29 @@
 
     .filter-select:focus { border-color: var(--gold-primary); }
 
+    .btn-clear {
+      height: 42px;
+      padding: 0 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-clear:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
     /* ==========================================================
-       ORDER CARDS GRID
+       ORDER CARDS GRID & TABLE
        ========================================================== */
     .orders-grid {
       display: grid;
@@ -397,194 +493,123 @@
       padding: 20px;
       display: flex;
       flex-direction: column;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
-      transition: all 0.3s ease;
     }
 
     .order-card:hover {
+      transform: translateY(-3px);
       border-color: var(--border-gold-bright);
-      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.6), var(--gold-glow);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), var(--gold-glow);
     }
 
     .card-top {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      padding-bottom: 14px;
+      padding-bottom: 12px;
       margin-bottom: 14px;
     }
 
-    .order-code {
+    .order-id-badge {
       font-family: 'Cinzel', serif;
       font-size: 1.05rem;
       font-weight: 700;
       color: var(--gold-light);
+    }
+
+    .badge-status {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
-    .order-time {
-      font-size: 0.74rem;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
+    .badge-pending { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .badge-accepted { background: rgba(59, 130, 246, 0.18); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+    .badge-preparing { background: rgba(139, 92, 246, 0.18); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.4); }
+    .badge-ontheway { background: rgba(6, 182, 212, 0.18); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4); }
+    .badge-delivered { background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .badge-rejected { background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .badge-cancelled { background: rgba(100, 116, 139, 0.2); color: #cbd5e1; border: 1px solid rgba(100, 116, 139, 0.4); }
 
-    /* Badges */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.72rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-    }
-
-    .badge-pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
-    .badge-accepted { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
-    .badge-preparing { background: rgba(139, 92, 246, 0.15); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.4); }
-    .badge-ontheway { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4); }
-    .badge-completed { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
-    .badge-rejected { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
-    .badge-cancelled { background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.4); }
-
-    /* Customer Info Section */
-    .cust-info-box {
+    /* Customer Brief Details */
+    .cust-box {
       background: rgba(0, 0, 0, 0.28);
       border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 12px;
-      padding: 12px;
+      padding: 12px 14px;
       margin-bottom: 14px;
-    }
-
-    .cust-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 6px;
-    }
-
-    .cust-name {
-      font-size: 0.92rem;
-      font-weight: 600;
-      color: #fff;
-    }
-
-    .cust-category-tag {
-      font-size: 0.68rem;
-      background: rgba(212, 175, 55, 0.15);
-      color: var(--gold-light);
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      padding: 2px 7px;
-      border-radius: 6px;
     }
 
     .cust-row {
       display: flex;
       align-items: center;
-      gap: 7px;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .cust-row:last-child { margin-bottom: 0; }
+
+    .cust-name { font-size: 0.95rem; font-weight: 700; color: #fff; }
+    .cust-cat-pill {
+      font-size: 0.68rem;
+      background: rgba(212, 175, 55, 0.15);
+      color: var(--gold-light);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: capitalize;
+    }
+
+    .cust-sub {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       font-size: 0.78rem;
       color: var(--text-muted);
       margin-top: 4px;
     }
+    .cust-sub svg { width: 14px; height: 14px; stroke: var(--gold-primary); flex-shrink: 0; }
 
-    .cust-row svg {
-      width: 14px;
-      height: 14px;
-      stroke: var(--gold-primary);
-      flex-shrink: 0;
-    }
-
-    .cust-row a {
-      color: var(--gold-light);
-      text-decoration: none;
-    }
-
-    .cust-row a:hover { text-decoration: underline; }
-
-    /* Items Section */
-    .items-list {
-      max-height: 160px;
-      overflow-y: auto;
+    /* Items Preview List */
+    .order-items-preview {
       margin-bottom: 14px;
+      max-height: 120px;
+      overflow-y: auto;
       border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
-      padding-bottom: 10px;
+      padding-bottom: 8px;
     }
 
-    .order-item-row {
+    .item-line {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 6px 0;
-    }
-
-    .item-img {
-      width: 38px;
-      height: 38px;
-      border-radius: 8px;
-      background: #171923;
-      object-fit: cover;
-      border: 1px solid rgba(212, 175, 55, 0.2);
-    }
-
-    .item-info {
-      flex: 1;
-      overflow: hidden;
-    }
-
-    .item-name {
+      justify-content: space-between;
       font-size: 0.82rem;
-      font-weight: 500;
-      color: #fff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      padding: 4px 0;
+      color: #e2e8f0;
     }
 
-    .item-meta {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-    }
-
-    .item-price {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--gold-light);
-    }
-
-    /* Pricing Summary */
-    .pricing-table {
-      font-size: 0.8rem;
-      margin-bottom: 14px;
-    }
-
-    .price-line {
+    .price-summary-row {
       display: flex;
       justify-content: space-between;
-      color: var(--text-muted);
-      margin-bottom: 3px;
+      align-items: baseline;
+      margin-bottom: 16px;
     }
 
-    .price-line.total-line {
-      font-size: 0.95rem;
+    .price-total {
+      font-size: 1.25rem;
       font-weight: 700;
-      color: #fff;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      padding-top: 6px;
-      margin-top: 6px;
-    }
-
-    .price-line.total-line span:last-child {
       color: var(--gold-light);
     }
 
-    /* Live Countdown Box (For Accepted/Preparing orders) */
-    .countdown-bar {
+    /* Live Deadline Counter Bar */
+    .deadline-countdown-bar {
       background: rgba(212, 175, 55, 0.08);
-      border: 1px solid rgba(212, 175, 55, 0.25);
-      border-radius: 8px;
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
       padding: 8px 12px;
       display: flex;
       align-items: center;
@@ -594,99 +619,95 @@
       margin-bottom: 14px;
     }
 
-    .countdown-val {
-      font-weight: 700;
+    .countdown-timer-val {
       font-family: monospace;
-      font-size: 0.85rem;
+      font-weight: 700;
+      font-size: 0.88rem;
     }
 
-    /* Card Actions */
-    .card-actions {
+    /* Card Actions Buttons */
+    .card-actions-grid {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
       margin-top: auto;
     }
 
-    .btn {
+    .btn-act {
       flex: 1;
-      min-width: 90px;
       height: 38px;
       border-radius: 10px;
       font-family: inherit;
       font-size: 0.8rem;
-      font-weight: 600;
+      font-weight: 700;
       border: none;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
-      transition: all 0.2s ease;
       text-decoration: none;
+      transition: all 0.2s ease;
     }
 
-    .btn-accept {
+    .btn-act-accept {
       background: var(--gold-gradient);
       color: var(--text-dark);
       box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
     }
+    .btn-act-accept:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(212, 175, 55, 0.45); }
 
-    .btn-accept:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(212, 175, 55, 0.4); }
-
-    .btn-reject {
+    .btn-act-reject {
       background: rgba(239, 68, 68, 0.15);
       border: 1px solid rgba(239, 68, 68, 0.35);
       color: #fca5a5;
     }
+    .btn-act-reject:hover { background: rgba(239, 68, 68, 0.25); }
 
-    .btn-reject:hover { background: rgba(239, 68, 68, 0.3); }
-
-    .btn-status {
-      background: rgba(255, 255, 255, 0.06);
+    .btn-act-view {
+      background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-gold);
-      color: #e2e8f0;
+      color: #fff;
     }
+    .btn-act-view:hover { background: rgba(212, 175, 55, 0.15); color: var(--gold-light); }
 
-    .btn-status:hover { background: rgba(212, 175, 55, 0.15); color: var(--gold-light); }
-
-    .btn-whatsapp {
-      background: rgba(37, 211, 102, 0.12);
+    .btn-act-wa {
+      flex: 0 0 40px;
+      background: rgba(37, 211, 102, 0.15);
       border: 1px solid rgba(37, 211, 102, 0.35);
       color: #86efac;
-      padding: 0 12px;
-      flex: initial;
     }
-
-    .btn-whatsapp:hover { background: rgba(37, 211, 102, 0.25); }
+    .btn-act-wa:hover { background: rgba(37, 211, 102, 0.3); }
 
     /* ==========================================================
-       MODAL DIALOGS
+       MODALS: ACCEPT, REJECT, DETAILS
        ========================================================== */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(8px);
       z-index: 1000;
       display: none;
       align-items: center;
       justify-content: center;
       padding: 16px;
+      overflow-y: auto;
     }
 
-    .modal-box {
-      background: #0f121a;
+    .modal-dialog {
+      background: #0d0f15;
       border: 1px solid var(--border-gold);
-      border-radius: 20px;
+      border-radius: 22px;
       width: 100%;
-      max-width: 480px;
+      max-width: 580px;
       box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), var(--gold-glow);
-      animation: modalFadeIn 0.25s ease-out;
+      animation: modalScaleUp 0.25s ease-out;
       overflow: hidden;
+      margin: auto;
     }
 
-    @keyframes modalFadeIn {
+    @keyframes modalScaleUp {
       from { transform: scale(0.95); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
     }
@@ -703,6 +724,7 @@
       font-family: 'Cinzel', serif;
       font-size: 1.15rem;
       color: var(--gold-light);
+      font-weight: 700;
     }
 
     .modal-close {
@@ -710,40 +732,40 @@
       border: none;
       color: var(--text-muted);
       cursor: pointer;
-      font-size: 1.3rem;
+      font-size: 1.4rem;
+      line-height: 1;
     }
 
     .modal-body {
-      padding: 22px 24px;
+      padding: 24px;
+      max-height: calc(85vh - 140px);
+      overflow-y: auto;
     }
 
-    .modal-form-group {
-      margin-bottom: 18px;
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
     }
 
-    .modal-label {
-      display: block;
-      font-size: 0.82rem;
-      color: #e2e8f0;
-      margin-bottom: 8px;
-      font-weight: 500;
-    }
+    .form-label { font-size: 0.8rem; font-weight: 500; color: #e2e8f0; }
 
-    .modal-select, .modal-input, .modal-textarea {
-      width: 100%;
-      background: #07080b;
+    .form-input, .form-select, .form-textarea {
+      background: #08090d;
       border: 1px solid var(--border-gold);
       border-radius: 10px;
       padding: 10px 14px;
       color: #fff;
       font-family: inherit;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       outline: none;
+      transition: all 0.2s ease;
     }
 
-    .modal-textarea {
-      resize: vertical;
-      min-height: 80px;
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
     }
 
     .modal-footer {
@@ -751,28 +773,34 @@
       border-top: 1px solid rgba(255, 255, 255, 0.08);
       display: flex;
       justify-content: flex-end;
-      gap: 10px;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.2);
     }
 
-    /* Empty State */
-    .empty-state {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 60px 20px;
-      background: var(--bg-card);
-      border: 1px dashed var(--border-gold);
-      border-radius: 20px;
+    .btn-modal {
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
     }
 
-    .empty-state svg {
-      width: 50px;
-      height: 50px;
-      stroke: var(--gold-primary);
-      margin-bottom: 14px;
-      opacity: 0.6;
+    .btn-modal-cancel {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-gold);
+      color: #e2e8f0;
     }
 
-    /* Toast */
+    .btn-modal-save {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    }
+
+    /* Toast Container */
     .toast-container {
       position: fixed;
       bottom: 24px;
@@ -791,24 +819,35 @@
       border-radius: 12px;
       font-size: 0.85rem;
       box-shadow: 0 10px 25px rgba(0,0,0,0.6);
-      animation: slideInToast 0.3s ease-out;
+      animation: toastSlideIn 0.3s ease-out;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .toast.success { border-color: var(--color-completed); color: #6ee7b7; }
-    .toast.error { border-color: var(--color-rejected); color: #fca5a5; }
+    .toast.success { border-color: var(--st-delivered); color: #6ee7b7; }
+    .toast.error { border-color: var(--st-rejected); color: #fca5a5; }
 
-    @keyframes slideInToast {
+    @keyframes toastSlideIn {
       from { transform: translateX(100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
     }
 
-    /* Mobile adjustments */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--bg-card);
+      border: 1px dashed var(--border-gold);
+      border-radius: 20px;
+    }
+
     @media (max-width: 900px) {
       .sidebar { transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); }
       .main-wrapper { margin-left: 0; }
       .menu-toggle { display: block; }
-      .content-area { padding: 18px 14px; }
+      .content-area { padding: 20px 16px; }
       .top-header { padding: 0 16px; }
       .orders-grid { grid-template-columns: 1fr; }
     }
@@ -819,7 +858,7 @@
   <div class="ambient-glow"></div>
 
   <!-- ==========================================================
-       SIDEBAR NAVIGATION
+       SIDEBAR NAVIGATION (EXACT 14 ADMIN LINKS)
        ========================================================== -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
@@ -830,155 +869,285 @@
       </div>
       <div class="brand-text">
         <h2>POULTRY ERP</h2>
-        <span>Shop Management</span>
+        <span data-i18n="shop_mgmt">Admin + Shopkeeper Panel</span>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="userAvatar">A</div>
+      <div class="user-meta">
+        <span class="role-badge" id="userRoleBadge">CHECKING...</span>
+        <div class="user-email" id="userEmail">Loading user...</div>
       </div>
     </div>
 
     <nav class="sidebar-nav">
+      <div class="nav-label" data-i18n="grp_main">Core Operations</div>
+      
+      <!-- 1. Dashboard -->
       <a href="admin-dashboard.html" class="nav-link">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        <span>Dashboard</span>
+        <span data-i18n="m_dashboard">Dashboard</span>
       </a>
+
+      <!-- 2. Orders (ACTIVE) -->
       <a href="admin-orders.html" class="nav-link active">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-        <span>Orders Management</span>
+        <span data-i18n="m_orders">Orders</span>
       </a>
+
+      <div class="nav-label" data-i18n="grp_catalog">Catalog & Pricing</div>
+
+      <!-- 3. Products -->
       <a href="admin-products.html" class="nav-link">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
-        <span>Products</span>
+        <span data-i18n="m_products">Products</span>
       </a>
-      <a href="stock.html" class="nav-link">
+
+      <!-- 4. Prices -->
+      <a href="admin-prices.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span data-i18n="m_prices">Tiered Prices</span>
+      </a>
+
+      <!-- 5. Stock Management -->
+      <a href="admin-stock.html" class="nav-link">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-        <span>Stock</span>
+        <span data-i18n="m_stock">Stock Management</span>
       </a>
-      <a href="customers.html" class="nav-link">
+
+      <div class="nav-label" data-i18n="grp_crm">CRM & Staff</div>
+
+      <!-- 6. Customers -->
+      <a href="admin-customers.html" class="nav-link">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-        <span>Customers</span>
+        <span data-i18n="m_customers">Customers</span>
       </a>
-      <a href="shop-settings.html" class="nav-link">
+
+      <!-- 7. Shop Management -->
+      <a href="admin-shopkeepers.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span data-i18n="m_shopkeepers">Shop Management</span>
+      </a>
+
+      <!-- 8. Referral Codes -->
+      <a href="admin-referrals.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span data-i18n="m_referrals">Referral Codes</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_config">Store Setup & Reports</div>
+
+      <!-- 9. Delivery Settings -->
+      <a href="admin-delivery.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <span data-i18n="m_delivery">Delivery Settings</span>
+      </a>
+
+      <!-- 10. Reports -->
+      <a href="admin-reports.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span data-i18n="m_reports">Reports</span>
+      </a>
+
+      <!-- 11. Shop Settings -->
+      <a href="admin-settings.html" class="nav-link">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        <span>Shop Settings</span>
+        <span data-i18n="m_settings">Shop Settings</span>
       </a>
-      <a href="javascript:void(0)" class="nav-link" id="logoutBtn" style="color: #f87171; margin-top: 20px;">
+
+      <!-- 12. Reviews -->
+      <a href="admin-reviews.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span data-i18n="m_reviews">Reviews</span>
+      </a>
+
+      <!-- 13. Customer Requests -->
+      <a href="admin-requests.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+        <span data-i18n="m_requests">Customer Requests</span>
+      </a>
+
+      <!-- 14. Logout Action -->
+      <a href="javascript:void(0)" class="nav-link logout-link" id="btnLogout">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        <span>Logout</span>
+        <span data-i18n="m_logout">Logout</span>
       </a>
     </nav>
   </aside>
 
   <!-- ==========================================================
-       MAIN CONTENT CONTAINER
+       MAIN CONTENT WRAPPER
        ========================================================== -->
   <div class="main-wrapper">
-    
-    <!-- Top Header -->
+
+    <!-- Top Consistent Header -->
     <header class="top-header">
       <div class="header-left">
         <button class="menu-toggle" id="menuToggleBtn">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
-        <div class="page-title">
-          <h1>অর্ডার ম্যানেজমেন্ট</h1>
-          <p>সকল কাস্টমার অর্ডার এবং লাইভ ট্র্যাকিং</p>
+        <div>
+          <!-- Working Back to Dashboard Link -->
+          <div class="breadcrumbs">
+            <a href="admin-dashboard.html" data-i18n="bc_home">Home</a> / <span data-i18n="bc_orders">Orders</span>
+          </div>
+          <h1 style="font-size: 1.25rem; font-weight: 700; color: #fff;" data-i18n="header_title">Order Management</h1>
         </div>
       </div>
 
-      <div class="header-right">
-        <div class="shop-pill">
-          <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
-          <span id="roleLabel">ADMIN MODE</span>
-        </div>
+      <div class="header-actions">
+        <!-- Language Switcher -->
+        <button class="btn-lang-toggle" id="btnLangToggle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="langButtonText">English</span>
+        </button>
       </div>
     </header>
 
     <main class="content-area">
 
-      <!-- 8 Order Statistics Counters -->
-      <section class="stats-container">
-        <div class="stat-box box-total" onclick="setQuickFilter('all')">
-          <div class="stat-label">সর্বমোট অর্ডার</div>
-          <div class="stat-number" id="countTotal">0</div>
+      <!-- 10 Realtime Order Statistics -->
+      <section class="stats-grid">
+        <div class="stat-card" onclick="setQuickStatus('all')">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_total">Total Orders</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
+          </div>
+          <div class="stat-value" id="statTotalOrders">0</div>
         </div>
-        <div class="stat-box box-pending" onclick="setQuickFilter('pending')">
-          <div class="stat-label">পেন্ডিং</div>
-          <div class="stat-number" id="countPending" style="color: var(--color-pending);">0</div>
+
+        <div class="stat-card" onclick="setQuickStatus('pending')">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_pending">Pending</span>
+            <div class="stat-icon" style="color: var(--st-pending); border-color: rgba(245,158,11,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          </div>
+          <div class="stat-value" id="statPendingOrders" style="color: var(--st-pending);">0</div>
         </div>
-        <div class="stat-box box-accepted" onclick="setQuickFilter('accepted')">
-          <div class="stat-label">গৃহীত</div>
-          <div class="stat-number" id="countAccepted" style="color: var(--color-accepted);">0</div>
+
+        <div class="stat-card" onclick="setQuickStatus('accepted')">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_accepted">Accepted</span>
+            <div class="stat-icon" style="color: var(--st-accepted); border-color: rgba(59,130,246,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+          </div>
+          <div class="stat-value" id="statAcceptedOrders" style="color: var(--st-accepted);">0</div>
         </div>
-        <div class="stat-box box-preparing" onclick="setQuickFilter('preparing')">
-          <div class="stat-label">প্রস্তুত হচ্ছে</div>
-          <div class="stat-number" id="countPreparing" style="color: var(--color-preparing);">0</div>
+
+        <div class="stat-card" onclick="setQuickStatus('preparing')">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_preparing">Preparing</span>
+            <div class="stat-icon" style="color: var(--st-preparing); border-color: rgba(139,92,246,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          </div>
+          <div class="stat-value" id="statPreparingOrders" style="color: var(--st-preparing);">0</div>
         </div>
-        <div class="stat-box box-ontheway" onclick="setQuickFilter('on_the_way')">
-          <div class="stat-label">ডেলিভারিতে</div>
-          <div class="stat-number" id="countOnTheWay" style="color: var(--color-ontheway);">0</div>
+
+        <div class="stat-card" onclick="setQuickStatus('on_the_way')">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_ontheway">On the Way</span>
+            <div class="stat-icon" style="color: var(--st-ontheway); border-color: rgba(6,182,212,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+          </div>
+          <div class="stat-value" id="statOnTheWayOrders" style="color: var(--st-ontheway);">0</div>
         </div>
-        <div class="stat-box box-completed" onclick="setQuickFilter('completed')">
-          <div class="stat-label">সম্পন্ন</div>
-          <div class="stat-number" id="countCompleted" style="color: var(--color-completed);">0</div>
+
+        <div class="stat-card" onclick="setQuickStatus('delivered')">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_delivered">Delivered</span>
+            <div class="stat-icon" style="color: var(--st-delivered); border-color: rgba(16,185,129,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+          </div>
+          <div class="stat-value" id="statDeliveredOrders" style="color: var(--st-delivered);">0</div>
         </div>
-        <div class="stat-box box-rejected" onclick="setQuickFilter('rejected')">
-          <div class="stat-label">বাতিলকৃত (দোকান)</div>
-          <div class="stat-number" id="countRejected" style="color: var(--color-rejected);">0</div>
+
+        <div class="stat-card" onclick="setQuickStatus('rejected')">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_rejected">Rejected</span>
+            <div class="stat-icon" style="color: var(--st-rejected); border-color: rgba(239,68,68,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
+          </div>
+          <div class="stat-value" id="statRejectedOrders" style="color: var(--st-rejected);">0</div>
         </div>
-        <div class="stat-box box-cancelled" onclick="setQuickFilter('cancelled')">
-          <div class="stat-label">গ্রাহক বাতিল</div>
-          <div class="stat-number" id="countCancelled" style="color: var(--color-cancelled);">0</div>
+
+        <div class="stat-card" onclick="setQuickStatus('cancelled')">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_cancelled">Cancelled</span>
+            <div class="stat-icon" style="color: var(--st-cancelled); border-color: rgba(100,116,139,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
+          </div>
+          <div class="stat-value" id="statCancelledOrders" style="color: var(--st-cancelled);">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_today_orders">Today's Orders</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          </div>
+          <div class="stat-value" id="statTodayOrders">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_today_sales">Today's Sales</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          </div>
+          <div class="stat-value" id="statTodaySales" style="color: var(--gold-light);">৳ 0</div>
         </div>
       </section>
 
-      <!-- Search & Filters -->
-      <section class="filter-panel">
-        <div class="search-group">
+      <!-- Toolbar & Filters -->
+      <section class="toolbar-panel">
+        <div class="search-box">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="searchInput" class="search-input" placeholder="অর্ডার আইডি, গ্রাহকের নাম বা ফোন নম্বর খুঁজুন..." />
+          <input type="text" id="searchInput" class="search-input" data-i18n-ph="search_placeholder" placeholder="অর্ডার আইডি, গ্রাহকের নাম বা ফোন দিয়ে খুঁজুন..." />
         </div>
 
-        <div class="filter-actions">
+        <div class="filter-group">
           <!-- Status Filter -->
-          <select id="statusFilter" class="filter-select">
-            <option value="all">সকল স্ট্যাটাস</option>
-            <option value="pending">পেন্ডিং (Pending)</option>
-            <option value="accepted">গৃহীত (Accepted)</option>
-            <option value="preparing">প্রস্তুত হচ্ছে (Preparing)</option>
-            <option value="on_the_way">অন দ্য ওয়ে (On The Way)</option>
-            <option value="completed">সম্পন্ন (Completed)</option>
-            <option value="rejected">বাতিলকৃত (Rejected)</option>
-            <option value="cancelled">গ্রাহক বাতিল (Cancelled)</option>
+          <select id="filterStatus" class="filter-select">
+            <option value="all" data-i18n="fl_all_status">All Statuses</option>
+            <option value="pending" data-i18n="st_pending">Pending</option>
+            <option value="accepted" data-i18n="st_accepted">Accepted</option>
+            <option value="preparing" data-i18n="st_preparing">Preparing</option>
+            <option value="on_the_way" data-i18n="st_ontheway">On the Way</option>
+            <option value="delivered" data-i18n="st_delivered">Delivered</option>
+            <option value="rejected" data-i18n="st_rejected">Rejected</option>
+            <option value="cancelled" data-i18n="st_cancelled">Cancelled</option>
           </select>
 
           <!-- Customer Category Filter -->
-          <select id="categoryFilter" class="filter-select">
-            <option value="all">সকল গ্রাহক ক্যাটাগরি</option>
-            <option value="retail">খুচরা (Retail)</option>
-            <option value="wholesale">পাইকারি (Wholesale)</option>
-            <option value="restaurant">হোটেল / রেস্তোরাঁ</option>
+          <select id="filterCategory" class="filter-select">
+            <option value="all" data-i18n="fl_all_cat">All Categories</option>
+            <option value="normal">Normal Customer</option>
+            <option value="restaurant">Restaurant</option>
+            <option value="hotel">Hotel</option>
+            <option value="club">Club</option>
+            <option value="bakery">Bakery</option>
+            <option value="cafe">Cafe</option>
+            <option value="catering">Catering Service</option>
+            <option value="otherBusiness">Other Business</option>
           </select>
 
           <!-- Date Filter -->
-          <select id="dateFilter" class="filter-select">
-            <option value="all">সকল সময়</option>
-            <option value="today">আজকের অর্ডার</option>
-            <option value="yesterday">গতকালের অর্ডার</option>
-            <option value="week">এই সপ্তাহের</option>
+          <select id="filterDate" class="filter-select">
+            <option value="all" data-i18n="fl_all_time">All Time</option>
+            <option value="today" data-i18n="fl_today">Today</option>
+            <option value="yesterday" data-i18n="fl_yesterday">Yesterday</option>
+            <option value="week" data-i18n="fl_week">Past 7 Days</option>
           </select>
 
-          <!-- Sort Filter -->
-          <select id="sortFilter" class="filter-select">
-            <option value="newest">নতুন অর্ডার আগে</option>
-            <option value="oldest">পুরাতন অর্ডার আগে</option>
+          <!-- Sort -->
+          <select id="filterSort" class="filter-select">
+            <option value="newest" data-i18n="fl_newest">Sort: Newest First</option>
+            <option value="oldest" data-i18n="fl_oldest">Sort: Oldest First</option>
           </select>
+
+          <button class="btn-clear" id="btnClearFilters" title="Reset Filters">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <span data-i18n="btn_reset">Reset</span>
+          </button>
         </div>
       </section>
 
       <!-- Orders Live Grid -->
       <section class="orders-grid" id="ordersGrid">
         <div class="empty-state">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          <h3>অর্ডার লোড হচ্ছে...</h3>
-          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 6px;">ডাটাবেজ থেকে রিয়েলটাইম অর্ডার সংগ্রহ করা হচ্ছে</p>
+          <p style="color: var(--text-muted); font-size: 0.95rem;">Loading live orders stream...</p>
         </div>
       </section>
 
@@ -986,115 +1155,119 @@
   </div>
 
   <!-- ==========================================================
-       MODAL 1: ACCEPT ORDER WITH DELIVERY TIMER
+       MODAL 1: ACCEPT ORDER & DELIVERY DEADLINE
        ========================================================== -->
-  <div class="modal-backdrop" id="acceptModal">
-    <div class="modal-box">
+  <div class="modal-backdrop" id="acceptOrderModal">
+    <div class="modal-dialog">
       <div class="modal-header">
-        <h3 class="modal-title">অর্ডার গ্রহণ ও ডেলিভারি সময়</h3>
-        <button class="modal-close" onclick="closeModal('acceptModal')">&times;</button>
+        <h3 class="modal-title" data-i18n="modal_accept_title">Accept Order & Set Delivery Time</h3>
+        <button class="modal-close" id="btnCloseAcceptModal">&times;</button>
       </div>
-      <div class="modal-body">
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
-          অর্ডারটি অনুমোদন করতে আনুমানিক ডেলিভারি সময় নির্বাচন করুন। গ্রাহকের অ্যাপে স্বয়ংক্রিয় কাউন্টডাউন শুরু হবে।
-        </p>
 
-        <div class="modal-form-group">
-          <label class="modal-label">আনুমানিক ডেলিভারি সময় (Estimated Time)</label>
-          <select id="deliveryTimeSelect" class="modal-select">
-            <option value="30">৩০ মিনিট (30 Minutes)</option>
-            <option value="45">৪৫ মিনিট (45 Minutes)</option>
-            <option value="60" selected>১ ঘণ্টা (1 Hour)</option>
-            <option value="120">২ ঘণ্টা (2 Hours)</option>
-            <option value="180">৩ ঘণ্টা (3 Hours)</option>
-            <option value="custom">কাস্টম মিনিট লিখুন...</option>
-          </select>
+      <form id="acceptOrderForm" autocomplete="off">
+        <div class="modal-body">
+          <input type="hidden" id="acceptOrderId" />
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;" data-i18n="accept_notice">
+            Select estimated delivery time. A live countdown will instantly start on the Customer App.
+          </p>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="modal_del_time">Estimated Delivery Time *</label>
+            <select id="deliveryMinutesSelect" class="form-select" required>
+              <option value="30">30 Minutes</option>
+              <option value="45">45 Minutes</option>
+              <option value="60" selected>1 Hour (60 Minutes)</option>
+              <option value="120">2 Hours (120 Minutes)</option>
+              <option value="180">3 Hours (180 Minutes)</option>
+              <option value="custom">Custom Time (Minutes)...</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="customMinutesBox" style="display: none;">
+            <label class="form-label" data-i18n="modal_custom_mins">Custom Minutes</label>
+            <input type="number" min="5" max="1440" id="customMinutesInput" class="form-input" placeholder="e.g. 75" />
+          </div>
         </div>
 
-        <div class="modal-form-group" id="customTimeGroup" style="display: none;">
-          <label class="modal-label">কাস্টম সময় (মিনিট হিসেবে)</label>
-          <input type="number" id="customMinutesInput" class="modal-input" placeholder="উদাহরণ: 75" min="5" />
+        <div class="modal-footer">
+          <button type="button" class="btn-modal btn-modal-cancel" id="btnCancelAcceptModal" data-i18n="btn_cancel">Cancel</button>
+          <button type="submit" class="btn-modal btn-modal-save" id="btnConfirmAccept" data-i18n="btn_accept_order">
+            Accept Order
+          </button>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-status" onclick="closeModal('acceptModal')">বাতিল</button>
-        <button class="btn btn-accept" id="confirmAcceptBtn">অর্ডার একসেপ্ট করুন</button>
-      </div>
+      </form>
     </div>
   </div>
 
   <!-- ==========================================================
-       MODAL 2: REJECT ORDER WITH REASON
+       MODAL 2: REJECT ORDER & REASON
        ========================================================== -->
-  <div class="modal-backdrop" id="rejectModal">
-    <div class="modal-box">
+  <div class="modal-backdrop" id="rejectOrderModal">
+    <div class="modal-dialog">
       <div class="modal-header">
-        <h3 class="modal-title" style="color: var(--color-rejected);">অর্ডার প্রত্যাখ্যানের কারণ</h3>
-        <button class="modal-close" onclick="closeModal('rejectModal')">&times;</button>
+        <h3 class="modal-title" style="color: var(--st-rejected);" data-i18n="modal_reject_title">Reject Order</h3>
+        <button class="modal-close" id="btnCloseRejectModal">&times;</button>
       </div>
-      <div class="modal-body">
-        <div class="modal-form-group">
-          <label class="modal-label">কারণ নির্বাচন বা টাইপ করুন</label>
-          <select id="rejectPresetSelect" class="modal-select" onchange="handleRejectPreset(this.value)">
-            <option value="স্টক শেষ হয়ে গেছে">পণ্যটির পর্যাপ্ত স্টক নেই</option>
-            <option value="ডেলিভারি লোকেশন পৌঁছানো সম্ভব নয়">আমাদের ডেলিভারি এলাকার বাইরে</option>
-            <option value="দোকান সাময়িকভাবে বন্ধ আছে">দোকান সাময়িকভাবে বন্ধ রয়েছে</option>
-            <option value="custom">অন্যান্য কারণ (নিচে লিখুন)</option>
-          </select>
+
+      <form id="rejectOrderForm" autocomplete="off">
+        <div class="modal-body">
+          <input type="hidden" id="rejectOrderId" />
+          
+          <div class="form-group">
+            <label class="form-label" data-i18n="modal_reject_reason">Reason for Rejection *</label>
+            <textarea id="rejectReasonInput" class="form-textarea" rows="3" placeholder="e.g. Item out of stock / Delivery address out of operational range" required></textarea>
+          </div>
         </div>
 
-        <div class="modal-form-group">
-          <label class="modal-label">গ্রাহককে দেখানোর বার্তা</label>
-          <textarea id="rejectReasonText" class="modal-textarea">পণ্যটির পর্যাপ্ত স্টক নেই</textarea>
+        <div class="modal-footer">
+          <button type="button" class="btn-modal btn-modal-cancel" id="btnCancelRejectModal" data-i18n="btn_cancel">Cancel</button>
+          <button type="submit" class="btn-modal" id="btnConfirmReject" style="background: rgba(239, 68, 68, 0.9); color: #fff;" data-i18n="btn_confirm_reject">
+            Confirm Rejection
+          </button>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-status" onclick="closeModal('rejectModal')">ফিরে যান</button>
-        <button class="btn btn-reject" id="confirmRejectBtn">রিজেক্ট নিশ্চিত করুন</button>
-      </div>
+      </form>
     </div>
   </div>
 
   <!-- ==========================================================
-       MODAL 3: STATUS CHANGE STEPPER
+       MODAL 3: VIEW ORDER DETAILS
        ========================================================== -->
-  <div class="modal-backdrop" id="statusModal">
-    <div class="modal-box">
+  <div class="modal-backdrop" id="orderDetailsModal">
+    <div class="modal-dialog" style="max-width: 680px;">
       <div class="modal-header">
-        <h3 class="modal-title">অর্ডার স্ট্যাটাস পরিবর্তন</h3>
-        <button class="modal-close" onclick="closeModal('statusModal')">&times;</button>
+        <h3 class="modal-title" id="detailsModalTitle">Order Details</h3>
+        <button class="modal-close" id="btnCloseDetailsModal">&times;</button>
       </div>
-      <div class="modal-body">
-        <div class="modal-form-group">
-          <label class="modal-label">নতুন স্ট্যাটাস নির্ধারণ করুন</label>
-          <select id="changeStatusSelect" class="modal-select">
-            <option value="pending">পেন্ডিং (Pending)</option>
-            <option value="accepted">গৃহীত (Accepted)</option>
-            <option value="preparing">প্রস্তুত হচ্ছে (Preparing)</option>
-            <option value="on_the_way">অন দ্য ওয়ে (On The Way)</option>
-            <option value="completed">সম্পন্ন / ডেলিভার্ড (Completed)</option>
-            <option value="cancelled">গ্রাহক বা অ্যাডমিন বাতিল (Cancelled)</option>
-          </select>
-        </div>
-        <p style="font-size: 0.78rem; color: var(--text-muted);">
-          * 'Completed' নির্বাচন করলে গ্রাহকের অ্যাপের অ্যাক্টিভ অর্ডার থেকে অর্ডারটি কমপ্লিট সেকশনে স্থানান্তরিত হবে।
-        </p>
+
+      <div class="modal-body" id="detailsModalBody">
+        <!-- Rendered dynamically -->
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-status" onclick="closeModal('statusModal')">বন্ধ করুন</button>
-        <button class="btn btn-accept" id="confirmStatusChangeBtn">স্ট্যাটাস আপডেট করুন</button>
+
+      <div class="modal-footer" id="detailsModalFooter">
+        <!-- Action Buttons rendered dynamically -->
       </div>
     </div>
   </div>
 
-  <!-- Toast Notification Container -->
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- ==========================================================
-       JAVASCRIPT & FIREBASE IMPLEMENTATION
+       MODULAR FIREBASE SDK (v10) & REALTIME SCRIPT
        ========================================================== -->
-  <script>
-    // 1. Firebase Configuration (Matches Project Credentials)
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      getDatabase, 
+      ref, 
+      onValue, 
+      update, 
+      push, 
+      serverTimestamp, 
+      get 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // 1. Firebase Configuration Placeholder (Matching Project)
     const firebaseConfig = {
       apiKey: "AIzaSyDYPsjlOmRwH2F5P8fFoiirP1FLjgh3c8A",
       authDomain: "murgi-dfd67.firebaseapp.com",
@@ -1105,210 +1278,411 @@
       appId: "1:209696889864:web:3eaa16034f00cca45505bd"
     };
 
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // ==========================================================
+    // MULTI-LANGUAGE TRANSLATION DICTIONARY (EN & BN)
+    // ==========================================================
+    const i18n = {
+      en: {
+        shop_mgmt: "Admin + Shopkeeper Panel",
+        grp_main: "Core Operations",
+        m_dashboard: "Dashboard",
+        m_orders: "Orders",
+        grp_catalog: "Catalog & Pricing",
+        m_products: "Products",
+        m_prices: "Tiered Prices",
+        m_stock: "Stock Management",
+        grp_crm: "CRM & Staff",
+        m_customers: "Customers",
+        m_shopkeepers: "Shop Management",
+        m_referrals: "Referral Codes",
+        grp_config: "Store Setup & Reports",
+        m_delivery: "Delivery Settings",
+        m_reports: "Reports",
+        m_settings: "Shop Settings",
+        m_reviews: "Reviews",
+        m_requests: "Customer Requests",
+        m_logout: "Logout",
+        bc_home: "Home",
+        bc_orders: "Orders",
+        header_title: "Order Management & Tracking",
+        st_total: "Total Orders",
+        st_pending: "Pending",
+        st_accepted: "Accepted",
+        st_preparing: "Preparing",
+        st_ontheway: "On the Way",
+        st_delivered: "Delivered",
+        st_rejected: "Rejected",
+        st_cancelled: "Cancelled",
+        st_today_orders: "Today's Orders",
+        st_today_sales: "Today's Sales",
+        search_placeholder: "Search by Order ID, Customer Name or Phone...",
+        fl_all_status: "All Statuses",
+        fl_all_cat: "All Categories",
+        fl_all_time: "All Time",
+        fl_today: "Today",
+        fl_yesterday: "Yesterday",
+        fl_week: "Past 7 Days",
+        fl_newest: "Sort: Newest First",
+        fl_oldest: "Sort: Oldest First",
+        btn_reset: "Reset",
+        btn_accept: "Accept",
+        btn_reject: "Reject",
+        btn_details: "Details",
+        btn_whatsapp: "WhatsApp",
+        btn_maps: "Google Maps",
+        btn_cancel: "Cancel",
+        btn_save: "Save",
+        modal_accept_title: "Accept Order & Set Delivery Time",
+        accept_notice: "Select estimated delivery time. A live countdown will instantly start on the Customer App.",
+        modal_del_time: "Estimated Delivery Time *",
+        modal_custom_mins: "Custom Minutes",
+        btn_accept_order: "Accept Order",
+        modal_reject_title: "Reject Order",
+        modal_reject_reason: "Reason for Rejection *",
+        btn_confirm_reject: "Confirm Rejection",
+        deadline_prefix: "Delivery Target:",
+        overdue_tag: "OVERDUE",
+        lang_switch_to: "বাংলা",
+        order_not_found: "No orders found matching the filter criteria.",
+        order_accepted_msg: "Order accepted successfully!",
+        order_rejected_msg: "Order rejected.",
+        status_updated_msg: "Order status updated successfully!"
+      },
+      bn: {
+        shop_mgmt: "অ্যাডমিন ও শপকিপার প্যানেল",
+        grp_main: "প্রধান কার্যক্রম",
+        m_dashboard: "ড্যাশবোর্ড",
+        m_orders: "অর্ডারসমূহ",
+        grp_catalog: "পণ্য ও মূল্যতালিকা",
+        m_products: "পণ্য ক্যাটালগ",
+        m_prices: "ক্যাটাগরি মূল্য",
+        m_stock: "স্টক ম্যানেজমেন্ট",
+        grp_crm: "গ্রাহক ও কর্মী",
+        m_customers: "গ্রাহকবৃন্দ",
+        m_shopkeepers: "দোকান পরিচালনা",
+        m_referrals: "রেফারেল কোড",
+        grp_config: "সেটআপ ও রিপোর্ট",
+        m_delivery: "ডেলিভারি সেটিংস",
+        m_reports: "রিপোর্ট ও অ্যানালিটিক্স",
+        m_settings: "শপ সেটিংস",
+        m_reviews: "রিভিউ ও রেটিং",
+        m_requests: "গ্রাহক অনুরোধ",
+        m_logout: "লগআউট",
+        bc_home: "হোম",
+        bc_orders: "অর্ডারসমূহ",
+        header_title: "অর্ডার ম্যানেজমেন্ট ও লাইভ ট্র্যাকিং",
+        st_total: "সর্বমোট অর্ডার",
+        st_pending: "অপেক্ষমাণ (Pending)",
+        st_accepted: "গৃহীত (Accepted)",
+        st_preparing: "প্রস্তুত হচ্ছে (Preparing)",
+        st_ontheway: "ডেলিভারিতে (On Way)",
+        st_delivered: "সম্পন্ন (Delivered)",
+        st_rejected: "বাতিলকৃত (Rejected)",
+        st_cancelled: "গ্রাহক বাতিল",
+        st_today_orders: "আজকের অর্ডার",
+        st_today_sales: "আজকের মোট বিক্রি",
+        search_placeholder: "অর্ডার আইডি, গ্রাহকের নাম বা ফোন দিয়ে খুঁজুন...",
+        fl_all_status: "সকল স্ট্যাটাস",
+        fl_all_cat: "সকল ক্যাটাগরি",
+        fl_all_time: "সকল সময়",
+        fl_today: "আজকের অর্ডার",
+        fl_yesterday: "গতকালের অর্ডার",
+        fl_week: "গত ৭ দিন",
+        fl_newest: "সর্ট: নতুন অর্ডার আগে",
+        fl_oldest: "সর্ট: পুরাতন অর্ডার আগে",
+        btn_reset: "রিসেট",
+        btn_accept: "গ্রহণ করুন",
+        btn_reject: "বাতিল করুন",
+        btn_details: "বিস্তারিত",
+        btn_whatsapp: "WhatsApp",
+        btn_maps: "ম্যাপ লোকেশন",
+        btn_cancel: "বাতিল",
+        btn_save: "সংরক্ষণ",
+        modal_accept_title: "অর্ডার অনুমোদন ও ডেলিভারি সময়",
+        accept_notice: "আনুমানিক ডেলিভারি সময় নির্বাচন করুন। গ্রাহকের অ্যাপে সরাসরি কাউন্টডাউন শুরু হবে।",
+        modal_del_time: "আনুমানিক ডেলিভারি সময় *",
+        modal_custom_mins: "কাস্টম মিনিট",
+        btn_accept_order: "অর্ডার একসেপ্ট করুন",
+        modal_reject_title: "অর্ডার বাতিলকরণ",
+        modal_reject_reason: "বাতিলের কারণ *",
+        btn_confirm_reject: "বাতিল নিশ্চিত করুন",
+        deadline_prefix: "ডেলিভারি লক্ষ্য:",
+        overdue_tag: "সময় অতিক্রান্ত",
+        lang_switch_to: "English",
+        order_not_found: "ফিল্টারের শর্ত অনুযায়ী কোনো অর্ডার পাওয়া যায়নি।",
+        order_accepted_msg: "অর্ডারটি সফলভাবে গৃহীত হয়েছে!",
+        order_rejected_msg: "অর্ডারটি বাতিল করা হয়েছে।",
+        status_updated_msg: "অর্ডারের স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে!"
+      }
+    };
+
+    let currentLang = localStorage.getItem('poultry_admin_lang') || 'bn';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('poultry_admin_lang', lang);
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang][key]) el.textContent = i18n[lang][key];
+      });
+
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const key = el.getAttribute('data-i18n-ph');
+        if (i18n[lang][key]) el.placeholder = i18n[lang][key];
+      });
+
+      document.getElementById('langButtonText').textContent = i18n[lang].lang_switch_to;
+      renderOrdersGrid();
     }
-    const auth = firebase.auth();
-    const database = firebase.database();
 
-    // App State
-    let rawOrdersList = [];
-    let currentSelectedOrderId = null;
-    let shopWhatsappNumber = "";
-    let shopName = "পোল্ট্রি শপ";
-    let currentUserRole = "admin";
-
-    // Toast UI
-    function showToast(msg, type = 'info') {
-      const container = document.getElementById('toastContainer');
-      const t = document.createElement('div');
-      t.className = `toast ${type}`;
-      t.textContent = msg;
-      container.appendChild(t);
-      setTimeout(() => {
-        t.style.opacity = '0';
-        setTimeout(() => t.remove(), 300);
-      }, 3500);
-    }
-
-    // Modal Helpers
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-    document.getElementById('deliveryTimeSelect').addEventListener('change', (e) => {
-      document.getElementById('customTimeGroup').style.display = e.target.value === 'custom' ? 'block' : 'none';
+    document.getElementById('btnLangToggle').addEventListener('click', () => {
+      setLanguage(currentLang === 'en' ? 'bn' : 'en');
     });
 
-    function handleRejectPreset(val) {
-      if (val !== 'custom') {
-        document.getElementById('rejectReasonText').value = val;
-      } else {
-        document.getElementById('rejectReasonText').value = '';
-        document.getElementById('rejectReasonText').focus();
-      }
-    }
+    // App State
+    let currentUser = null;
+    let currentUserRole = null;
+    let allOrders = [];
 
-    // Mobile Sidebar
-    const menuToggleBtn = document.getElementById('menuToggleBtn');
-    const sidebar = document.getElementById('sidebar');
-    menuToggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+    // DOM References
+    const statTotal = document.getElementById('statTotalOrders');
+    const statPending = document.getElementById('statPendingOrders');
+    const statAccepted = document.getElementById('statAcceptedOrders');
+    const statPreparing = document.getElementById('statPreparingOrders');
+    const statOnTheWay = document.getElementById('statOnTheWayOrders');
+    const statDelivered = document.getElementById('statDeliveredOrders');
+    const statRejected = document.getElementById('statRejectedOrders');
+    const statCancelled = document.getElementById('statCancelledOrders');
+    const statTodayOrders = document.getElementById('statTodayOrders');
+    const statTodaySales = document.getElementById('statTodaySales');
+
+    const searchInput = document.getElementById('searchInput');
+    const filterStatus = document.getElementById('filterStatus');
+    const filterCategory = document.getElementById('filterCategory');
+    const filterDate = document.getElementById('filterDate');
+    const filterSort = document.getElementById('filterSort');
+    const btnClearFilters = document.getElementById('btnClearFilters');
+    const ordersGrid = document.getElementById('ordersGrid');
+
+    // Modals
+    const acceptOrderModal = document.getElementById('acceptOrderModal');
+    const acceptOrderId = document.getElementById('acceptOrderId');
+    const deliveryMinutesSelect = document.getElementById('deliveryMinutesSelect');
+    const customMinutesBox = document.getElementById('customMinutesBox');
+    const customMinutesInput = document.getElementById('customMinutesInput');
+    const acceptOrderForm = document.getElementById('acceptOrderForm');
+
+    const rejectOrderModal = document.getElementById('rejectOrderModal');
+    const rejectOrderId = document.getElementById('rejectOrderId');
+    const rejectReasonInput = document.getElementById('rejectReasonInput');
+    const rejectOrderForm = document.getElementById('rejectOrderForm');
+
+    const orderDetailsModal = document.getElementById('orderDetailsModal');
+    const detailsModalTitle = document.getElementById('detailsModalTitle');
+    const detailsModalBody = document.getElementById('detailsModalBody');
+    const detailsModalFooter = document.getElementById('detailsModalFooter');
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
 
     // ==========================================================
     // AUTHENTICATION GUARD
     // ==========================================================
-    auth.onAuthStateChanged(async (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.replace('admin-login.html');
         return;
       }
 
+      currentUser = user;
+      document.getElementById('userEmail').textContent = user.email;
+      document.getElementById('userAvatar').textContent = (user.email.charAt(0) || 'A').toUpperCase();
+
       try {
-        const roleSnap = await database.ref(`users/${user.uid}/role`).once('value');
-        const role = roleSnap.val();
+        const roleRef = ref(db, `users/${user.uid}/role`);
+        const snapshot = await get(roleRef);
+        const role = snapshot.val();
 
         if (!role) {
-          await auth.signOut();
+          showToast("অননুমোদিত অ্যাকাউন্ট!", "error");
+          await signOut(auth);
           window.location.replace('admin-login.html');
           return;
         }
 
-        currentUserRole = role.toString().toLowerCase().trim();
-        document.getElementById('roleLabel').textContent = currentUserRole === 'admin' ? 'ADMIN CONSOLE' : 'SHOPKEEPER';
+        const normalizedRole = role.toString().toLowerCase().trim();
+        if (normalizedRole !== 'admin' && normalizedRole !== 'shopkeeper') {
+          showToast("অননুমোদিত রোল!", "error");
+          await signOut(auth);
+          window.location.replace('admin-login.html');
+          return;
+        }
 
-        // Load Shop Profile
-        database.ref('shop/profile').once('value', (snap) => {
-          const s = snap.val() || {};
-          shopWhatsappNumber = s.whatsapp || "";
-          shopName = s.shopName || "পোল্ট্রি শপ";
-        });
+        currentUserRole = normalizedRole;
+        document.getElementById('userRoleBadge').textContent = normalizedRole.toUpperCase();
 
-        // Initialize Live Orders Listener
-        initLiveOrders(user.uid, currentUserRole);
+        listenToOrdersRealtime();
 
       } catch (err) {
-        console.error(err);
-        showToast("নিরাপত্তা যাচাই ব্যর্থ হয়েছে।", "error");
+        console.error("Auth Guard Error:", err);
       }
     });
 
-    // Logout
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await auth.signOut();
+    document.getElementById('btnLogout').addEventListener('click', async () => {
+      await signOut(auth);
       window.location.replace('admin-login.html');
     });
 
+    const menuToggleBtn = document.getElementById('menuToggleBtn');
+    const sidebar = document.getElementById('sidebar');
+    menuToggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+
     // ==========================================================
-    // REALTIME ORDERS LISTENER & COUNTERS
+    // REALTIME DATABASE LISTENER: ORDERS
     // ==========================================================
-    function initLiveOrders(uid, role) {
-      const ordersRef = database.ref('orders');
+    function listenToOrdersRealtime() {
+      const ordersRef = ref(db, 'orders');
 
-      ordersRef.on('value', (snap) => {
-        rawOrdersList = [];
-        let countTotal = 0;
-        let countPending = 0;
-        let countAccepted = 0;
-        let countPreparing = 0;
-        let countOnTheWay = 0;
-        let countCompleted = 0;
-        let countRejected = 0;
-        let countCancelled = 0;
+      onValue(ordersRef, (snapshot) => {
+        allOrders = [];
+        let totalCount = 0;
+        let pendingCount = 0;
+        let acceptedCount = 0;
+        let preparingCount = 0;
+        let onTheWayCount = 0;
+        let deliveredCount = 0;
+        let rejectedCount = 0;
+        let cancelledCount = 0;
 
-        snap.forEach((child) => {
-          const ord = child.val();
-          ord.id = child.key;
+        let todayOrdersCount = 0;
+        let todaySalesTotal = 0;
 
-          // Shopkeeper isolation: filter if shopkeeper has assigned shopId
-          if (role === 'shopkeeper' && ord.shopId && ord.shopId !== uid) {
-            return;
-          }
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+        const todayTs = startOfToday.getTime();
 
-          rawOrdersList.push(ord);
-          countTotal++;
+        snapshot.forEach((childSnap) => {
+          const ord = childSnap.val();
+          ord.key = childSnap.key;
+          ord.orderId = ord.orderId || childSnap.key;
+          allOrders.push(ord);
+
+          totalCount++;
 
           const status = (ord.status || 'pending').toLowerCase();
-          if (status === 'pending') countPending++;
-          else if (status === 'accepted') countAccepted++;
-          else if (status === 'preparing') countPreparing++;
-          else if (status === 'on_the_way') countOnTheWay++;
-          else if (status === 'completed') countCompleted++;
-          else if (status === 'rejected') countRejected++;
-          else if (status === 'cancelled') countCancelled++;
+          const amount = Number(ord.totalAmount || ord.pricing?.totalAmount || 0);
+          const createdTime = ord.createdAt ? new Date(ord.createdAt).getTime() : 0;
+
+          if (status === 'pending') pendingCount++;
+          else if (status === 'accepted') acceptedCount++;
+          else if (status === 'preparing') preparingCount++;
+          else if (status === 'on_the_way') onTheWayCount++;
+          else if (status === 'delivered' || status === 'completed') {
+            deliveredCount++;
+            if (createdTime >= todayTs) {
+              todaySalesTotal += amount;
+            }
+          } else if (status === 'rejected') rejectedCount++;
+          else if (status === 'cancelled') cancelledCount++;
+
+          if (createdTime >= todayTs) {
+            todayOrdersCount++;
+          }
         });
 
-        // Update Stat Elements
-        document.getElementById('countTotal').textContent = countTotal;
-        document.getElementById('countPending').textContent = countPending;
-        document.getElementById('countAccepted').textContent = countAccepted;
-        document.getElementById('countPreparing').textContent = countPreparing;
-        document.getElementById('countOnTheWay').textContent = countOnTheWay;
-        document.getElementById('countCompleted').textContent = countCompleted;
-        document.getElementById('countRejected').textContent = countRejected;
-        document.getElementById('countCancelled').textContent = countCancelled;
+        // Update Statistics
+        statTotal.textContent = totalCount;
+        statPending.textContent = pendingCount;
+        statAccepted.textContent = acceptedCount;
+        statPreparing.textContent = preparingCount;
+        statOnTheWay.textContent = onTheWayCount;
+        statDelivered.textContent = deliveredCount;
+        statRejected.textContent = rejectedCount;
+        statCancelled.textContent = cancelledCount;
+        statTodayOrders.textContent = todayOrdersCount;
+        statTodaySales.textContent = `৳ ${todaySalesTotal.toLocaleString('en-IN')}`;
 
-        // Render current filtered list
-        applyFiltersAndRender();
+        renderOrdersGrid();
+      }, (error) => {
+        console.error("Realtime Error:", error);
+        showToast("Error loading orders: " + error.message, "error");
       });
     }
 
     // ==========================================================
-    // SEARCH, FILTER & RENDER
+    // FILTERING, SEARCH & RENDERING
     // ==========================================================
-    const searchInput = document.getElementById('searchInput');
-    const statusFilter = document.getElementById('statusFilter');
-    const categoryFilter = document.getElementById('categoryFilter');
-    const dateFilter = document.getElementById('dateFilter');
-    const sortFilter = document.getElementById('sortFilter');
-
-    [searchInput, statusFilter, categoryFilter, dateFilter, sortFilter].forEach(el => {
-      el.addEventListener('input', applyFiltersAndRender);
-      el.addEventListener('change', applyFiltersAndRender);
+    [searchInput, filterStatus, filterCategory, filterDate, filterSort].forEach(el => {
+      el.addEventListener('input', renderOrdersGrid);
+      el.addEventListener('change', renderOrdersGrid);
     });
 
-    function setQuickFilter(statusKey) {
-      statusFilter.value = statusKey;
-      applyFiltersAndRender();
-    }
+    window.setQuickStatus = function(statusKey) {
+      filterStatus.value = statusKey;
+      renderOrdersGrid();
+    };
 
-    function applyFiltersAndRender() {
+    btnClearFilters.addEventListener('click', () => {
+      searchInput.value = '';
+      filterStatus.value = 'all';
+      filterCategory.value = 'all';
+      filterDate.value = 'all';
+      filterSort.value = 'newest';
+      renderOrdersGrid();
+    });
+
+    function renderOrdersGrid() {
       const q = searchInput.value.toLowerCase().trim();
-      const statusVal = statusFilter.value;
-      const catVal = categoryFilter.value;
-      const dateVal = dateFilter.value;
-      const sortVal = sortFilter.value;
+      const statusF = filterStatus.value;
+      const catF = filterCategory.value;
+      const dateF = filterDate.value;
+      const sortF = filterSort.value;
+      const t = i18n[currentLang];
 
-      const now = new Date();
-      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-      const startOfYesterday = startOfToday - (24 * 60 * 60 * 1000);
-      const startOfWeek = startOfToday - (7 * 24 * 60 * 60 * 1000);
+      const now = Date.now();
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+      const todayTs = startOfToday.getTime();
+      const yesterdayTs = todayTs - (24 * 60 * 60 * 1000);
+      const weekTs = todayTs - (7 * 24 * 60 * 60 * 1000);
 
-      let filtered = rawOrdersList.filter(item => {
-        const orderId = (item.orderId || item.id || '').toLowerCase();
-        const customer = item.customer || {};
-        const custName = (customer.name || '').toLowerCase();
-        const custPhone = (customer.phone || customer.whatsapp || '').toLowerCase();
+      let filtered = allOrders.filter(ord => {
+        const id = (ord.orderId || ord.key || '').toLowerCase();
+        const name = (ord.customerName || ord.customer?.name || '').toLowerCase();
+        const phone = (ord.customerPhone || ord.customer?.phone || ord.whatsappNumber || '').toLowerCase();
 
-        // 1. Search Query
-        const matchSearch = !q || orderId.includes(q) || custName.includes(q) || custPhone.includes(q);
+        const matchSearch = !q || id.includes(q) || name.includes(q) || phone.includes(q);
 
-        // 2. Status
-        const st = (item.status || 'pending').toLowerCase();
-        const matchStatus = statusVal === 'all' || st === statusVal;
-
-        // 3. Category
-        const cCat = (customer.category || 'retail').toLowerCase();
-        const matchCategory = catVal === 'all' || cCat === catVal;
-
-        // 4. Date Filter
-        let matchDate = true;
-        const itemTime = item.createdAt ? new Date(item.createdAt).getTime() : 0;
-        if (dateVal === 'today') {
-          matchDate = itemTime >= startOfToday;
-        } else if (dateVal === 'yesterday') {
-          matchDate = itemTime >= startOfYesterday && itemTime < startOfToday;
-        } else if (dateVal === 'week') {
-          matchDate = itemTime >= startOfWeek;
+        const st = (ord.status || 'pending').toLowerCase();
+        let matchStatus = true;
+        if (statusF !== 'all') {
+          if (statusF === 'delivered') matchStatus = (st === 'delivered' || st === 'completed');
+          else matchStatus = (st === statusF);
         }
+
+        const cat = (ord.customerCategory || ord.customer?.category || 'normal').toLowerCase();
+        const matchCategory = (catF === 'all') || (cat === catF);
+
+        const createdTime = ord.createdAt ? new Date(ord.createdAt).getTime() : 0;
+        let matchDate = true;
+        if (dateF === 'today') matchDate = createdTime >= todayTs;
+        else if (dateF === 'yesterday') matchDate = (createdTime >= yesterdayTs && createdTime < todayTs);
+        else if (dateF === 'week') matchDate = createdTime >= weekTs;
 
         return matchSearch && matchStatus && matchCategory && matchDate;
       });
@@ -1317,310 +1691,415 @@
       filtered.sort((a, b) => {
         const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
         const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        return sortVal === 'oldest' ? timeA - timeB : timeB - timeA;
+        return sortF === 'oldest' ? timeA - timeB : timeB - timeA;
       });
 
-      renderOrdersGrid(filtered);
-    }
-
-    function renderOrdersGrid(orders) {
-      const grid = document.getElementById('ordersGrid');
-
-      if (!orders || orders.length === 0) {
-        grid.innerHTML = `
+      if (!filtered || filtered.length === 0) {
+        ordersGrid.innerHTML = `
           <div class="empty-state">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-            <h3>কোনো অর্ডার পাওয়া যায়নি</h3>
-            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 6px;">আপনার ফিল্টার বা সার্চ অনুযায়ী কোনো ফলাফল নেই।</p>
+            <h3 style="font-size: 1.15rem; color: #fff;">${t.order_not_found}</h3>
           </div>
         `;
         return;
       }
 
-      grid.innerHTML = orders.map(ord => {
-        const orderIdDisplay = (ord.orderId || ord.id || '').toUpperCase();
-        const customer = ord.customer || {};
-        const pricing = ord.pricing || {};
-        const items = ord.items || [];
-        const status = (ord.status || 'pending').toLowerCase();
-        const phone = customer.whatsapp || customer.phone || '';
+      ordersGrid.innerHTML = filtered.map(ord => {
+        const id = ord.orderId || ord.key;
+        const custName = ord.customerName || ord.customer?.name || 'Valued Customer';
+        const phone = ord.customerPhone || ord.customer?.phone || ord.whatsappNumber || '';
+        const category = ord.customerCategory || ord.customer?.category || 'Normal';
+        const st = (ord.status || 'pending').toLowerCase();
+        const total = Number(ord.totalAmount || ord.pricing?.totalAmount || 0).toLocaleString('en-IN');
+        const items = ord.items ? (Array.isArray(ord.items) ? ord.items : Object.values(ord.items)) : [];
+        const address = ord.deliveryAddress || ord.customer?.address || 'Shop pickup / No address given';
 
-        // Status Badge Logic
+        // Status Badge Style
         let badgeClass = 'badge-pending';
-        let badgeLabel = 'পেন্ডিং';
-        if (status === 'accepted') { badgeClass = 'badge-accepted'; badgeLabel = 'গৃহীত'; }
-        else if (status === 'preparing') { badgeClass = 'badge-preparing'; badgeLabel = 'প্রস্তুত হচ্ছে'; }
-        else if (status === 'on_the_way') { badgeClass = 'badge-ontheway'; badgeLabel = 'ডেলিভারিতে'; }
-        else if (status === 'completed') { badgeClass = 'badge-completed'; badgeLabel = 'সম্পন্ন'; }
-        else if (status === 'rejected') { badgeClass = 'badge-rejected'; badgeLabel = 'বাতিলকৃত'; }
-        else if (status === 'cancelled') { badgeClass = 'badge-cancelled'; badgeLabel = 'গ্রাহক বাতিল'; }
+        let badgeText = t.st_pending;
+        if (st === 'accepted') { badgeClass = 'badge-accepted'; badgeText = t.st_accepted; }
+        else if (st === 'preparing') { badgeClass = 'badge-preparing'; badgeText = t.st_preparing; }
+        else if (st === 'on_the_way') { badgeClass = 'badge-ontheway'; badgeText = t.st_ontheway; }
+        else if (st === 'delivered' || st === 'completed') { badgeClass = 'badge-delivered'; badgeText = t.st_delivered; }
+        else if (st === 'rejected') { badgeClass = 'badge-rejected'; badgeText = t.st_rejected; }
+        else if (st === 'cancelled') { badgeClass = 'badge-cancelled'; badgeText = t.st_cancelled; }
 
-        // Date Format
-        let dateString = "তারিখ অনুপলব্ধ";
+        // Date Display
+        let dateStr = 'Just now';
         if (ord.createdAt) {
           const d = new Date(ord.createdAt);
-          dateString = !isNaN(d) ? d.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ord.createdAt;
+          dateStr = !isNaN(d) ? d.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ord.createdAt;
         }
 
-        // Category Tag
-        let catText = "খুচরা ক্রেতা";
-        if (customer.category === 'wholesale') catText = "পাইকারি";
-        if (customer.category === 'restaurant') catText = "রেস্তোরাঁ";
-
-        // GPS Link
-        let gpsHtml = '';
-        if (customer.lat && customer.lng) {
-          gpsHtml = `<div class="cust-row"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg><a href="https://maps.google.com/?q=${customer.lat},${customer.lng}" target="_blank">লাইভ জিপিএস ম্যাপ দেখুন</a></div>`;
-        }
-
-        // WhatsApp Prefill
-        const encodedMsg = encodeURIComponent(`আসসালামু আলাইকুম ${customer.name || ''}, আপনার অর্ডার #${orderIdDisplay} (${shopName})-এর বর্তমান স্ট্যাটাস: ${badgeLabel}।`);
-        const waLink = phone ? `https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${encodedMsg}` : '#';
-
-        // Delivery Countdown Box
+        // Countdown Timer Logic
         let countdownHtml = '';
-        if (ord.deliveryDeadline && (status === 'accepted' || status === 'preparing' || status === 'on_the_way')) {
-          const deadlineDate = new Date(ord.deliveryDeadline);
-          const deadlineText = deadlineDate.toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' });
+        if (ord.deliveryDeadline && (st === 'accepted' || st === 'preparing' || st === 'on_the_way')) {
+          const remainingMins = Math.round((ord.deliveryDeadline - now) / 60000);
+          const isOverdue = remainingMins <= 0;
+          const displayCountdown = isOverdue ? `<span style="color: var(--st-rejected); font-weight:700;">${t.overdue_tag}</span>` : `${remainingMins} min remaining`;
           countdownHtml = `
-            <div class="countdown-bar">
-              <span>⏱️ ডেলিভারি লক্ষ্য:</span>
-              <span class="countdown-val">${deadlineText} এর মধ্যে</span>
+            <div class="deadline-countdown-bar">
+              <span>⏱️ ${t.deadline_prefix}</span>
+              <span class="countdown-timer-val">${displayCountdown}</span>
             </div>
           `;
         }
 
-        // 20-Minute Cancellation Notification
-        let cancelNotice = '';
-        if (ord.cancellation && ord.cancellation.requested) {
-          cancelNotice = `
-            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 0.76rem; color: #fca5a5;">
-              ⚠️ <strong>গ্রাহক বাতিলের অনুরোধ পাঠিয়েছেন:</strong> "${escapeHTML(ord.cancellation.reason || 'নির্দিষ্ট কারণ দেওয়া হয়নি')}"
-            </div>
-          `;
-        }
-
-        // Pricing Values
-        const subtotal = Number(pricing.subtotal || 0).toLocaleString('en-IN');
-        const deliveryCharge = Number(pricing.deliveryCharge || 0).toLocaleString('en-IN');
-        const total = Number(pricing.totalAmount || 0).toLocaleString('en-IN');
+        // WhatsApp Prefilled URL
+        const waMsg = encodeURIComponent(`Hello ${custName}, regarding your Poultry Order #${id}: current status is "${badgeText}".`);
+        const waUrl = phone ? `https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${waMsg}` : '#';
 
         return `
-          <div class="order-card" id="card_${ord.id}">
+          <div class="order-card" id="card_${ord.key}">
             <div class="card-top">
-              <div>
-                <span class="order-code">#${escapeHTML(orderIdDisplay)}</span>
-                <div class="order-time">${dateString}</div>
-              </div>
-              <span class="badge ${badgeClass}">${badgeLabel}</span>
+              <span class="order-id-badge">#${escapeHTML(id.substring(0, 10).toUpperCase())}</span>
+              <span class="badge-status ${badgeClass}">${badgeText}</span>
             </div>
 
-            <!-- Customer Details -->
-            <div class="cust-info-box">
-              <div class="cust-head">
-                <span class="cust-name">${escapeHTML(customer.name || 'নাম নেই')}</span>
-                <span class="cust-category-tag">${catText}</span>
-              </div>
-              ${customer.businessName ? `<div class="cust-row" style="color: var(--gold-light);">🏢 ${escapeHTML(customer.businessName)}</div>` : ''}
+            <div class="cust-box">
               <div class="cust-row">
+                <span class="cust-name">${escapeHTML(custName)}</span>
+                <span class="cust-cat-pill">${escapeHTML(category)}</span>
+              </div>
+              <div class="cust-sub">
                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                <span>${escapeHTML(phone || 'ফোন নম্বর নেই')}</span>
+                <span>${escapeHTML(phone)}</span>
               </div>
-              <div class="cust-row">
+              <div class="cust-sub">
                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span>${escapeHTML(customer.address || 'ঠিকানা দেওয়া নেই')}</span>
+                <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHTML(address)}</span>
               </div>
-              ${gpsHtml}
             </div>
 
-            ${cancelNotice}
             ${countdownHtml}
 
-            <!-- Ordered Items List -->
-            <div class="items-list">
-              ${renderItemsList(items)}
+            <!-- Items Brief Preview -->
+            <div class="order-items-preview">
+              ${items.slice(0, 3).map(it => `
+                <div class="item-line">
+                  <span>${escapeHTML(it.productName || it.name || 'Item')} × ${it.quantity} ${escapeHTML(it.unit || 'KG')}</span>
+                  <span style="color: var(--gold-light);">৳ ${Number(it.subtotal || (it.quantity * it.unitPrice) || 0).toLocaleString('en-IN')}</span>
+                </div>
+              `).join('')}
+              ${items.length > 3 ? `<div style="font-size:0.72rem; color:var(--text-muted); text-align:center;">+${items.length - 3} more items...</div>` : ''}
             </div>
 
-            <!-- Pricing Breakdown -->
-            <div class="pricing-table">
-              <div class="price-line"><span>সাবটোটাল</span><span>৳ ${subtotal}</span></div>
-              <div class="price-line"><span>ডেলিভারি চার্জ</span><span>৳ ${deliveryCharge}</span></div>
-              <div class="price-line total-line"><span>সর্বমোট মূল্য</span><span>৳ ${total}</span></div>
+            <div class="price-summary-row">
+              <span style="font-size: 0.76rem; color: var(--text-muted);">${dateStr}</span>
+              <span class="price-total">৳ ${total}</span>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="card-actions">
-              ${status === 'pending' ? `
-                <button class="btn btn-accept" onclick="openAcceptModal('${ord.id}')">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                  একসেপ্ট
+            <div class="card-actions-grid">
+              ${st === 'pending' ? `
+                <button class="btn-act btn-act-accept" onclick="openAcceptModal('${ord.key}')">
+                  ${t.btn_accept}
                 </button>
-                <button class="btn btn-reject" onclick="openRejectModal('${ord.id}')">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                  বাতিল
+                <button class="btn-act btn-act-reject" onclick="openRejectModal('${ord.key}')">
+                  ${t.btn_reject}
                 </button>
               ` : `
-                <button class="btn btn-status" onclick="openStatusModal('${ord.id}', '${status}')">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                  স্ট্যাটাস
+                <button class="btn-act btn-act-view" onclick="openOrderDetails('${ord.key}')">
+                  ${t.btn_details}
                 </button>
               `}
-              <a href="${waLink}" target="_blank" class="btn btn-whatsapp" title="WhatsApp Message">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
-              </a>
+
+              ${phone ? `
+                <a href="${waUrl}" target="_blank" class="btn-act btn-act-wa" title="WhatsApp Customer">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+                </a>
+              ` : ''}
             </div>
           </div>
         `;
       }).join('');
     }
 
-    function renderItemsList(items) {
-      if (!items || items.length === 0) return '<div style="font-size: 0.75rem; color: var(--text-muted);">কোনো পণ্যের বিবরণ পাওয়া যায়নি</div>';
-
-      const itemsArray = Array.isArray(items) ? items : Object.values(items);
-      return itemsArray.map(item => `
-        <div class="order-item-row">
-          <img src="${item.image || 'https://via.placeholder.com/40'}" class="item-img" alt="${escapeHTML(item.name || 'Product')}" onerror="this.src='https://via.placeholder.com/40';" />
-          <div class="item-info">
-            <div class="item-name">${escapeHTML(item.name || item.productName || 'আইটেম')}</div>
-            <div class="item-meta">${item.quantity || 1} ${escapeHTML(item.unit || 'কেজি')} × ৳ ${Number(item.unitPrice || 0).toLocaleString('en-IN')}</div>
-          </div>
-          <div class="item-price">৳ ${Number(item.subtotal || (item.quantity * item.unitPrice) || 0).toLocaleString('en-IN')}</div>
-        </div>
-      `).join('');
-    }
-
     // ==========================================================
-    // ACTION HANDLERS: ACCEPT, REJECT, STATUS CHANGE
+    // MODAL ACTIONS: ACCEPT & REJECT
     // ==========================================================
-    window.openAcceptModal = function(orderId) {
-      currentSelectedOrderId = orderId;
-      openModal('acceptModal');
+    window.openAcceptModal = function(key) {
+      acceptOrderId.value = key;
+      deliveryMinutesSelect.value = "60";
+      customMinutesBox.style.display = "none";
+      acceptOrderModal.style.display = "flex";
     };
 
-    window.openRejectModal = function(orderId) {
-      currentSelectedOrderId = orderId;
-      openModal('rejectModal');
-    };
+    deliveryMinutesSelect.addEventListener('change', (e) => {
+      customMinutesBox.style.display = e.target.value === 'custom' ? 'block' : 'none';
+    });
 
-    window.openStatusModal = function(orderId, currentStatus) {
-      currentSelectedOrderId = orderId;
-      document.getElementById('changeStatusSelect').value = currentStatus;
-      openModal('statusModal');
-    };
+    document.getElementById('btnCloseAcceptModal').onclick = () => acceptOrderModal.style.display = "none";
+    document.getElementById('btnCancelAcceptModal').onclick = () => acceptOrderModal.style.display = "none";
 
-    // 1. Confirm Accept Order
-    document.getElementById('confirmAcceptBtn').addEventListener('click', async () => {
-      if (!currentSelectedOrderId) return;
-      const selectVal = document.getElementById('deliveryTimeSelect').value;
-      let minutes = selectVal === 'custom' ? parseInt(document.getElementById('customMinutesInput').value, 10) : parseInt(selectVal, 10);
+    acceptOrderForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const key = acceptOrderId.value;
+      const selectVal = deliveryMinutesSelect.value;
+      let minutes = selectVal === 'custom' ? parseInt(customMinutesInput.value, 10) : parseInt(selectVal, 10);
+      if (isNaN(minutes) || minutes < 5) minutes = 60;
 
-      if (isNaN(minutes) || minutes < 5) minutes = 60; // default 1 hour
+      const order = allOrders.find(o => o.key === key);
+      if (!order) return;
 
       const deadlineTimestamp = Date.now() + (minutes * 60 * 1000);
 
       try {
-        const orderRef = database.ref(`orders/${currentSelectedOrderId}`);
-        
-        await orderRef.update({
+        const orderRef = ref(db, `orders/${key}`);
+
+        // Update Order with Server Authoritative Deadline
+        await update(orderRef, {
           status: 'accepted',
-          acceptedAt: new Date().toISOString(),
+          acceptedAt: serverTimestamp(),
+          estimatedDeliveryMinutes: minutes,
           deliveryDeadline: deadlineTimestamp,
-          estimatedMinutes: minutes
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
         });
 
-        // Send in-app notification to customer
-        await pushCustomerNotification(currentSelectedOrderId, 'অর্ডার অনুমোদিত হয়েছে!', `আপনার অর্ডারটি গ্রহণ করা হয়েছে। আনুমানিক ${minutes} মিনিটের মধ্যে ডেলিভারি সম্পন্ন হবে।`);
-
-        showToast("অর্ডারটি সফলভাবে গৃহীত হয়েছে।", "success");
-        closeModal('acceptModal');
-
-      } catch (err) {
-        console.error(err);
-        showToast("অর্ডার গ্রহণে ত্রুটি হয়েছে।", "error");
-      }
-    });
-
-    // 2. Confirm Reject Order
-    document.getElementById('confirmRejectBtn').addEventListener('click', async () => {
-      if (!currentSelectedOrderId) return;
-      const reason = document.getElementById('rejectReasonText').value.trim() || "দোকানের অনুপলব্ধতার কারণে";
-
-      try {
-        const orderRef = database.ref(`orders/${currentSelectedOrderId}`);
-        
-        await orderRef.update({
-          status: 'rejected',
-          rejectedAt: new Date().toISOString(),
-          rejectionReason: reason
-        });
-
-        await pushCustomerNotification(currentSelectedOrderId, 'অর্ডার বাতিল করা হয়েছে', `দুঃখিত, আপনার অর্ডারটি বাতিল করা হয়েছে। কারণ: ${reason}`);
-
-        showToast("অর্ডারটি প্রত্যাখ্যান করা হয়েছে।", "error");
-        closeModal('rejectModal');
-
-      } catch (err) {
-        console.error(err);
-        showToast("ত্রুটি ঘটেছে।", "error");
-      }
-    });
-
-    // 3. Confirm Status Change
-    document.getElementById('confirmStatusChangeBtn').addEventListener('click', async () => {
-      if (!currentSelectedOrderId) return;
-      const newStatus = document.getElementById('changeStatusSelect').value;
-
-      try {
-        const orderRef = database.ref(`orders/${currentSelectedOrderId}`);
-        const updates = {
-          status: newStatus,
-          statusUpdatedAt: new Date().toISOString()
-        };
-
-        if (newStatus === 'completed') {
-          updates.completedAt = new Date().toISOString();
+        // Safe Stock Deduction: Only deduct if not previously deducted
+        if (!order.stockDeducted && order.items) {
+          const itemsArray = Array.isArray(order.items) ? order.items : Object.values(order.items);
+          for (const item of itemsArray) {
+            if (item.productId) {
+              const productRef = ref(db, `products/${item.productId}`);
+              const snap = await get(productRef);
+              if (snap.exists()) {
+                const curStock = Number(snap.val().stockQuantity ?? 0);
+                const deductedStock = Math.max(0, curStock - Number(item.quantity || 0));
+                await update(productRef, {
+                  stockQuantity: deductedStock,
+                  status: deductedStock <= 0 ? 'out_of_stock' : (snap.val().status || 'available')
+                });
+              }
+            }
+          }
+          await update(orderRef, { stockDeducted: true });
         }
 
-        await orderRef.update(updates);
+        // Log Order Status History
+        await push(ref(db, `orderHistory/${key}`), {
+          fromStatus: order.status || 'pending',
+          toStatus: 'accepted',
+          updatedByUid: currentUser.uid,
+          updatedByEmail: currentUser.email,
+          updatedByRole: currentUserRole,
+          note: `Accepted with ${minutes} min delivery deadline`,
+          timestamp: serverTimestamp()
+        });
 
-        let statusTextBengali = 'আপডেট হয়েছে';
-        if (newStatus === 'preparing') statusTextBengali = 'প্রস্তুত হচ্ছে';
-        if (newStatus === 'on_the_way') statusTextBengali = 'ডেলিভারি ম্যান নিয়ে বের হয়েছে';
-        if (newStatus === 'completed') statusTextBengali = 'সফলভাবে ডেলিভার্ড হয়েছে';
-
-        await pushCustomerNotification(currentSelectedOrderId, 'অর্ডার স্ট্যাটাস আপডেট', `আপনার অর্ডারের বর্তমান অবস্থা: ${statusTextBengali}`);
-
-        showToast("স্ট্যাটাস সফলভাবে আপডেট হয়েছে।", "success");
-        closeModal('statusModal');
-
-      } catch (err) {
-        console.error(err);
-        showToast("স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে।", "error");
-      }
-    });
-
-    // Helper: Push in-app Notification to customer
-    async function pushCustomerNotification(orderId, title, body) {
-      try {
-        const snap = await database.ref(`orders/${orderId}/customer/uid`).once('value');
-        const customerUid = snap.val();
-
-        if (customerUid) {
-          await database.ref(`notifications/${customerUid}`).push({
-            orderId: orderId,
-            title: title,
-            body: body,
-            createdAt: new Date().toISOString(),
+        // Write Customer In-App Notification
+        if (order.customerId) {
+          await push(ref(db, `notifications/${order.customerId}`), {
+            orderId: order.orderId || key,
+            title: "অর্ডার অনুমোদিত হয়েছে!",
+            message: `আপনার অর্ডার #${order.orderId || key} গৃহীত হয়েছে। আনুমানিক ${minutes} মিনিটের মধ্যে পৌঁছাবে।`,
+            status: "accepted",
+            timestamp: serverTimestamp(),
             read: false
           });
         }
-      } catch (e) {
-        console.warn("Could not dispatch customer notification:", e);
-      }
-    }
 
-    // Security Helper: Escape HTML
+        showToast(i18n[currentLang].order_accepted_msg, "success");
+        acceptOrderModal.style.display = "none";
+
+      } catch (err) {
+        console.error("Accept Order Error:", err);
+        showToast("Error: " + err.message, "error");
+      }
+    });
+
+    // REJECT MODAL
+    window.openRejectModal = function(key) {
+      rejectOrderId.value = key;
+      rejectReasonInput.value = '';
+      rejectOrderModal.style.display = "flex";
+    };
+
+    document.getElementById('btnCloseRejectModal').onclick = () => rejectOrderModal.style.display = "none";
+    document.getElementById('btnCancelRejectModal').onclick = () => rejectOrderModal.style.display = "none";
+
+    rejectOrderForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const key = rejectOrderId.value;
+      const reason = rejectReasonInput.value.trim();
+
+      const order = allOrders.find(o => o.key === key);
+      if (!order) return;
+
+      try {
+        const orderRef = ref(db, `orders/${key}`);
+        await update(orderRef, {
+          status: 'rejected',
+          rejectionReason: reason,
+          rejectedAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        });
+
+        // Log History
+        await push(ref(db, `orderHistory/${key}`), {
+          fromStatus: order.status || 'pending',
+          toStatus: 'rejected',
+          updatedByUid: currentUser.uid,
+          updatedByEmail: currentUser.email,
+          updatedByRole: currentUserRole,
+          note: `Rejected. Reason: ${reason}`,
+          timestamp: serverTimestamp()
+        });
+
+        // In-App Notification
+        if (order.customerId) {
+          await push(ref(db, `notifications/${order.customerId}`), {
+            orderId: order.orderId || key,
+            title: "অর্ডার বাতিল করা হয়েছে",
+            message: `দুঃখিত, আপনার অর্ডারটি বাতিল হয়েছে। কারণ: ${reason}`,
+            status: "rejected",
+            timestamp: serverTimestamp(),
+            read: false
+          });
+        }
+
+        showToast(i18n[currentLang].order_rejected_msg, "success");
+        rejectOrderModal.style.display = "none";
+
+      } catch (err) {
+        console.error("Reject Order Error:", err);
+        showToast("Error: " + err.message, "error");
+      }
+    });
+
+    // ==========================================================
+    // DETAILED ORDER VIEW & WORKFLOW
+    // ==========================================================
+    window.openOrderDetails = function(key) {
+      const order = allOrders.find(o => o.key === key);
+      if (!order) return;
+
+      const t = i18n[currentLang];
+      const items = order.items ? (Array.isArray(order.items) ? order.items : Object.values(order.items)) : [];
+      const lat = order.latitude || order.customer?.latitude;
+      const lng = order.longitude || order.customer?.longitude;
+      const currentSt = (order.status || 'pending').toLowerCase();
+
+      detailsModalTitle.textContent = `Order #${(order.orderId || key).toUpperCase()}`;
+
+      let mapsBtnHtml = '';
+      if (lat && lng) {
+        mapsBtnHtml = `
+          <a href="https://www.google.com/maps/search/?api=1&query=${lat},${lng}" target="_blank" class="btn-modal" style="background: rgba(6, 182, 212, 0.2); border: 1px solid rgba(6, 182, 212, 0.5); color: #67e8f9; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+            📍 ${t.btn_maps}
+          </a>
+        `;
+      }
+
+      detailsModalBody.innerHTML = `
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-gold); border-radius: 12px; padding: 14px; margin-bottom: 16px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <strong style="color: #fff; font-size:1rem;">${escapeHTML(order.customerName || 'Customer')}</strong>
+            <span style="color: var(--gold-light); font-size:0.8rem;">${escapeHTML(order.customerCategory || 'Normal')}</span>
+          </div>
+          <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:4px;">📞 ${escapeHTML(order.customerPhone || order.whatsappNumber || 'N/A')}</p>
+          <p style="font-size:0.82rem; color:var(--text-muted);">🏠 ${escapeHTML(order.deliveryAddress || 'No street address specified')}</p>
+        </div>
+
+        <h4 style="font-size:0.88rem; color:var(--gold-light); margin-bottom:10px;">Ordered Items</h4>
+        <div style="border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 10px; margin-bottom: 16px;">
+          ${items.map(it => `
+            <div style="display:flex; justify-content:space-between; font-size:0.84rem; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04);">
+              <span>${escapeHTML(it.productName || it.name || 'Item')} (${it.quantity} ${escapeHTML(it.unit || 'KG')})</span>
+              <span style="color:var(--gold-light);">৳ ${Number(it.subtotal || (it.quantity * it.unitPrice) || 0).toLocaleString('en-IN')}</span>
+            </div>
+          `).join('')}
+          <div style="display:flex; justify-content:space-between; font-size:0.84rem; padding-top: 8px;">
+            <span>Delivery Fee</span>
+            <span>৳ ${Number(order.deliveryCharge || 0).toLocaleString('en-IN')}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:1.05rem; font-weight:700; padding-top: 8px; color: #fff; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 6px;">
+            <span>Grand Total</span>
+            <span style="color:var(--gold-light);">৳ ${Number(order.totalAmount || order.pricing?.totalAmount || 0).toLocaleString('en-IN')}</span>
+          </div>
+        </div>
+
+        ${order.rejectionReason ? `<p style="color: var(--st-rejected); font-size:0.82rem; margin-bottom:12px;"><strong>Rejection Reason:</strong> ${escapeHTML(order.rejectionReason)}</p>` : ''}
+      `;
+
+      // Status Workflow Buttons
+      let workflowButtons = '';
+      if (currentSt === 'accepted') {
+        workflowButtons += `<button class="btn-modal" onclick="updateOrderStatus('${key}', 'preparing')" style="background: var(--st-preparing); color:#fff;">Mark Preparing</button>`;
+      } else if (currentSt === 'preparing') {
+        workflowButtons += `<button class="btn-modal" onclick="updateOrderStatus('${key}', 'on_the_way')" style="background: var(--st-ontheway); color:#000; font-weight:700;">Mark On the Way</button>`;
+      } else if (currentSt === 'on_the_way') {
+        workflowButtons += `<button class="btn-modal" onclick="updateOrderStatus('${key}', 'delivered')" style="background: var(--st-delivered); color:#000; font-weight:700;">Mark Delivered</button>`;
+      }
+
+      detailsModalFooter.innerHTML = `
+        ${mapsBtnHtml}
+        ${workflowButtons}
+        <button class="btn-modal btn-modal-cancel" onclick="document.getElementById('orderDetailsModal').style.display='none'">${t.btn_cancel}</button>
+      `;
+
+      orderDetailsModal.style.display = "flex";
+    };
+
+    document.getElementById('btnCloseDetailsModal').onclick = () => orderDetailsModal.style.display = "none";
+
+    // Update Status Action
+    window.updateOrderStatus = async function(key, nextStatus) {
+      const order = allOrders.find(o => o.key === key);
+      if (!order) return;
+
+      try {
+        const orderRef = ref(db, `orders/${key}`);
+        const updatePayload = {
+          status: nextStatus,
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        };
+
+        if (nextStatus === 'preparing') updatePayload.preparingAt = serverTimestamp();
+        if (nextStatus === 'on_the_way') updatePayload.onTheWayAt = serverTimestamp();
+        if (nextStatus === 'delivered') updatePayload.deliveredAt = serverTimestamp();
+
+        await update(orderRef, updatePayload);
+
+        // History
+        await push(ref(db, `orderHistory/${key}`), {
+          fromStatus: order.status,
+          toStatus: nextStatus,
+          updatedByUid: currentUser.uid,
+          updatedByEmail: currentUser.email,
+          updatedByRole: currentUserRole,
+          note: `Status advanced to ${nextStatus}`,
+          timestamp: serverTimestamp()
+        });
+
+        // Notify Customer App
+        if (order.customerId) {
+          let title = "অর্ডার আপডেট";
+          let msg = `আপনার অর্ডার #${order.orderId || key} এর স্ট্যাটাস: ${nextStatus}`;
+          if (nextStatus === 'delivered') {
+            title = "অর্ডার ডেলিভার্ড!";
+            msg = "আপনার অর্ডারটি সফলভাবে ডেলিভারি করা হয়েছে। ধন্যবাদ!";
+          }
+          await push(ref(db, `notifications/${order.customerId}`), {
+            orderId: order.orderId || key,
+            title,
+            message: msg,
+            status: nextStatus,
+            timestamp: serverTimestamp(),
+            read: false
+          });
+        }
+
+        showToast(i18n[currentLang].status_updated_msg, "success");
+        orderDetailsModal.style.display = "none";
+
+      } catch (err) {
+        console.error("Status Update Error:", err);
+        showToast("Error updating status: " + err.message, "error");
+      }
+    };
+
     function escapeHTML(str) {
       if (!str) return '';
       return String(str)
@@ -1630,6 +2109,8 @@
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
     }
+
+    setLanguage(currentLang);
   </script>
 </body>
 </html>

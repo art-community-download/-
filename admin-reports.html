@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reports & Analytics | Poultry Shop Panel</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Chart.js for Responsive Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* ==========================================================
+       CSS RESET & DESIGN TOKENS (BLACK & GOLD OBSIDIAN)
+       ========================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-body: #07080b;
+      --bg-sidebar: #0d0f15;
+      --bg-card: rgba(18, 20, 28, 0.78);
+      --bg-card-hover: rgba(26, 29, 40, 0.88);
+      --border-gold: rgba(212, 175, 55, 0.22);
+      --border-gold-bright: rgba(212, 175, 55, 0.6);
+      --gold-primary: #d4af37;
+      --gold-light: #f5d77f;
+      --gold-dark: #997519;
+      --gold-gradient: linear-gradient(135deg, #f7df87 0%, #d4af37 50%, #997519 100%);
+      --text-main: #f3f4f6;
+      --text-muted: #94a3b8;
+      --text-dark: #07080b;
+
+      --status-completed: #10b981;
+      --status-pending: #f59e0b;
+      --status-cancelled: #ef4444;
+      --status-info: #3b82f6;
+
+      --sidebar-width: 260px;
+      --header-height: 75px;
+      --gold-glow: 0 0 25px rgba(212, 175, 55, 0.2);
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #08090d; }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 4px; }
+
+    .ambient-glow {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      filter: blur(140px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.12;
+      background: radial-gradient(circle, var(--gold-primary), transparent 70%);
+      top: -80px;
+      right: -80px;
+    }
+
+    /* ==========================================================
+       SIDEBAR NAVIGATION (EXACT 14 ADMIN LINKS)
+       ========================================================== */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-gold);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-brand {
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 22px;
+      border-bottom: 1px solid var(--border-gold);
+      flex-shrink: 0;
+    }
+
+    .brand-logo-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 30% 30%, #2a251b, #111216);
+      border: 1.5px solid var(--gold-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--gold-glow);
+    }
+
+    .brand-logo-badge svg { width: 22px; height: 22px; stroke: var(--gold-primary); }
+
+    .brand-text h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.08rem;
+      font-weight: 700;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-text span {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .sidebar-user {
+      padding: 14px 18px;
+      margin: 14px 14px 6px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--gold-gradient);
+      color: #07080b;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .user-meta { flex: 1; overflow: hidden; }
+    .role-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+      text-transform: uppercase;
+      background: rgba(212, 175, 55, 0.2);
+      color: var(--gold-light);
+      border: 1px solid var(--border-gold);
+    }
+    .user-email {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 3px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px 24px;
+    }
+
+    .nav-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #64748b;
+      letter-spacing: 1.2px;
+      padding: 12px 14px 6px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.86rem;
+      font-weight: 500;
+      border-radius: 10px;
+      margin-bottom: 3px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link svg { width: 18px; height: 18px; stroke: currentColor; flex-shrink: 0; }
+
+    .nav-link:hover {
+      background: rgba(212, 175, 55, 0.08);
+      color: var(--gold-light);
+      transform: translateX(3px);
+    }
+
+    .nav-link.active {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+    }
+
+    .nav-link.active svg { stroke: var(--text-dark); }
+
+    .nav-link.logout-link {
+      color: #f87171;
+      margin-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 12px;
+    }
+    .nav-link.logout-link:hover {
+      background: rgba(239, 68, 68, 0.12);
+      color: #fca5a5;
+    }
+
+    /* ==========================================================
+       MAIN CONTENT WRAPPER & TOP BAR
+       ========================================================== */
+    .main-wrapper {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+      z-index: 10;
+    }
+
+    .top-header {
+      height: var(--header-height);
+      background: rgba(13, 15, 21, 0.85);
+      backdrop-filter: blur(15px);
+      border-bottom: 1px solid var(--border-gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 16px; }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: 1px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .breadcrumbs a { color: var(--gold-light); text-decoration: none; }
+
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+
+    .btn-header-act {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.25s ease;
+    }
+
+    .btn-header-act:hover {
+      background: rgba(212, 175, 55, 0.15);
+      border-color: var(--gold-primary);
+    }
+
+    .content-area {
+      padding: 26px 30px 60px;
+      flex: 1;
+    }
+
+    /* Date Filter Ribbon */
+    .filter-ribbon {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 16px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .date-preset-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .btn-preset {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-preset:hover, .btn-preset.active {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      border-color: transparent;
+      box-shadow: 0 2px 10px rgba(212, 175, 55, 0.25);
+    }
+
+    .custom-date-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .date-input {
+      background: #08090d;
+      border: 1px solid var(--border-gold);
+      border-radius: 8px;
+      padding: 6px 10px;
+      color: #fff;
+      font-size: 0.8rem;
+      outline: none;
+    }
+
+    /* 14 Overview Statistics Cards */
+    .stats-overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 26px;
+    }
+
+    .stat-metric-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-gold);
+      border-radius: 14px;
+      padding: 14px 16px;
+      position: relative;
+      transition: all 0.25s ease;
+    }
+
+    .stat-metric-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-gold-bright);
+    }
+
+    .metric-title {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .metric-sub {
+      font-size: 0.7rem;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    /* Charts & Analytics Grids */
+    .charts-grid-2 {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      margin-bottom: 26px;
+    }
+
+    .card-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 18px;
+      padding: 22px;
+      margin-bottom: 24px;
+    }
+
+    .panel-header-flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .panel-header-flex h3 { font-size: 1.05rem; color: #fff; font-weight: 700; }
+    .panel-header-flex p { font-size: 0.78rem; color: var(--text-muted); }
+
+    .table-container {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      background: rgba(10, 11, 16, 0.95);
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--gold-light);
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-gold);
+    }
+
+    td {
+      font-size: 0.84rem;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: #e2e8f0;
+    }
+
+    tr:hover td { background: rgba(212, 175, 55, 0.03); }
+
+    /* Category Badges */
+    .badge-cat {
+      font-size: 0.7rem;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(212, 175, 55, 0.15);
+      color: var(--gold-light);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      text-transform: capitalize;
+    }
+
+    /* Print Styles */
+    @media print {
+      body { background: #fff !important; color: #000 !important; }
+      .sidebar, .top-header, .filter-ribbon, .ambient-glow, .btn-header-act { display: none !important; }
+      .main-wrapper { margin-left: 0 !important; }
+      .card-panel, .stat-metric-card { border: 1px solid #ccc !important; background: #fff !important; color: #000 !important; box-shadow: none !important; }
+      th { background: #f3f4f6 !important; color: #000 !important; border-bottom: 2px solid #000 !important; }
+      td { color: #000 !important; border-bottom: 1px solid #ddd !important; }
+      .metric-value { color: #000 !important; }
+    }
+
+    @media (max-width: 1024px) {
+      .charts-grid-2 { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-left: 0; }
+      .menu-toggle { display: block; }
+      .content-area { padding: 18px 14px; }
+      .top-header { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+
+  <!-- ==========================================================
+       SIDEBAR NAVIGATION (EXACT 14 ADMIN LINKS)
+       ========================================================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2C8.5 2 6 4.5 6 8c0 2 .8 3.8 2.2 5.1L5 22h14l-3.2-8.9C17.2 11.8 18 10 18 8c0-3.5-2.5-6-6-6z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h2>POULTRY ERP</h2>
+        <span data-i18n="shop_mgmt">Admin + Shopkeeper Panel</span>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="userAvatar">A</div>
+      <div class="user-meta">
+        <span class="role-badge" id="userRoleBadge">CHECKING...</span>
+        <div class="user-email" id="userEmail">Loading user...</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label" data-i18n="grp_main">Core Operations</div>
+      
+      <!-- 1. Dashboard -->
+      <a href="admin-dashboard.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span data-i18n="m_dashboard">Dashboard</span>
+      </a>
+
+      <!-- 2. Orders -->
+      <a href="admin-orders.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span data-i18n="m_orders">Orders</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_catalog">Catalog & Pricing</div>
+
+      <!-- 3. Products -->
+      <a href="admin-products.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+        <span data-i18n="m_products">Products</span>
+      </a>
+
+      <!-- 4. Prices -->
+      <a href="admin-prices.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span data-i18n="m_prices">Tiered Prices</span>
+      </a>
+
+      <!-- 5. Stock Management -->
+      <a href="admin-stock.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        <span data-i18n="m_stock">Stock Management</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_crm">CRM & Staff</div>
+
+      <!-- 6. Customers -->
+      <a href="admin-customers.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span data-i18n="m_customers">Customers</span>
+      </a>
+
+      <!-- 7. Shop Management -->
+      <a href="admin-shopkeepers.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span data-i18n="m_shopkeepers">Shop Management</span>
+      </a>
+
+      <!-- 8. Referral Codes -->
+      <a href="admin-referrals.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span data-i18n="m_referrals">Referral Codes</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_config">Store Setup & Reports</div>
+
+      <!-- 9. Delivery Settings -->
+      <a href="admin-delivery.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <span data-i18n="m_delivery">Delivery Settings</span>
+      </a>
+
+      <!-- 10. Reports (ACTIVE) -->
+      <a href="admin-reports.html" class="nav-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span data-i18n="m_reports">Reports & Analytics</span>
+      </a>
+
+      <!-- 11. Shop Settings -->
+      <a href="admin-settings.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span data-i18n="m_settings">Shop Settings</span>
+      </a>
+
+      <!-- 12. Reviews -->
+      <a href="admin-reviews.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span data-i18n="m_reviews">Reviews</span>
+      </a>
+
+      <!-- 13. Customer Requests -->
+      <a href="admin-requests.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+        <span data-i18n="m_requests">Customer Requests</span>
+      </a>
+
+      <!-- 14. Logout Action -->
+      <a href="javascript:void(0)" class="nav-link logout-link" id="btnLogout">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span data-i18n="m_logout">Logout</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ==========================================================
+       MAIN CONTENT WRAPPER
+       ========================================================== -->
+  <div class="main-wrapper">
+
+    <!-- Top Consistent Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <button class="menu-toggle" id="menuToggleBtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div>
+          <!-- Working Back to Dashboard Link -->
+          <div class="breadcrumbs">
+            <a href="admin-dashboard.html" data-i18n="bc_home">Home</a> / <span data-i18n="bc_reports">Reports & Analytics</span>
+          </div>
+          <h1 style="font-size: 1.25rem; font-weight: 700; color: #fff;" data-i18n="header_title">Business Intelligence & Performance Reports</h1>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Print Button -->
+        <button class="btn-header-act" onclick="window.print()" title="Print Current Report">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          <span data-i18n="btn_print">Print Report</span>
+        </button>
+
+        <!-- CSV Export Button -->
+        <button class="btn-header-act" id="btnExportCSV" title="Export Current Table as CSV">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span data-i18n="btn_export">Export CSV</span>
+        </button>
+
+        <!-- Language Switcher -->
+        <button class="btn-header-act" id="btnLangToggle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="langButtonText">English</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="content-area">
+
+      <!-- Date Filters Ribbon -->
+      <section class="filter-ribbon">
+        <div class="date-preset-group">
+          <button class="btn-preset active" data-preset="today" data-i18n="dt_today">Today</button>
+          <button class="btn-preset" data-preset="yesterday" data-i18n="dt_yesterday">Yesterday</button>
+          <button class="btn-preset" data-preset="week" data-i18n="dt_7days">Last 7 Days</button>
+          <button class="btn-preset" data-preset="month" data-i18n="dt_30days">Last 30 Days</button>
+          <button class="btn-preset" data-preset="this_month" data-i18n="dt_this_month">This Month</button>
+          <button class="btn-preset" data-preset="all" data-i18n="dt_all">All Time</button>
+        </div>
+
+        <div class="custom-date-box">
+          <input type="date" id="dateStart" class="date-input" />
+          <span style="color:var(--text-muted); font-size:0.8rem;">to</span>
+          <input type="date" id="dateEnd" class="date-input" />
+          <button class="btn-preset" id="btnApplyCustomDate" style="background:var(--gold-gradient); color:#000; font-weight:700;">Apply</button>
+        </div>
+      </section>
+
+      <!-- 14 Realtime Overview Statistics -->
+      <section class="stats-overview-grid">
+        <div class="stat-metric-card">
+          <div class="metric-title" data-i18n="st_completed_sales">Completed Sales</div>
+          <div class="metric-value" style="color:var(--gold-light);" id="mCompletedSales">৳ 0</div>
+          <div class="metric-sub" data-i18n="st_completed_sales_sub">Delivered orders revenue</div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="metric-title" data-i18n="st_total_orders">Total Orders</div>
+          <div class="metric-value" id="mTotalOrders">0</div>
+          <div class="metric-sub" data-i18n="st_total_orders_sub">Received in period</div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="metric-title" data-i18n="st_completed_orders">Completed Orders</div>
+          <div class="metric-value" style="color:var(--status-completed);" id="mCompletedOrders">0</div>
+          <div class="metric-sub" data-i18n="st_completed_orders_sub">Successfully delivered</div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="metric-title" data-i18n="st_aov">Average Order Value (AOV)</div>
+          <div class="metric-value" id="mAOV">৳ 0</div>
+          <div class="metric-sub" data-i18n="st_aov_sub">Avg revenue per delivery</div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="metric-title" data-i18n="st_pending">Pending Orders</div>
+          <div class="metric-value" style="color:var(--status-pending);" id="mPendingOrders">0</div>
+          <div class="metric-sub" data-i18n="st_pending_sub">Awaiting action</div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="metric-title" data-i18n="st_cancelled">Cancelled / Rejected</div>
+          <div class="metric-value" style="color:var(--status-cancelled);" id="mCancelledOrders">0</div>
+          <div class="metric-sub" data-i18n="st_cancelled_sub">Zero revenue impact</div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="metric-title" data-i18n="st_delivery_fees">Delivery Fees Collected</div>
+          <div class="metric-value" id="mDeliveryFees">৳ 0</div>
+          <div class="metric-sub" data-i18n="st_delivery_fees_sub">Shipping revenue</div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="metric-title" data-i18n="st_discounts">Total Discounts</div>
+          <div class="metric-value" style="color:#fca5a5;" id="mDiscounts">৳ 0</div>
+          <div class="metric-sub" data-i18n="st_discounts_sub">Promotions & deductions</div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="metric-title" data-i18n="st_customers">Total Registered</div>
+          <div class="metric-value" id="mTotalCustomers">0</div>
+          <div class="metric-sub" data-i18n="st_customers_sub">Client directory</div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="metric-title" data-i18n="st_new_customers">New Customers</div>
+          <div class="metric-value" id="mNewCustomers">0</div>
+          <div class="metric-sub" data-i18n="st_new_customers_sub">Signed up in period</div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="metric-title" data-i18n="st_active_products">Active Products</div>
+          <div class="metric-value" id="mActiveProducts">0</div>
+          <div class="metric-sub" data-i18n="st_active_products_sub">Available catalog items</div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="metric-title" data-i18n="st_low_stock">Low Stock Alerts</div>
+          <div class="metric-value" style="color:var(--status-pending);" id="mLowStock">0</div>
+          <div class="metric-sub" data-i18n="st_low_stock_sub">Stock below threshold</div>
+        </div>
+      </section>
+
+      <!-- Charts Section -->
+      <section class="charts-grid-2">
+        <div class="card-panel">
+          <div class="panel-header-flex">
+            <div>
+              <h3 data-i18n="ch_sales_trend">Daily Sales Trend (Delivered Orders)</h3>
+              <p data-i18n="ch_sales_trend_sub">Revenue progression over selected time range</p>
+            </div>
+          </div>
+          <div style="height: 270px; position: relative;">
+            <canvas id="salesTrendChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card-panel">
+          <div class="panel-header-flex">
+            <div>
+              <h3 data-i18n="ch_status_dist">Order Status Distribution</h3>
+              <p data-i18n="ch_status_dist_sub">Volume breakdown by status</p>
+            </div>
+          </div>
+          <div style="height: 270px; position: relative;">
+            <canvas id="orderStatusChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- REPORT 1: PRODUCT PERFORMANCE SALES -->
+      <section class="card-panel">
+        <div class="panel-header-flex">
+          <div>
+            <h3 data-i18n="p_prod_perf_title">Product Sales Performance (Historical Item Snapshots)</h3>
+            <p data-i18n="p_prod_perf_sub">Units sold and revenue generated from completed orders</p>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="th_product">Product</th>
+                <th data-i18n="th_category">Category</th>
+                <th data-i18n="th_qty_sold">Quantity Sold</th>
+                <th data-i18n="th_orders_count">Orders Count</th>
+                <th data-i18n="th_sales_amount">Total Sales Amount</th>
+              </tr>
+            </thead>
+            <tbody id="productPerformanceBody">
+              <tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">Loading product sales analytics...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- REPORT 2: CUSTOMER CATEGORY PERFORMANCE -->
+      <section class="card-panel">
+        <div class="panel-header-flex">
+          <div>
+            <h3 data-i18n="p_cat_perf_title">Customer Category Performance (8 Tiers)</h3>
+            <p data-i18n="p_cat_perf_sub">Comparison between Retail, Restaurants, Hotels & Commercial clients</p>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="th_cat_name">Client Tier</th>
+                <th data-i18n="th_clients_count">Registered Clients</th>
+                <th data-i18n="th_comp_orders">Completed Orders</th>
+                <th data-i18n="th_comp_sales">Total Completed Revenue</th>
+                <th data-i18n="th_avg_rev">Avg Revenue / Client</th>
+              </tr>
+            </thead>
+            <tbody id="categoryPerformanceBody">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- REPORT 3: ORDERS DETAILED BREAKDOWN -->
+      <section class="card-panel">
+        <div class="panel-header-flex">
+          <div>
+            <h3 data-i18n="p_orders_log_title">Order Revenue Breakdown Log</h3>
+            <p data-i18n="p_orders_log_sub">Detailed audit of subtotal, delivery fees, and net collected amounts</p>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="th_ord_id">Order ID</th>
+                <th data-i18n="th_ord_cust">Customer</th>
+                <th data-i18n="th_ord_date">Date</th>
+                <th data-i18n="th_ord_subtotal">Subtotal</th>
+                <th data-i18n="th_ord_delivery">Delivery Fee</th>
+                <th data-i18n="th_ord_net">Net Total</th>
+                <th data-i18n="th_ord_status">Status</th>
+              </tr>
+            </thead>
+            <tbody id="ordersBreakdownBody">
+              <tr><td colspan="7" style="text-align:center; padding:20px; color:var(--text-muted);">Loading orders log...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ==========================================================
+       MODULAR FIREBASE SDK (v10) & REALTIME SCRIPT
+       ========================================================== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      getDatabase, 
+      ref, 
+      onValue, 
+      get 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // 1. Firebase Configuration Placeholder (Matching Project)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDYPsjlOmRwH2F5P8fFoiirP1FLjgh3c8A",
+      authDomain: "murgi-dfd67.firebaseapp.com",
+      databaseURL: "https://murgi-dfd67-default-rtdb.firebaseio.com",
+      projectId: "murgi-dfd67",
+      storageBucket: "murgi-dfd67.firebasestorage.app",
+      messagingSenderId: "209696889864",
+      appId: "1:209696889864:web:3eaa16034f00cca45505bd"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // Translation Dictionary
+    const i18n = {
+      en: {
+        shop_mgmt: "Admin + Shopkeeper Panel",
+        grp_main: "Core Operations",
+        m_dashboard: "Dashboard",
+        m_orders: "Orders",
+        grp_catalog: "Catalog & Pricing",
+        m_products: "Products",
+        m_prices: "Tiered Prices",
+        m_stock: "Stock Management",
+        grp_crm: "CRM & Staff",
+        m_customers: "Customers",
+        m_shopkeepers: "Shop Management",
+        m_referrals: "Referral Codes",
+        grp_config: "Store Setup & Reports",
+        m_delivery: "Delivery Settings",
+        m_reports: "Reports & Analytics",
+        m_settings: "Shop Settings",
+        m_reviews: "Reviews",
+        m_requests: "Customer Requests",
+        m_logout: "Logout",
+        bc_home: "Home",
+        bc_reports: "Reports & Analytics",
+        header_title: "Business Intelligence & Performance Reports",
+        btn_print: "Print Report",
+        btn_export: "Export CSV",
+        dt_today: "Today",
+        dt_yesterday: "Yesterday",
+        dt_7days: "Last 7 Days",
+        dt_30days: "Last 30 Days",
+        dt_this_month: "This Month",
+        dt_all: "All Time",
+        st_completed_sales: "Completed Sales",
+        st_completed_sales_sub: "Delivered orders revenue",
+        st_total_orders: "Total Orders",
+        st_total_orders_sub: "Received in period",
+        st_completed_orders: "Completed Orders",
+        st_completed_orders_sub: "Successfully delivered",
+        st_aov: "Average Order Value (AOV)",
+        st_aov_sub: "Avg revenue per delivery",
+        st_pending: "Pending Orders",
+        st_pending_sub: "Awaiting action",
+        st_cancelled: "Cancelled / Rejected",
+        st_cancelled_sub: "Zero revenue impact",
+        st_delivery_fees: "Delivery Fees Collected",
+        st_delivery_fees_sub: "Shipping revenue",
+        st_discounts: "Total Discounts",
+        st_discounts_sub: "Promotions & deductions",
+        st_customers: "Total Registered",
+        st_customers_sub: "Client directory",
+        st_new_customers: "New Customers",
+        st_new_customers_sub: "Signed up in period",
+        st_active_products: "Active Products",
+        st_active_products_sub: "Available catalog items",
+        st_low_stock: "Low Stock Alerts",
+        st_low_stock_sub: "Stock below threshold",
+        ch_sales_trend: "Daily Sales Trend (Delivered Orders)",
+        ch_sales_trend_sub: "Revenue progression over selected time range",
+        ch_status_dist: "Order Status Distribution",
+        ch_status_dist_sub: "Volume breakdown by status",
+        p_prod_perf_title: "Product Sales Performance (Historical Item Snapshots)",
+        p_prod_perf_sub: "Units sold and revenue generated from completed orders",
+        th_product: "Product",
+        th_category: "Category",
+        th_qty_sold: "Quantity Sold",
+        th_orders_count: "Orders Count",
+        th_sales_amount: "Total Sales Amount",
+        p_cat_perf_title: "Customer Category Performance (8 Tiers)",
+        p_cat_perf_sub: "Comparison between Retail, Restaurants, Hotels & Commercial clients",
+        th_cat_name: "Client Tier",
+        th_clients_count: "Registered Clients",
+        th_comp_orders: "Completed Orders",
+        th_comp_sales: "Total Completed Revenue",
+        th_avg_rev: "Avg Revenue / Client",
+        p_orders_log_title: "Order Revenue Breakdown Log",
+        p_orders_log_sub: "Detailed audit of subtotal, delivery fees, and net collected amounts",
+        th_ord_id: "Order ID",
+        th_ord_cust: "Customer",
+        th_ord_date: "Date",
+        th_ord_subtotal: "Subtotal",
+        th_ord_delivery: "Delivery Fee",
+        th_ord_net: "Net Total",
+        th_ord_status: "Status",
+        lang_switch_to: "বাংলা"
+      },
+      bn: {
+        shop_mgmt: "অ্যাডমিন ও শপকিপার প্যানেল",
+        grp_main: "প্রধান কার্যক্রম",
+        m_dashboard: "ড্যাশবোর্ড",
+        m_orders: "অর্ডারসমূহ",
+        grp_catalog: "পণ্য ও মূল্যতালিকা",
+        m_products: "পণ্য ক্যাটালগ",
+        m_prices: "ক্যাটাগরি মূল্য",
+        m_stock: "স্টক ম্যানেজমেন্ট",
+        grp_crm: "গ্রাহক ও কর্মী",
+        m_customers: "গ্রাহকবৃন্দ",
+        m_shopkeepers: "দোকান পরিচালনা",
+        m_referrals: "রেফারেল কোড",
+        grp_config: "সেটআপ ও রিপোর্ট",
+        m_delivery: "ডেলিভারি সেটিংস",
+        m_reports: "রিপোর্ট ও অ্যানালিটিক্স",
+        m_settings: "শপ সেটিংস",
+        m_reviews: "রিভিউ ও রেটিং",
+        m_requests: "গ্রাহক অনুরোধ",
+        m_logout: "লগআউট",
+        bc_home: "হোম",
+        bc_reports: "রিপোর্ট ও অ্যানালিটিক্স",
+        header_title: "বিজনেস ইন্টেলিজেন্স ও সেলস রিপোর্ট",
+        btn_print: "রিপোর্ট প্রিন্ট",
+        btn_export: "CSV ডাউনলোড",
+        dt_today: "আজকের",
+        dt_yesterday: "গতকালের",
+        dt_7days: "গত ৭ দিন",
+        dt_30days: "গত ৩০ দিন",
+        dt_this_month: "এই মাস",
+        dt_all: "সকল সময়",
+        st_completed_sales: "সম্পন্ন মোট বিক্রি",
+        st_completed_sales_sub: "ডেলিভার্ড অর্ডারের আসল আয়",
+        st_total_orders: "সর্বমোট অর্ডার",
+        st_total_orders_sub: "নির্দিষ্ট সময়ের মোট অর্ডার",
+        st_completed_orders: "সম্পন্ন অর্ডার",
+        st_completed_orders_sub: "সফলভাবে ডেলিভারি সম্পন্ন",
+        st_aov: "গড় অর্ডার মূল্য (AOV)",
+        st_aov_sub: "প্রতি অর্ডারে গড় আয়",
+        st_pending: "পেন্ডিং অর্ডার",
+        st_pending_sub: "অনুমোদনের অপেক্ষায়",
+        st_cancelled: "বাতিল / প্রত্যাখ্যাত",
+        st_cancelled_sub: "আয় হিসেবে গণনা বহির্ভূত",
+        st_delivery_fees: "সংগৃহীত ডেলিভারি ফি",
+        st_delivery_fees_sub: "শিপিং রেভিনিউ",
+        st_discounts: "প্রদত্ত মোট ছাড়",
+        st_discounts_sub: "প্রোমোশন ও ডিসকাউন্ট",
+        st_customers: "নিবন্ধিত গ্রাহক",
+        st_customers_sub: "সর্বমোট কাস্টমার সংখ্যা",
+        st_new_customers: "নতুন গ্রাহক",
+        st_new_customers_sub: "এই সময়ে যুক্ত হয়েছেন",
+        st_active_products: "সক্রিয় পণ্য",
+        st_active_products_sub: "ক্যাটালগে সক্রিয় আইটেম",
+        st_low_stock: "লো স্টক অ্যালার্ট",
+        st_low_stock_sub: "স্টক ফুরিয়ে যাওয়া পণ্য",
+        ch_sales_trend: "দৈনিক বিক্রির গতিপ্রকৃতি (সম্পন্ন অর্ডার)",
+        ch_sales_trend_sub: "নির্দিষ্ট সময়ে রেভিনিউ বৃদ্ধির গ্রাফ",
+        ch_status_dist: "অর্ডারের স্ট্যাটাস অনুপাত",
+        ch_status_dist_sub: "স্ট্যাটাসভিত্তিক অর্ডারের পাই-চার্ট",
+        p_prod_perf_title: "পণ্যভিত্তিক বিক্রি বিশ্লেষণ (আইটেম স্ন্যাপশট)",
+        p_prod_perf_sub: "সম্পন্ন অর্ডারসমূহ থেকে আইটেম বিক্রির আসল হিসাব",
+        th_product: "পণ্য",
+        th_category: "ক্যাটাগরি",
+        th_qty_sold: "বিক্রির পরিমাণ",
+        th_orders_count: "অর্ডার সংখ্যা",
+        th_sales_amount: "মোট বিক্রয় মূল্য",
+        p_cat_perf_title: "কাস্টমার ক্যাটাগরি পারফরম্যান্স (৮টি টায়ার)",
+        p_cat_perf_sub: "খুচরা, রেস্তোরাঁ ও বাণিজ্যিক ক্লায়েন্টদের বিক্রির তুলনা",
+        th_cat_name: "কাস্টমার ক্যাটাগরি",
+        th_clients_count: "নিবন্ধিত ক্লায়েন্ট",
+        th_comp_orders: "সম্পন্ন অর্ডার",
+        th_comp_sales: "সম্পন্ন মোট বিক্রি",
+        th_avg_rev: "গড় আয় / ক্লায়েন্ট",
+        p_orders_log_title: "অর্ডার রেভিনিউ ও পেমেন্ট অডিট লগ",
+        p_orders_log_sub: "সাবটোটাল, ডেলিভারি চার্জ এবং চূড়ান্ত সংগৃহীত মূল্যের হিসাব",
+        th_ord_id: "অর্ডার আইডি",
+        th_ord_cust: "গ্রাহক",
+        th_ord_date: "তারিখ",
+        th_ord_subtotal: "সাবটোটাল",
+        th_ord_delivery: "ডেলিভারি ফি",
+        th_ord_net: "সর্বমোট আদায়",
+        th_ord_status: "স্ট্যাটাস",
+        lang_switch_to: "English"
+      }
+    };
+
+    let currentLang = localStorage.getItem('poultry_admin_lang') || 'bn';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('poultry_admin_lang', lang);
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang][key]) el.textContent = i18n[lang][key];
+      });
+
+      document.getElementById('langButtonText').textContent = i18n[lang].lang_switch_to;
+      recalculateAndRenderReports();
+    }
+
+    document.getElementById('btnLangToggle').addEventListener('click', () => {
+      setLanguage(currentLang === 'en' ? 'bn' : 'en');
+    });
+
+    // App State
+    let currentUser = null;
+    let currentUserRole = null;
+    let rawOrders = [];
+    let rawProducts = [];
+    let rawCustomers = [];
+
+    // Filter Window State
+    let filterStartTs = 0;
+    let filterEndTs = Infinity;
+    let activePreset = 'today';
+
+    let salesTrendChartInstance = null;
+    let orderStatusChartInstance = null;
+
+    // ==========================================================
+    // AUTHENTICATION GUARD
+    // ==========================================================
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.replace('admin-login.html');
+        return;
+      }
+
+      currentUser = user;
+      document.getElementById('userEmail').textContent = user.email;
+      document.getElementById('userAvatar').textContent = (user.email.charAt(0) || 'A').toUpperCase();
+
+      try {
+        const roleRef = ref(db, `users/${user.uid}/role`);
+        const snapshot = await get(roleRef);
+        const role = snapshot.val();
+
+        if (!role) {
+          await signOut(auth);
+          window.location.replace('admin-login.html');
+          return;
+        }
+
+        const normalizedRole = role.toString().toLowerCase().trim();
+        if (normalizedRole !== 'admin' && normalizedRole !== 'shopkeeper') {
+          await signOut(auth);
+          window.location.replace('admin-login.html');
+          return;
+        }
+
+        currentUserRole = normalizedRole;
+        document.getElementById('userRoleBadge').textContent = normalizedRole.toUpperCase();
+
+        initDatePresets();
+        listenToAllData();
+
+      } catch (err) {
+        console.error("Auth Guard Error:", err);
+      }
+    });
+
+    document.getElementById('btnLogout').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.replace('admin-login.html');
+    });
+
+    const menuToggleBtn = document.getElementById('menuToggleBtn');
+    const sidebar = document.getElementById('sidebar');
+    menuToggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+
+    // ==========================================================
+    // DATE PRESET HANDLING
+    // ==========================================================
+    function setDateRangeByPreset(preset) {
+      activePreset = preset;
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      if (preset === 'today') {
+        filterStartTs = startOfToday.getTime();
+        filterEndTs = Infinity;
+      } else if (preset === 'yesterday') {
+        filterStartTs = startOfToday.getTime() - (24 * 60 * 60 * 1000);
+        filterEndTs = startOfToday.getTime();
+      } else if (preset === 'week') {
+        filterStartTs = startOfToday.getTime() - (7 * 24 * 60 * 60 * 1000);
+        filterEndTs = Infinity;
+      } else if (preset === 'month') {
+        filterStartTs = startOfToday.getTime() - (30 * 24 * 60 * 60 * 1000);
+        filterEndTs = Infinity;
+      } else if (preset === 'this_month') {
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        filterStartTs = startOfMonth.getTime();
+        filterEndTs = Infinity;
+      } else if (preset === 'all') {
+        filterStartTs = 0;
+        filterEndTs = Infinity;
+      }
+
+      document.querySelectorAll('.btn-preset').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.preset === preset);
+      });
+
+      recalculateAndRenderReports();
+    }
+
+    function initDatePresets() {
+      document.querySelectorAll('.btn-preset[data-preset]').forEach(btn => {
+        btn.addEventListener('click', () => setDateRangeByPreset(btn.dataset.preset));
+      });
+
+      document.getElementById('btnApplyCustomDate').addEventListener('click', () => {
+        const startVal = document.getElementById('dateStart').value;
+        const endVal = document.getElementById('dateEnd').value;
+
+        if (!startVal) return;
+        filterStartTs = new Date(startVal).getTime();
+        filterEndTs = endVal ? new Date(endVal).getTime() + (24 * 60 * 60 * 1000) - 1 : Infinity;
+
+        document.querySelectorAll('.btn-preset').forEach(btn => btn.classList.remove('active'));
+        recalculateAndRenderReports();
+      });
+
+      setDateRangeByPreset('today');
+    }
+
+    // ==========================================================
+    // REALTIME DATABASE LISTENERS
+    // ==========================================================
+    function listenToAllData() {
+      // 1. Orders
+      onValue(ref(db, 'orders'), (snap) => {
+        rawOrders = [];
+        snap.forEach(child => {
+          const ord = child.val();
+          ord.key = child.key;
+          rawOrders.push(ord);
+        });
+        recalculateAndRenderReports();
+      });
+
+      // 2. Products
+      onValue(ref(db, 'products'), (snap) => {
+        rawProducts = [];
+        snap.forEach(child => {
+          const p = child.val();
+          p.key = child.key;
+          rawProducts.push(p);
+        });
+        recalculateAndRenderReports();
+      });
+
+      // 3. Customers
+      onValue(ref(db, 'customers'), (snap) => {
+        rawCustomers = [];
+        snap.forEach(child => {
+          const c = child.val();
+          c.uid = child.key;
+          rawCustomers.push(c);
+        });
+        recalculateAndRenderReports();
+      });
+    }
+
+    // ==========================================================
+    // REPORT ENGINE & METRIC RE-CALCULATOR
+    // ==========================================================
+    function recalculateAndRenderReports() {
+      // Filter Orders by Date
+      const periodOrders = rawOrders.filter(o => {
+        const t = o.createdAt ? new Date(o.createdAt).getTime() : 0;
+        return t >= filterStartTs && t <= filterEndTs;
+      });
+
+      // Filter Customers by Date
+      const newCustomersInPeriod = rawCustomers.filter(c => {
+        const t = c.createdAt ? new Date(c.createdAt).getTime() : 0;
+        return t >= filterStartTs && t <= filterEndTs;
+      }).length;
+
+      let completedSales = 0;
+      let totalOrders = periodOrders.length;
+      let completedOrders = 0;
+      let pendingOrders = 0;
+      let cancelledOrders = 0;
+      let deliveryFees = 0;
+      let discounts = 0;
+
+      // Groupings
+      const salesByDay = {};
+      const statusCounts = { pending: 0, completed: 0, cancelled: 0, rejected: 0, other: 0 };
+      const productStats = {};
+      const categoryStats = {
+        normal: { name: 'Normal Customer', count: 0, completedOrders: 0, completedSales: 0 },
+        restaurant: { name: 'Restaurant', count: 0, completedOrders: 0, completedSales: 0 },
+        hotel: { name: 'Hotel', count: 0, completedOrders: 0, completedSales: 0 },
+        club: { name: 'Club', count: 0, completedOrders: 0, completedSales: 0 },
+        bakery: { name: 'Bakery', count: 0, completedOrders: 0, completedSales: 0 },
+        cafe: { name: 'Cafe', count: 0, completedOrders: 0, completedSales: 0 },
+        catering: { name: 'Catering Service', count: 0, completedOrders: 0, completedSales: 0 },
+        otherBusiness: { name: 'Other Business', count: 0, completedOrders: 0, completedSales: 0 }
+      };
+
+      // Map Customer registrations to categories
+      rawCustomers.forEach(c => {
+        const cat = (c.category || 'normal');
+        if (categoryStats[cat]) categoryStats[cat].count++;
+        else categoryStats.normal.count++;
+      });
+
+      periodOrders.forEach(ord => {
+        const st = (ord.status || 'pending').toLowerCase();
+        const sub = Number(ord.subtotal || ord.pricing?.subtotal || 0);
+        const del = Number(ord.deliveryCharge || ord.pricing?.deliveryCharge || 0);
+        const disc = Number(ord.discount || ord.pricing?.discount || 0);
+        const netTotal = Number(ord.totalAmount || ord.pricing?.totalAmount || (sub + del - disc));
+        const cat = (ord.customerCategory || ord.customer?.category || 'normal');
+
+        if (st === 'completed' || st === 'delivered') {
+          completedOrders++;
+          completedSales += netTotal;
+          deliveryFees += del;
+          discounts += disc;
+          statusCounts.completed++;
+
+          // Day grouping for trend
+          const dayKey = ord.createdAt ? new Date(ord.createdAt).toLocaleDateString('en-GB') : 'Unknown';
+          salesByDay[dayKey] = (salesByDay[dayKey] || 0) + netTotal;
+
+          // Category stats
+          if (categoryStats[cat]) {
+            categoryStats[cat].completedOrders++;
+            categoryStats[cat].completedSales += netTotal;
+          }
+
+          // Product sales breakdown using order item snapshots
+          const items = ord.items ? (Array.isArray(ord.items) ? ord.items : Object.values(ord.items)) : [];
+          items.forEach(it => {
+            const pId = it.productId || it.id || it.productName || 'misc';
+            const pName = it.productName || it.name || 'Chicken Item';
+            const pCat = it.category || 'Poultry';
+            const qty = Number(it.quantity || 1);
+            const amt = Number(it.subtotal || (qty * (it.unitPrice || 0)));
+
+            if (!productStats[pId]) {
+              productStats[pId] = { name: pName, category: pCat, qty: 0, sales: 0, ordersCount: 0 };
+            }
+            productStats[pId].qty += qty;
+            productStats[pId].sales += amt;
+            productStats[pId].ordersCount++;
+          });
+
+        } else if (st === 'pending') {
+          pendingOrders++;
+          statusCounts.pending++;
+        } else if (st === 'cancelled') {
+          cancelledOrders++;
+          statusCounts.cancelled++;
+        } else if (st === 'rejected') {
+          cancelledOrders++;
+          statusCounts.rejected++;
+        } else {
+          statusCounts.other++;
+        }
+      });
+
+      const aov = completedOrders > 0 ? (completedSales / completedOrders) : 0;
+
+      // Product active & low stock counts
+      let activeProds = 0;
+      let lowStock = 0;
+      rawProducts.forEach(p => {
+        const stock = Number(p.stockQuantity ?? 0);
+        const st = (p.status || 'available').toLowerCase();
+        if (st === 'available') activeProds++;
+        if (stock > 0 && stock <= Number(p.minStockAlert ?? 5)) lowStock++;
+      });
+
+      // Update 14 Overview Stats Cards
+      document.getElementById('mCompletedSales').textContent = `৳ ${completedSales.toLocaleString('en-IN')}`;
+      document.getElementById('mTotalOrders').textContent = totalOrders;
+      document.getElementById('mCompletedOrders').textContent = completedOrders;
+      document.getElementById('mAOV').textContent = `৳ ${Math.round(aov).toLocaleString('en-IN')}`;
+      document.getElementById('mPendingOrders').textContent = pendingOrders;
+      document.getElementById('mCancelledOrders').textContent = cancelledOrders;
+      document.getElementById('mDeliveryFees').textContent = `৳ ${deliveryFees.toLocaleString('en-IN')}`;
+      document.getElementById('mDiscounts').textContent = `৳ ${discounts.toLocaleString('en-IN')}`;
+      document.getElementById('mTotalCustomers').textContent = rawCustomers.length;
+      document.getElementById('mNewCustomers').textContent = newCustomersInPeriod;
+      document.getElementById('mActiveProducts').textContent = activeProds;
+      document.getElementById('mLowStock').textContent = lowStock;
+
+      // Render Charts
+      renderCharts(salesByDay, statusCounts);
+
+      // Render Tables
+      renderProductPerformance(productStats);
+      renderCategoryPerformance(categoryStats);
+      renderOrdersBreakdown(periodOrders);
+    }
+
+    // ==========================================================
+    // CHART RENDERING (CHART.JS)
+    // ==========================================================
+    function renderCharts(salesByDay, statusCounts) {
+      const salesCtx = document.getElementById('salesTrendChart').getContext('2d');
+      const statusCtx = document.getElementById('orderStatusChart').getContext('2d');
+
+      const labels = Object.keys(salesByDay);
+      const data = Object.values(salesByDay);
+
+      // 1. Sales Trend
+      if (salesTrendChartInstance) salesTrendChartInstance.destroy();
+      salesTrendChartInstance = new Chart(salesCtx, {
+        type: 'line',
+        data: {
+          labels: labels.length ? labels : ['No Sales'],
+          datasets: [{
+            label: 'Sales (৳)',
+            data: data.length ? data : [0],
+            borderColor: '#d4af37',
+            backgroundColor: 'rgba(212, 175, 55, 0.1)',
+            borderWidth: 2.5,
+            fill: true,
+            tension: 0.35
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
+          }
+        }
+      });
+
+      // 2. Status Distribution
+      if (orderStatusChartInstance) orderStatusChartInstance.destroy();
+      orderStatusChartInstance = new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Completed', 'Pending', 'Cancelled / Rejected', 'Other'],
+          datasets: [{
+            data: [statusCounts.completed, statusCounts.pending, statusCounts.cancelled + statusCounts.rejected, statusCounts.other],
+            backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#3b82f6'],
+            borderColor: '#0d0f15',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#94a3b8', font: { family: 'Outfit', size: 11 } } }
+          },
+          cutout: '70%'
+        }
+      });
+    }
+
+    // ==========================================================
+    // TABLE RENDERERS
+    // ==========================================================
+    function renderProductPerformance(stats) {
+      const tbody = document.getElementById('productPerformanceBody');
+      const list = Object.values(stats).sort((a, b) => b.sales - a.sales);
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">এই সময়ে কোনো সম্পন্ন পণ্যের বিক্রি নেই।</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(item => `
+        <tr>
+          <td><strong style="color:#fff;">${escapeHTML(item.name)}</strong></td>
+          <td><span class="badge-cat">${escapeHTML(item.category)}</span></td>
+          <td>${item.qty} units</td>
+          <td>${item.ordersCount}</td>
+          <td style="color:var(--gold-light); font-weight:700;">৳ ${item.sales.toLocaleString('en-IN')}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderCategoryPerformance(catStats) {
+      const tbody = document.getElementById('categoryPerformanceBody');
+      const keys = Object.keys(catStats);
+
+      tbody.innerHTML = keys.map(k => {
+        const item = catStats[k];
+        const avg = item.count > 0 ? Math.round(item.completedSales / item.count) : 0;
+        return `
+          <tr>
+            <td><strong style="color:#fff;">${escapeHTML(item.name)}</strong></td>
+            <td>${item.count}</td>
+            <td>${item.completedOrders}</td>
+            <td style="color:var(--gold-light); font-weight:700;">৳ ${item.completedSales.toLocaleString('en-IN')}</td>
+            <td>৳ ${avg.toLocaleString('en-IN')}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderOrdersBreakdown(orders) {
+      const tbody = document.getElementById('ordersBreakdownBody');
+      const sorted = [...orders].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+      if (sorted.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--text-muted);">কোনো অর্ডার পাওয়া যায়নি।</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = sorted.slice(0, 20).map(o => {
+        const id = (o.orderId || o.key || '').substring(0, 8).toUpperCase();
+        const cust = o.customerName || o.customer?.name || 'Customer';
+        const d = o.createdAt ? new Date(o.createdAt).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short' }) : '—';
+        const sub = Number(o.subtotal || o.pricing?.subtotal || 0).toLocaleString('en-IN');
+        const del = Number(o.deliveryCharge || o.pricing?.deliveryCharge || 0).toLocaleString('en-IN');
+        const tot = Number(o.totalAmount || o.pricing?.totalAmount || 0).toLocaleString('en-IN');
+        const st = (o.status || 'pending').toLowerCase();
+
+        return `
+          <tr>
+            <td><strong>#${escapeHTML(id)}</strong></td>
+            <td>${escapeHTML(cust)}</td>
+            <td style="font-size:0.78rem; color:var(--text-muted);">${d}</td>
+            <td>৳ ${sub}</td>
+            <td>৳ ${del}</td>
+            <td style="color:var(--gold-light); font-weight:700;">৳ ${tot}</td>
+            <td><span style="text-transform:capitalize;">${escapeHTML(st)}</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // ==========================================================
+    // CSV EXPORT LOGIC
+    // ==========================================================
+    document.getElementById('btnExportCSV').addEventListener('click', () => {
+      const periodOrders = rawOrders.filter(o => {
+        const t = o.createdAt ? new Date(o.createdAt).getTime() : 0;
+        return t >= filterStartTs && t <= filterEndTs;
+      });
+
+      if (!periodOrders.length) {
+        alert("No orders in selected range to export.");
+        return;
+      }
+
+      let csv = "OrderID,Customer,Date,Status,Subtotal,DeliveryCharge,TotalAmount\n";
+      periodOrders.forEach(o => {
+        csv += `"${o.orderId || o.key}","${o.customerName || o.customer?.name || ''}","${o.createdAt || ''}","${o.status || ''}",${o.subtotal || o.pricing?.subtotal || 0},${o.deliveryCharge || o.pricing?.deliveryCharge || 0},${o.totalAmount || o.pricing?.totalAmount || 0}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Poultry_Sales_Report_${activePreset}_${Date.now()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    setLanguage(currentLang);
+  </script>
+</body>
+</html>

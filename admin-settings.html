@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings & Branding | Poultry Shop Panel</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================
+       CSS RESET & DESIGN TOKENS (BLACK & GOLD OBSIDIAN)
+       ========================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-body: #07080b;
+      --bg-sidebar: #0d0f15;
+      --bg-card: rgba(18, 20, 28, 0.78);
+      --bg-card-hover: rgba(26, 29, 40, 0.88);
+      --border-gold: rgba(212, 175, 55, 0.22);
+      --border-gold-bright: rgba(212, 175, 55, 0.6);
+      --gold-primary: #d4af37;
+      --gold-light: #f5d77f;
+      --gold-dark: #997519;
+      --gold-gradient: linear-gradient(135deg, #f7df87 0%, #d4af37 50%, #997519 100%);
+      --text-main: #f3f4f6;
+      --text-muted: #94a3b8;
+      --text-dark: #07080b;
+
+      --status-active: #10b981;
+      --status-closed: #ef4444;
+      --status-warning: #f59e0b;
+      --status-info: #3b82f6;
+
+      --sidebar-width: 260px;
+      --header-height: 75px;
+      --gold-glow: 0 0 25px rgba(212, 175, 55, 0.2);
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #08090d; }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 4px; }
+
+    .ambient-glow {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      filter: blur(140px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.12;
+      background: radial-gradient(circle, var(--gold-primary), transparent 70%);
+      top: -80px;
+      right: -80px;
+    }
+
+    /* ==========================================================
+       SIDEBAR NAVIGATION (EXACT 14 ADMIN LINKS)
+       ========================================================== */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-gold);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-brand {
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 22px;
+      border-bottom: 1px solid var(--border-gold);
+      flex-shrink: 0;
+    }
+
+    .brand-logo-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 30% 30%, #2a251b, #111216);
+      border: 1.5px solid var(--gold-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--gold-glow);
+    }
+
+    .brand-logo-badge svg { width: 22px; height: 22px; stroke: var(--gold-primary); }
+
+    .brand-text h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.08rem;
+      font-weight: 700;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-text span {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .sidebar-user {
+      padding: 14px 18px;
+      margin: 14px 14px 6px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--gold-gradient);
+      color: #07080b;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .user-meta { flex: 1; overflow: hidden; }
+    .role-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+      text-transform: uppercase;
+      background: rgba(212, 175, 55, 0.2);
+      color: var(--gold-light);
+      border: 1px solid var(--border-gold);
+    }
+    .user-email {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 3px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px 24px;
+    }
+
+    .nav-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #64748b;
+      letter-spacing: 1.2px;
+      padding: 12px 14px 6px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.86rem;
+      font-weight: 500;
+      border-radius: 10px;
+      margin-bottom: 3px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link svg { width: 18px; height: 18px; stroke: currentColor; flex-shrink: 0; }
+
+    .nav-link:hover {
+      background: rgba(212, 175, 55, 0.08);
+      color: var(--gold-light);
+      transform: translateX(3px);
+    }
+
+    .nav-link.active {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+    }
+
+    .nav-link.active svg { stroke: var(--text-dark); }
+
+    .nav-link.logout-link {
+      color: #f87171;
+      margin-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 12px;
+    }
+    .nav-link.logout-link:hover {
+      background: rgba(239, 68, 68, 0.12);
+      color: #fca5a5;
+    }
+
+    /* ==========================================================
+       MAIN CONTENT WRAPPER & TOP BAR
+       ========================================================== */
+    .main-wrapper {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+      z-index: 10;
+    }
+
+    .top-header {
+      height: var(--header-height);
+      background: rgba(13, 15, 21, 0.85);
+      backdrop-filter: blur(15px);
+      border-bottom: 1px solid var(--border-gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 16px; }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: 1px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .breadcrumbs a { color: var(--gold-light); text-decoration: none; }
+
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+
+    .btn-lang-toggle {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.25s ease;
+    }
+
+    .btn-lang-toggle:hover {
+      background: rgba(212, 175, 55, 0.15);
+      border-color: var(--gold-primary);
+    }
+
+    .content-area {
+      padding: 26px 30px 60px;
+      flex: 1;
+    }
+
+    /* Sub Navigation Tabs */
+    .settings-tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-gold);
+      margin-bottom: 24px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 12px 18px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      position: relative;
+      white-space: nowrap;
+      transition: color 0.2s ease;
+    }
+
+    .tab-btn:hover { color: var(--gold-light); }
+    .tab-btn.active { color: #fff; }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gold-gradient);
+      border-radius: 3px;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Cards & Form Panels */
+    .card-panel {
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-gold);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    .panel-header-flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .panel-header-flex h3 { font-size: 1.15rem; color: #fff; font-weight: 700; }
+    .panel-header-flex p { font-size: 0.8rem; color: var(--text-muted); }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .form-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .form-group.col-span-2 { grid-column: span 2; }
+
+    .form-label { font-size: 0.82rem; font-weight: 600; color: #e2e8f0; }
+
+    .form-input, .form-select, .form-textarea {
+      background: #08090d;
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+    }
+
+    /* Switch Styling */
+    .switch-row {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-gold);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .switch-ui {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 24px;
+    }
+
+    .switch-ui input { opacity: 0; width: 0; height: 0; }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: #374151;
+      transition: .3s;
+      border-radius: 30px;
+      border: 1px solid var(--border-gold);
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #fff;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider { background: var(--gold-gradient); }
+    input:checked + .slider:before { transform: translateX(24px); background-color: #07080b; }
+
+    /* ==========================================================
+       LIVE CUSTOMER APP BRANDING HEADER SIMULATOR
+       ========================================================== */
+    .simulator-container {
+      background: #050608;
+      border: 1.5px solid var(--border-gold);
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8), 0 10px 25px rgba(0,0,0,0.6);
+    }
+
+    .sim-badge-tag {
+      position: absolute;
+      top: 12px;
+      left: 14px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--gold-light);
+      background: rgba(212, 175, 55, 0.15);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      padding: 2px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .sim-logo-frame {
+      width: 80px;
+      height: 80px;
+      margin: 10px auto 12px auto;
+      border-radius: 18px;
+      background: radial-gradient(circle at 30% 30%, #2a251b, #111216);
+      border: 1.5px solid var(--gold-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .sim-logo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .sim-shop-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+      transition: all 0.3s ease;
+    }
+
+    /* Animation Styles */
+    .anim-soft_fade { animation: simSoftFade 3s ease-in-out infinite alternate; }
+    .anim-gentle_shine { animation: simGentleShine 4s linear infinite; }
+    .anim-subtle_glow { animation: simSubtleGlow 2.5s ease-in-out infinite alternate; }
+
+    @keyframes simSoftFade {
+      0% { opacity: 0.8; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes simGentleShine {
+      0% { filter: brightness(0.95); }
+      50% { filter: brightness(1.25); }
+      100% { filter: brightness(0.95); }
+    }
+
+    @keyframes simSubtleGlow {
+      0% { text-shadow: 0 0 5px rgba(212,175,55,0.2); }
+      100% { text-shadow: 0 0 20px rgba(212,175,55,0.6); }
+    }
+
+    .btn-gold-save {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      padding: 10px 22px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-gold-save:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.45);
+    }
+
+    /* Toast Container */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1100;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: #141720;
+      border: 1px solid var(--border-gold);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      animation: toastSlideIn 0.3s ease-out;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.success { border-color: var(--status-active); color: #6ee7b7; }
+    .toast.error { border-color: var(--status-closed); color: #fca5a5; }
+
+    @keyframes toastSlideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-left: 0; }
+      .menu-toggle { display: block; }
+      .content-area { padding: 20px 16px; }
+      .top-header { padding: 0 16px; }
+      .form-grid-2, .form-group.col-span-2 { grid-template-columns: 1fr; grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+
+  <!-- ==========================================================
+       SIDEBAR NAVIGATION (EXACT 14 ADMIN LINKS)
+       ========================================================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2C8.5 2 6 4.5 6 8c0 2 .8 3.8 2.2 5.1L5 22h14l-3.2-8.9C17.2 11.8 18 10 18 8c0-3.5-2.5-6-6-6z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h2>POULTRY ERP</h2>
+        <span data-i18n="shop_mgmt">Admin + Shopkeeper Panel</span>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="userAvatar">A</div>
+      <div class="user-meta">
+        <span class="role-badge" id="userRoleBadge">CHECKING...</span>
+        <div class="user-email" id="userEmail">Loading user...</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label" data-i18n="grp_main">Core Operations</div>
+      
+      <!-- 1. Dashboard -->
+      <a href="admin-dashboard.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span data-i18n="m_dashboard">Dashboard</span>
+      </a>
+
+      <!-- 2. Orders -->
+      <a href="admin-orders.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span data-i18n="m_orders">Orders</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_catalog">Catalog & Pricing</div>
+
+      <!-- 3. Products -->
+      <a href="admin-products.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+        <span data-i18n="m_products">Products</span>
+      </a>
+
+      <!-- 4. Prices -->
+      <a href="admin-prices.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span data-i18n="m_prices">Tiered Prices</span>
+      </a>
+
+      <!-- 5. Stock Management -->
+      <a href="admin-stock.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        <span data-i18n="m_stock">Stock Management</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_crm">CRM & Staff</div>
+
+      <!-- 6. Customers -->
+      <a href="admin-customers.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span data-i18n="m_customers">Customers</span>
+      </a>
+
+      <!-- 7. Shop Management -->
+      <a href="admin-shopkeepers.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span data-i18n="m_shopkeepers">Shop Management</span>
+      </a>
+
+      <!-- 8. Referral Codes -->
+      <a href="admin-referrals.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span data-i18n="m_referrals">Referral Codes</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_config">Store Setup & Reports</div>
+
+      <!-- 9. Delivery Settings -->
+      <a href="admin-delivery.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <span data-i18n="m_delivery">Delivery Settings</span>
+      </a>
+
+      <!-- 10. Reports -->
+      <a href="admin-reports.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span data-i18n="m_reports">Reports & Analytics</span>
+      </a>
+
+      <!-- 11. Shop Settings (ACTIVE) -->
+      <a href="admin-settings.html" class="nav-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span data-i18n="m_settings">Shop Settings</span>
+      </a>
+
+      <!-- 12. Reviews -->
+      <a href="admin-reviews.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span data-i18n="m_reviews">Reviews</span>
+      </a>
+
+      <!-- 13. Customer Requests -->
+      <a href="admin-requests.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+        <span data-i18n="m_requests">Customer Requests</span>
+      </a>
+
+      <!-- 14. Logout Action -->
+      <a href="javascript:void(0)" class="nav-link logout-link" id="btnLogout">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span data-i18n="m_logout">Logout</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ==========================================================
+       MAIN CONTENT WRAPPER
+       ========================================================== -->
+  <div class="main-wrapper">
+
+    <!-- Top Consistent Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <button class="menu-toggle" id="menuToggleBtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div>
+          <!-- Working Back to Dashboard Link -->
+          <div class="breadcrumbs">
+            <a href="admin-dashboard.html" data-i18n="bc_home">Home</a> / <span data-i18n="bc_settings">Shop Settings</span>
+          </div>
+          <h1 style="font-size: 1.25rem; font-weight: 700; color: #fff;" data-i18n="header_title">Settings & Shop Branding</h1>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Language Switcher -->
+        <button class="btn-lang-toggle" id="btnLangToggle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="langButtonText">English</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="content-area">
+
+      <!-- Navigation Tabs -->
+      <div class="settings-tabs">
+        <button class="tab-btn active" onclick="switchTab('tabProfile')" data-i18n="t_profile">Shop Profile</button>
+        <button class="tab-btn" onclick="switchTab('tabBranding')" data-i18n="t_branding">Customer App Branding</button>
+        <button class="tab-btn" onclick="switchTab('tabStatusOrders')" data-i18n="t_status_orders">Shop Status & Orders</button>
+        <button class="tab-btn" onclick="switchTab('tabCustomerPolicies')" data-i18n="t_cust_policies">Customer & Categories</button>
+        <button class="tab-btn" onclick="switchTab('tabContactNotif')" data-i18n="t_contact_notif">Contact & Social</button>
+      </div>
+
+      <!-- TAB 1: SHOP PROFILE -->
+      <div id="tabProfile" class="tab-panel active">
+        <div class="card-panel">
+          <div class="panel-header-flex">
+            <div>
+              <h3 data-i18n="sec_profile_title">General Shop Profile & Hours</h3>
+              <p data-i18n="sec_profile_sub">Primary contact, address in Barisal and store operating hours</p>
+            </div>
+          </div>
+
+          <form id="formShopProfile" autocomplete="off">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_shop_name">Shop Name *</label>
+                <input type="text" id="profShopName" class="form-input" required />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_logo_url">Shop Logo URL *</label>
+                <input type="url" id="profLogoUrl" class="form-input" placeholder="https://..." required />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_phone">Primary Phone Number *</label>
+                <input type="tel" id="profPhone" class="form-input" required />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_wa">Official WhatsApp Number *</label>
+                <input type="tel" id="profWhatsApp" class="form-input" required />
+              </div>
+
+              <div class="form-group col-span-2">
+                <label class="form-label" data-i18n="lbl_address">Shop Street Address (Barisal) *</label>
+                <input type="text" id="profAddress" class="form-input" required />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_district">District *</label>
+                <input type="text" id="profDistrict" class="form-input" value="Barisal" required />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_area">Upazila / Area *</label>
+                <input type="text" id="profUpazila" class="form-input" value="Barisal Sadar" required />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_open_time">Daily Opening Time</label>
+                <input type="time" id="profOpenTime" class="form-input" value="08:00" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_close_time">Daily Closing Time</label>
+                <input type="time" id="profCloseTime" class="form-input" value="22:00" />
+              </div>
+
+              <div class="form-group col-span-2">
+                <label class="form-label" data-i18n="lbl_desc">Shop Bio / Description</label>
+                <textarea id="profDescription" class="form-textarea" rows="3" placeholder="Fresh Halal poultry supplier in Barisal..."></textarea>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-gold-save" data-i18n="btn_save_profile">Save Profile</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- TAB 2: CUSTOMER APP BRANDING & LIVE SIMULATOR -->
+      <div id="tabBranding" class="tab-panel">
+        <div class="card-panel">
+          <div class="panel-header-flex">
+            <div>
+              <h3 data-i18n="sec_brand_title">Customer App Live Header Branding</h3>
+              <p data-i18n="sec_brand_sub">Configure appearance, title animation and golden glow of the customer app</p>
+            </div>
+          </div>
+
+          <!-- Live Reactive Customer App Header Simulator -->
+          <div class="simulator-container">
+            <span class="sim-badge-tag">Customer App Live Header Preview</span>
+            <div class="sim-logo-frame" id="simLogoFrame">
+              <img id="simLogoImg" src="https://via.placeholder.com/80?text=Logo" alt="Shop Logo" onerror="this.src='https://via.placeholder.com/80?text=Logo'" />
+            </div>
+            <h2 class="sim-shop-title" id="simShopTitle">POULTRY SHOP</h2>
+            <p id="simStatusSub" style="font-size: 0.78rem; color: #10b981; font-weight: 600;">● Store Open for Delivery</p>
+          </div>
+
+          <form id="formBranding" autocomplete="off">
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_anim_style">Title Animation Effect</label>
+                <select id="brandAnimation" class="form-select">
+                  <option value="none">No Animation</option>
+                  <option value="soft_fade">Soft Fade</option>
+                  <option value="gentle_shine" selected>Gentle Shine</option>
+                  <option value="subtle_glow">Subtle Glow</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_glow_toggle">Header Golden Glow</label>
+                <select id="brandGlowToggle" class="form-select">
+                  <option value="on">Glow ON</option>
+                  <option value="off">Glow OFF</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_logo_size">Logo Box Size (Pixels)</label>
+                <input type="number" id="brandLogoSize" class="form-input" min="50" max="130" value="80" />
+              </div>
+            </div>
+
+            <button type="submit" class="btn-gold-save" data-i18n="btn_save_brand">Save Branding Settings</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- TAB 3: SHOP STATUS & ORDER RULES -->
+      <div id="tabStatusOrders" class="tab-panel">
+        <div class="card-panel">
+          <div class="panel-header-flex">
+            <div>
+              <h3 data-i18n="sec_status_title">Shop Operational Status (Master Switch)</h3>
+              <p data-i18n="sec_status_sub">Open or temporarily close the shop for customer orders</p>
+            </div>
+            <span id="shopStatusBadge" style="font-size:0.82rem; font-weight:700; padding:4px 10px; border-radius:6px; background:rgba(16,185,129,0.15); color:#6ee7b7; border:1px solid rgba(16,185,129,0.3);">Store Open</span>
+          </div>
+
+          <div class="switch-row">
+            <div>
+              <strong style="color:#fff;" data-i18n="lbl_store_open">Shop Accepting Orders</strong>
+              <p style="font-size:0.76rem; color:var(--text-muted);" data-i18n="lbl_store_open_sub">Turn OFF to block checkout and show closure banner on Customer App</p>
+            </div>
+            <label class="switch-ui">
+              <input type="checkbox" id="chkStoreOpen" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div id="boxClosureDetails" style="display:none; background:rgba(239,68,68,0.08); border:1px dashed rgba(239,68,68,0.3); border-radius:12px; padding:16px; margin-bottom:20px;">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_closure_reason">Closure Reason (Displayed to Customer)</label>
+                <input type="text" id="txtClosureReason" class="form-input" placeholder="e.g. Stock Refill / Eid Holiday / Maintenance" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_reopen_datetime">Expected Reopening Time</label>
+                <input type="text" id="txtReopenDateTime" class="form-input" placeholder="e.g. Tomorrow 10:00 AM" />
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-header-flex" style="margin-top:20px;">
+            <div>
+              <h3 data-i18n="sec_order_policy_title">Order Amounts & Cancellation Window</h3>
+              <p data-i18n="sec_order_policy_sub">Define limits and the customer cancellation time limit</p>
+            </div>
+          </div>
+
+          <form id="formOrderSettings" autocomplete="off">
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_min_order_amt">Minimum Order Amount (৳)</label>
+                <input type="number" id="ordMinAmount" class="form-input" min="0" value="300" required />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_cancel_window">Customer Cancellation Window (Minutes)</label>
+                <input type="number" id="ordCancelWindowMins" class="form-input" min="5" max="60" value="20" required />
+                <small style="color:var(--text-muted); font-size:0.72rem;">* Initial default is 20 minutes</small>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_custom_notes">Allow Custom Butchery Notes</label>
+                <select id="ordAllowCustomNotes" class="form-select">
+                  <option value="yes">Yes (Allow Customer Cut Instructions)</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-gold-save" data-i18n="btn_save_order_rules">Save Order Policies</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- TAB 4: CUSTOMER ACCOUNTS & CATEGORY POLICIES -->
+      <div id="tabCustomerPolicies" class="tab-panel">
+        <div class="card-panel">
+          <div class="panel-header-flex">
+            <div>
+              <h3 data-i18n="sec_cust_policy_title">Customer Registration & Category Approval Policies</h3>
+              <p data-i18n="sec_cust_policy_sub">Control business client approval workflows before granting wholesale prices</p>
+            </div>
+          </div>
+
+          <form id="formCustomerPolicies" autocomplete="off">
+            <div class="form-grid-2">
+              <div class="switch-row">
+                <div>
+                  <strong style="color:#fff;" data-i18n="lbl_reg_enabled">Allow New Customer Registrations</strong>
+                  <p style="font-size:0.74rem; color:var(--text-muted);">Enable or pause new user registrations</p>
+                </div>
+                <label class="switch-ui"><input type="checkbox" id="chkRegEnabled" checked /><span class="slider"></span></label>
+              </div>
+
+              <div class="switch-row">
+                <div>
+                  <strong style="color:#fff;" data-i18n="lbl_biz_approval">Require Admin Approval for Business Categories</strong>
+                  <p style="font-size:0.74rem; color:var(--text-muted);">Prevent automatic wholesale pricing without Admin review</p>
+                </div>
+                <label class="switch-ui"><input type="checkbox" id="chkBizApproval" checked /><span class="slider"></span></label>
+              </div>
+
+              <div class="switch-row">
+                <div>
+                  <strong style="color:#fff;" data-i18n="lbl_allow_reviews">Enable Customer Reviews & Ratings</strong>
+                  <p style="font-size:0.74rem; color:var(--text-muted);">Allow customers to rate completed orders</p>
+                </div>
+                <label class="switch-ui"><input type="checkbox" id="chkAllowReviews" checked /><span class="slider"></span></label>
+              </div>
+
+              <div class="switch-row">
+                <div>
+                  <strong style="color:#fff;" data-i18n="lbl_edit_address">Allow Customers to Edit Saved GPS / Address</strong>
+                  <p style="font-size:0.74rem; color:var(--text-muted);">Permit delivery address updates in customer app</p>
+                </div>
+                <label class="switch-ui"><input type="checkbox" id="chkAllowAddressEdit" checked /><span class="slider"></span></label>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-gold-save" data-i18n="btn_save_cust_policy">Save Customer Policies</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- TAB 5: CONTACT & SOCIAL -->
+      <div id="tabContactNotif" class="tab-panel">
+        <div class="card-panel">
+          <div class="panel-header-flex">
+            <div>
+              <h3 data-i18n="sec_social_title">Social Links & Notification Preferences</h3>
+              <p data-i18n="sec_social_sub">Customer app support channels and internal alert settings</p>
+            </div>
+          </div>
+
+          <form id="formContactSocial" autocomplete="off">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Facebook Page URL</label>
+                <input type="url" id="socFacebook" class="form-input" placeholder="https://facebook.com/..." />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Official Website URL</label>
+                <input type="url" id="socWebsite" class="form-input" placeholder="https://..." />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Support Email Address</label>
+                <input type="email" id="socEmail" class="form-input" placeholder="support@poultryshop.com" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">In-App Audio Alerts on New Orders</label>
+                <select id="notifAudioAlert" class="form-select">
+                  <option value="yes" selected>Yes (Play sound on incoming order)</option>
+                  <option value="no">No (Silent)</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-gold-save" data-i18n="btn_save_contact">Save Contact & Socials</button>
+          </form>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ==========================================================
+       MODULAR FIREBASE SDK (v10) & REALTIME SCRIPT
+       ========================================================== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      getDatabase, 
+      ref, 
+      onValue, 
+      update, 
+      serverTimestamp, 
+      get 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // 1. Firebase Configuration Placeholder (Matching Project)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDYPsjlOmRwH2F5P8fFoiirP1FLjgh3c8A",
+      authDomain: "murgi-dfd67.firebaseapp.com",
+      databaseURL: "https://murgi-dfd67-default-rtdb.firebaseio.com",
+      projectId: "murgi-dfd67",
+      storageBucket: "murgi-dfd67.firebasestorage.app",
+      messagingSenderId: "209696889864",
+      appId: "1:209696889864:web:3eaa16034f00cca45505bd"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // Translation Dictionary
+    const i18n = {
+      en: {
+        shop_mgmt: "Admin + Shopkeeper Panel",
+        grp_main: "Core Operations",
+        m_dashboard: "Dashboard",
+        m_orders: "Orders",
+        grp_catalog: "Catalog & Pricing",
+        m_products: "Products",
+        m_prices: "Tiered Prices",
+        m_stock: "Stock Management",
+        grp_crm: "CRM & Staff",
+        m_customers: "Customers",
+        m_shopkeepers: "Shop Management",
+        m_referrals: "Referral Codes",
+        grp_config: "Store Setup & Reports",
+        m_delivery: "Delivery Settings",
+        m_reports: "Reports & Analytics",
+        m_settings: "Shop Settings",
+        m_reviews: "Reviews",
+        m_requests: "Customer Requests",
+        m_logout: "Logout",
+        bc_home: "Home",
+        bc_settings: "Shop Settings",
+        header_title: "Settings & Shop Branding",
+        t_profile: "Shop Profile",
+        t_branding: "Customer App Branding",
+        t_status_orders: "Shop Status & Orders",
+        t_cust_policies: "Customer & Categories",
+        t_contact_notif: "Contact & Social",
+        sec_profile_title: "General Shop Profile & Hours",
+        sec_profile_sub: "Primary contact, address in Barisal and store operating hours",
+        lbl_shop_name: "Shop Name *",
+        lbl_logo_url: "Shop Logo URL *",
+        lbl_phone: "Primary Phone Number *",
+        lbl_wa: "Official WhatsApp Number *",
+        lbl_address: "Shop Street Address (Barisal) *",
+        lbl_district: "District *",
+        lbl_area: "Upazila / Area *",
+        lbl_open_time: "Daily Opening Time",
+        lbl_close_time: "Daily Closing Time",
+        lbl_desc: "Shop Bio / Description",
+        btn_save_profile: "Save Profile",
+        sec_brand_title: "Customer App Live Header Branding",
+        sec_brand_sub: "Configure appearance, title animation and golden glow of the customer app",
+        lbl_anim_style: "Title Animation Effect",
+        lbl_glow_toggle: "Header Golden Glow",
+        lbl_logo_size: "Logo Box Size (Pixels)",
+        btn_save_brand: "Save Branding Settings",
+        sec_status_title: "Shop Operational Status (Master Switch)",
+        sec_status_sub: "Open or temporarily close the shop for customer orders",
+        lbl_store_open: "Shop Accepting Orders",
+        lbl_store_open_sub: "Turn OFF to block checkout and show closure banner on Customer App",
+        lbl_closure_reason: "Closure Reason (Displayed to Customer)",
+        lbl_reopen_datetime: "Expected Reopening Time",
+        sec_order_policy_title: "Order Amounts & Cancellation Window",
+        sec_order_policy_sub: "Define limits and the customer cancellation time limit",
+        lbl_min_order_amt: "Minimum Order Amount (৳)",
+        lbl_cancel_window: "Customer Cancellation Window (Minutes)",
+        lbl_custom_notes: "Allow Custom Butchery Notes",
+        btn_save_order_rules: "Save Order Policies",
+        sec_cust_policy_title: "Customer Registration & Category Approval Policies",
+        sec_cust_policy_sub: "Control business client approval workflows before granting wholesale prices",
+        lbl_reg_enabled: "Allow New Customer Registrations",
+        lbl_biz_approval: "Require Admin Approval for Business Categories",
+        lbl_allow_reviews: "Enable Customer Reviews & Ratings",
+        lbl_edit_address: "Allow Customers to Edit Saved GPS / Address",
+        btn_save_cust_policy: "Save Customer Policies",
+        sec_social_title: "Social Links & Notification Preferences",
+        sec_social_sub: "Customer app support channels and internal alert settings",
+        btn_save_contact: "Save Contact & Socials",
+        lang_switch_to: "বাংলা",
+        saved_msg: "Settings successfully saved to Firebase!"
+      },
+      bn: {
+        shop_mgmt: "অ্যাডমিন ও শপকিপার প্যানেল",
+        grp_main: "প্রধান কার্যক্রম",
+        m_dashboard: "ড্যাশবোর্ড",
+        m_orders: "অর্ডারসমূহ",
+        grp_catalog: "পণ্য ও মূল্যতালিকা",
+        m_products: "পণ্য ক্যাটালগ",
+        m_prices: "ক্যাটাগরি মূল্য",
+        m_stock: "স্টক ম্যানেজমেন্ট",
+        grp_crm: "গ্রাহক ও কর্মী",
+        m_customers: "গ্রাহকবৃন্দ",
+        m_shopkeepers: "দোকান পরিচালনা",
+        m_referrals: "রেফারেল কোড",
+        grp_config: "সেটআপ ও রিপোর্ট",
+        m_delivery: "ডেলিভারি সেটিংস",
+        m_reports: "রিপোর্ট ও অ্যানালিটিক্স",
+        m_settings: "শপ সেটিংস",
+        m_reviews: "রিভিউ ও রেটিং",
+        m_requests: "গ্রাহক অনুরোধ",
+        m_logout: "লগআউট",
+        bc_home: "হোম",
+        bc_settings: "শপ সেটিংস",
+        header_title: "দোকানের প্রোফাইল ও ব্র্যান্ডিং সেটিংস",
+        t_profile: "দোকানের প্রোফাইল",
+        t_branding: "কাস্টমার অ্যাপ ব্র্যান্ডিং",
+        t_status_orders: "দোকানের স্ট্যাটাস ও অর্ডার",
+        t_cust_policies: "গ্রাহক ও ক্যাটাগরি পলিসি",
+        t_contact_notif: "যোগাযোগ ও সোশ্যাল",
+        sec_profile_title: "দোকানের সাধারণ প্রোফাইল ও সময়সূচি",
+        sec_profile_sub: "বরিশাল শপের প্রাথমিক ঠিকানা, ফোন এবং দোকান খোলার সময়",
+        lbl_shop_name: "দোকানের নাম *",
+        lbl_logo_url: "লোগো ইমেজ লিঙ্ক (URL) *",
+        lbl_phone: "প্রধান ফোন নম্বর *",
+        lbl_wa: "অফিসিয়াল হোয়াটসঅ্যাপ নম্বর *",
+        lbl_address: "দোকানের মূল ঠিকানা (বরিশাল) *",
+        lbl_district: "জেলা *",
+        lbl_area: "উপজেলা / এলাকা *",
+        lbl_open_time: "প্রতিদিন খোলার সময়",
+        lbl_close_time: "প্রতিদিন বন্ধের সময়",
+        lbl_desc: "দোকানের সংক্ষিপ্ত বিবরণ (Bio)",
+        btn_save_profile: "প্রোফাইল সেভ করুন",
+        sec_brand_title: "কাস্টমার অ্যাপ লাইভ ব্র্যান্ডিং হেডার",
+        sec_brand_sub: "কাস্টমার অ্যাপের শীর্ষ হেডার, লোগো এবং গোল্ডেন গ্লো অ্যানিমেশন নির্ধারণ করুন",
+        lbl_anim_style: "টাইটেল অ্যানিমেশন ইফেক্ট",
+        lbl_glow_toggle: "হেডার গোল্ডেন গ্লো",
+        lbl_logo_size: "লোগো ফ্রেমের সাইজ (Pixels)",
+        btn_save_brand: "ব্র্যান্ডিং সেটিংস সেভ করুন",
+        sec_status_title: "দোকান চালু বা বন্ধের মাস্টার সুইচ",
+        sec_status_sub: "গ্রাহকদের নতুন অর্ডার গ্রহণ সাময়িকভাবে বন্ধ বা চালু রাখুন",
+        lbl_store_open: "দোকান খোলা ও অর্ডার গ্রহণ সক্রিয়",
+        lbl_store_open_sub: "বন্ধ থাকলে কাস্টমার অ্যাপ থেকে অর্ডার নেওয়া বন্ধ থাকবে",
+        lbl_closure_reason: "দোকান বন্ধ রাখার কারণ (গ্রাহক দেখতে পাবেন)",
+        lbl_reopen_datetime: "পুনরায় খোলার সম্ভাব্য সময়",
+        sec_order_policy_title: "অর্ডার লিমিট ও ক্যান্সেলেশন উইন্ডো",
+        sec_order_policy_sub: "অর্ডারের সর্বনিম্ন সীমা ও কাস্টমার বাতিলের সময় নির্ধারণ",
+        lbl_min_order_amt: "সর্বনিম্ন অর্ডার মূল্য (৳)",
+        lbl_cancel_window: "কাস্টমার বাতিলের সময়সীমা (মিনিট)",
+        lbl_custom_notes: "কাস্টম মাংস কাটার নোট অনুমোদন",
+        btn_save_order_rules: "অর্ডার পলিসি সেভ করুন",
+        sec_cust_policy_title: "কাস্টমার রেজিস্ট্রেশন ও ক্যাটাগরি অনুমোদন পলিসি",
+        sec_cust_policy_sub: "বাণিজ্যিক গ্রাহকদের যাচাই ও বিশেষ মূল্যের এক্সেস নিয়ন্ত্রণ",
+        lbl_reg_enabled: "নতুন কাস্টমার রেজিস্ট্রেশন চালু রাখুন",
+        lbl_biz_approval: "বিজনেস ক্যাটাগরির জন্য অ্যাডমিন অনুমোদন বাধ্যতামূলক",
+        lbl_allow_reviews: "কাস্টমার রিভিউ ও রেটিং সক্রিয় রাখুন",
+        lbl_edit_address: "কাস্টমারদের সেভ করা ঠিকানা পরিবর্তনের অনুমতি দিন",
+        btn_save_cust_policy: "কাস্টমার পলিসি সেভ করুন",
+        sec_social_title: "সোশ্যাল লিঙ্ক ও নোটিফিকেশন প্রেফারেন্স",
+        sec_social_sub: "সাপোর্ট চ্যানেল ও ইনকামিং অর্ডার অ্যালার্ট",
+        btn_save_contact: "যোগাযোগ তথ্য সেভ করুন",
+        lang_switch_to: "English",
+        saved_msg: "সেটিংস সফলভাবে ফায়ারবেসে সংরক্ষিত হয়েছে!"
+      }
+    };
+
+    let currentLang = localStorage.getItem('poultry_admin_lang') || 'bn';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('poultry_admin_lang', lang);
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang][key]) el.textContent = i18n[lang][key];
+      });
+
+      document.getElementById('langButtonText').textContent = i18n[lang].lang_switch_to;
+    }
+
+    document.getElementById('btnLangToggle').addEventListener('click', () => {
+      setLanguage(currentLang === 'en' ? 'bn' : 'en');
+    });
+
+    // App State
+    let currentUser = null;
+    let currentUserRole = null;
+    let savedSettings = {};
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // Switch Tabs
+    window.switchTab = function(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+
+      event.target.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    };
+
+    // ==========================================================
+    // AUTHENTICATION GUARD
+    // ==========================================================
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.replace('admin-login.html');
+        return;
+      }
+
+      currentUser = user;
+      document.getElementById('userEmail').textContent = user.email;
+      document.getElementById('userAvatar').textContent = (user.email.charAt(0) || 'A').toUpperCase();
+
+      try {
+        const roleRef = ref(db, `users/${user.uid}/role`);
+        const snapshot = await get(roleRef);
+        const role = snapshot.val();
+
+        if (!role) {
+          showToast("অননুমোদিত অ্যাকাউন্ট!", "error");
+          await signOut(auth);
+          window.location.replace('admin-login.html');
+          return;
+        }
+
+        const normalizedRole = role.toString().toLowerCase().trim();
+        if (normalizedRole !== 'admin' && normalizedRole !== 'shopkeeper') {
+          showToast("অননুমোদিত রোল!", "error");
+          await signOut(auth);
+          window.location.replace('admin-login.html');
+          return;
+        }
+
+        currentUserRole = normalizedRole;
+        document.getElementById('userRoleBadge').textContent = normalizedRole.toUpperCase();
+
+        listenToSettings();
+
+      } catch (err) {
+        console.error("Auth Guard Error:", err);
+      }
+    });
+
+    document.getElementById('btnLogout').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.replace('admin-login.html');
+    });
+
+    const menuToggleBtn = document.getElementById('menuToggleBtn');
+    const sidebar = document.getElementById('sidebar');
+    menuToggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+
+    // ==========================================================
+    // REALTIME DATABASE: SETTINGS SYNC
+    // ==========================================================
+    function listenToSettings() {
+      const settingsRef = ref(db, 'settings');
+
+      onValue(settingsRef, (snap) => {
+        savedSettings = snap.val() || {};
+
+        // 1. Shop Profile
+        const profile = savedSettings.shopProfile || {};
+        document.getElementById('profShopName').value = profile.shopName || 'পোল্ট্রি ফ্রেশ শপ';
+        document.getElementById('profLogoUrl').value = profile.logoUrl || '';
+        document.getElementById('profPhone').value = profile.phone || '01700000000';
+        document.getElementById('profWhatsApp').value = profile.whatsapp || '01700000000';
+        document.getElementById('profAddress').value = profile.address || 'সদর রোড, বরিশাল';
+        document.getElementById('profDistrict').value = profile.district || 'Barisal';
+        document.getElementById('profUpazila').value = profile.upazila || 'Barisal Sadar';
+        document.getElementById('profOpenTime').value = profile.openTime || '08:00';
+        document.getElementById('profCloseTime').value = profile.closeTime || '22:00';
+        document.getElementById('profDescription').value = profile.description || '';
+
+        // 2. Branding
+        const brand = savedSettings.branding || {};
+        document.getElementById('brandAnimation').value = brand.animation || 'gentle_shine';
+        document.getElementById('brandGlowToggle').value = brand.glow || 'on';
+        document.getElementById('brandLogoSize').value = brand.logoSize || 80;
+
+        // 3. Shop Status
+        const status = savedSettings.shopStatus || {};
+        const isOnline = (status.isOpen !== false);
+        document.getElementById('chkStoreOpen').checked = isOnline;
+        document.getElementById('boxClosureDetails').style.display = isOnline ? 'none' : 'block';
+        document.getElementById('txtClosureReason').value = status.closureReason || '';
+        document.getElementById('txtReopenDateTime').value = status.reopenTime || '';
+
+        const badge = document.getElementById('shopStatusBadge');
+        if (isOnline) {
+          badge.textContent = "Store Open";
+          badge.style.background = "rgba(16,185,129,0.15)";
+          badge.style.color = "#6ee7b7";
+          badge.style.borderColor = "rgba(16,185,129,0.3)";
+        } else {
+          badge.textContent = "Store Closed";
+          badge.style.background = "rgba(239,68,68,0.15)";
+          badge.style.color = "#fca5a5";
+          badge.style.borderColor = "rgba(239,68,68,0.3)";
+        }
+
+        // 4. Order Settings
+        const orders = savedSettings.orderSettings || {};
+        document.getElementById('ordMinAmount').value = orders.minAmount ?? 300;
+        document.getElementById('ordCancelWindowMins').value = orders.cancelWindowMins ?? 20;
+        document.getElementById('ordAllowCustomNotes').value = orders.allowCustomNotes || 'yes';
+
+        // 5. Customer Policies
+        const custPol = savedSettings.customerSettings || {};
+        document.getElementById('chkRegEnabled').checked = (custPol.registrationsEnabled !== false);
+        document.getElementById('chkBizApproval').checked = (custPol.requireBusinessApproval !== false);
+        document.getElementById('chkAllowReviews').checked = (custPol.allowReviews !== false);
+        document.getElementById('chkAllowAddressEdit').checked = (custPol.allowAddressEdit !== false);
+
+        // 6. Social
+        const contact = savedSettings.contact || {};
+        document.getElementById('socFacebook').value = contact.facebookUrl || '';
+        document.getElementById('socWebsite').value = contact.websiteUrl || '';
+        document.getElementById('socEmail').value = contact.email || '';
+
+        // Live simulator update
+        updateLiveSimulator();
+      });
+    }
+
+    // ==========================================================
+    // LIVE CUSTOMER APP SIMULATOR LOGIC
+    // ==========================================================
+    function updateLiveSimulator() {
+      const name = document.getElementById('profShopName').value || 'POULTRY SHOP';
+      const logoUrl = document.getElementById('profLogoUrl').value;
+      const anim = document.getElementById('brandAnimation').value;
+      const glow = document.getElementById('brandGlowToggle').value;
+      const size = document.getElementById('brandLogoSize').value || 80;
+      const isOpen = document.getElementById('chkStoreOpen').checked;
+
+      const simLogoImg = document.getElementById('simLogoImg');
+      const simLogoFrame = document.getElementById('simLogoFrame');
+      const simShopTitle = document.getElementById('simShopTitle');
+      const simStatusSub = document.getElementById('simStatusSub');
+
+      simShopTitle.textContent = name;
+      if (logoUrl) simLogoImg.src = logoUrl;
+
+      simLogoFrame.style.width = `${size}px`;
+      simLogoFrame.style.height = `${size}px`;
+
+      // Apply anim class
+      simShopTitle.className = `sim-shop-title anim-${anim}`;
+
+      if (glow === 'on') {
+        simShopTitle.style.textShadow = '0 0 16px rgba(212, 175, 55, 0.45)';
+        simLogoFrame.style.boxShadow = '0 0 20px rgba(212, 175, 55, 0.35)';
+      } else {
+        simShopTitle.style.textShadow = 'none';
+        simLogoFrame.style.boxShadow = 'none';
+      }
+
+      if (isOpen) {
+        simStatusSub.textContent = "● Store Open for Delivery";
+        simStatusSub.style.color = "#10b981";
+      } else {
+        simStatusSub.textContent = "● Store Currently Closed";
+        simStatusSub.style.color = "#ef4444";
+      }
+    }
+
+    // Live reactivity on input change
+    ['profShopName', 'profLogoUrl', 'brandAnimation', 'brandGlowToggle', 'brandLogoSize', 'chkStoreOpen'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', updateLiveSimulator);
+        el.addEventListener('change', updateLiveSimulator);
+      }
+    });
+
+    // ==========================================================
+    // SAVE HANDLERS (SAFE PARTIAL UPDATES)
+    // ==========================================================
+    // 1. Save Shop Profile
+    document.getElementById('formShopProfile').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await update(ref(db, 'settings/shopProfile'), {
+          shopName: document.getElementById('profShopName').value.trim(),
+          logoUrl: document.getElementById('profLogoUrl').value.trim(),
+          phone: document.getElementById('profPhone').value.trim(),
+          whatsapp: document.getElementById('profWhatsApp').value.trim(),
+          address: document.getElementById('profAddress').value.trim(),
+          district: document.getElementById('profDistrict').value.trim(),
+          upazila: document.getElementById('profUpazila').value.trim(),
+          openTime: document.getElementById('profOpenTime').value,
+          closeTime: document.getElementById('profCloseTime').value,
+          description: document.getElementById('profDescription').value.trim(),
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        });
+
+        // Also sync `shop/profile` for backwards compatibility with earlier pages
+        await update(ref(db, 'shop/profile'), {
+          shopName: document.getElementById('profShopName').value.trim(),
+          logoUrl: document.getElementById('profLogoUrl').value.trim(),
+          whatsapp: document.getElementById('profWhatsApp').value.trim(),
+          address: document.getElementById('profAddress').value.trim()
+        });
+
+        showToast(i18n[currentLang].saved_msg, "success");
+      } catch (err) {
+        showToast("Error saving profile: " + err.message, "error");
+      }
+    });
+
+    // 2. Save Branding
+    document.getElementById('formBranding').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await update(ref(db, 'settings/branding'), {
+          animation: document.getElementById('brandAnimation').value,
+          glow: document.getElementById('brandGlowToggle').value,
+          logoSize: parseInt(document.getElementById('brandLogoSize').value, 10) || 80,
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        });
+        showToast(i18n[currentLang].saved_msg, "success");
+      } catch (err) {
+        showToast("Error saving branding: " + err.message, "error");
+      }
+    });
+
+    // 3. Shop Status Toggle
+    document.getElementById('chkStoreOpen').addEventListener('change', async (e) => {
+      const isOpen = e.target.checked;
+      document.getElementById('boxClosureDetails').style.display = isOpen ? 'none' : 'block';
+
+      if (!isOpen && !confirm("আপনি কি নিশ্চিতভাবে কাস্টমারদের জন্য দোকান সাময়িকভাবে বন্ধ করতে চান?")) {
+        e.target.checked = true;
+        document.getElementById('boxClosureDetails').style.display = 'none';
+        return;
+      }
+
+      try {
+        await update(ref(db, 'settings/shopStatus'), {
+          isOpen,
+          closureReason: document.getElementById('txtClosureReason').value.trim(),
+          reopenTime: document.getElementById('txtReopenDateTime').value.trim(),
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        });
+
+        // Sync `shop/profile/isClosed`
+        await update(ref(db, 'shop/profile'), { isClosed: !isOpen });
+
+        showToast(`Store status changed to ${isOpen ? 'OPEN' : 'CLOSED'}.`, "success");
+      } catch (err) {
+        showToast("Error updating status: " + err.message, "error");
+      }
+    });
+
+    // 4. Save Order Policies
+    document.getElementById('formOrderSettings').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await update(ref(db, 'settings/orderSettings'), {
+          minAmount: parseFloat(document.getElementById('ordMinAmount').value) || 0,
+          cancelWindowMins: parseInt(document.getElementById('ordCancelWindowMins').value, 10) || 20,
+          allowCustomNotes: document.getElementById('ordAllowCustomNotes').value,
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        });
+        showToast(i18n[currentLang].saved_msg, "success");
+      } catch (err) {
+        showToast("Error saving order settings: " + err.message, "error");
+      }
+    });
+
+    // 5. Save Customer Policies
+    document.getElementById('formCustomerPolicies').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await update(ref(db, 'settings/customerSettings'), {
+          registrationsEnabled: document.getElementById('chkRegEnabled').checked,
+          requireBusinessApproval: document.getElementById('chkBizApproval').checked,
+          allowReviews: document.getElementById('chkAllowReviews').checked,
+          allowAddressEdit: document.getElementById('chkAllowAddressEdit').checked,
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        });
+        showToast(i18n[currentLang].saved_msg, "success");
+      } catch (err) {
+        showToast("Error saving customer policies: " + err.message, "error");
+      }
+    });
+
+    // 6. Save Contact & Socials
+    document.getElementById('formContactSocial').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await update(ref(db, 'settings/contact'), {
+          facebookUrl: document.getElementById('socFacebook').value.trim(),
+          websiteUrl: document.getElementById('socWebsite').value.trim(),
+          email: document.getElementById('socEmail').value.trim(),
+          audioAlerts: document.getElementById('notifAudioAlert').value,
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        });
+        showToast(i18n[currentLang].saved_msg, "success");
+      } catch (err) {
+        showToast("Error: " + err.message, "error");
+      }
+    });
+
+    setLanguage(currentLang);
+  </script>
+</body>
+</html>

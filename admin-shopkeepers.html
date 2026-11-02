@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop Management | Poultry Shop Panel</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================
+       CSS RESET & DESIGN TOKENS (BLACK & GOLD OBSIDIAN)
+       ========================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-body: #07080b;
+      --bg-sidebar: #0d0f15;
+      --bg-card: rgba(18, 20, 28, 0.78);
+      --bg-card-hover: rgba(26, 29, 40, 0.88);
+      --border-gold: rgba(212, 175, 55, 0.22);
+      --border-gold-bright: rgba(212, 175, 55, 0.6);
+      --gold-primary: #d4af37;
+      --gold-light: #f5d77f;
+      --gold-dark: #997519;
+      --gold-gradient: linear-gradient(135deg, #f7df87 0%, #d4af37 50%, #997519 100%);
+      --text-main: #f3f4f6;
+      --text-muted: #94a3b8;
+      --text-dark: #07080b;
+
+      --status-active: #10b981;
+      --status-disabled: #ef4444;
+      --status-warning: #f59e0b;
+      --status-info: #3b82f6;
+
+      --sidebar-width: 260px;
+      --header-height: 75px;
+      --gold-glow: 0 0 25px rgba(212, 175, 55, 0.2);
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #08090d; }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 4px; }
+
+    .ambient-glow {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      filter: blur(140px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.12;
+      background: radial-gradient(circle, var(--gold-primary), transparent 70%);
+      top: -80px;
+      right: -80px;
+    }
+
+    /* ==========================================================
+       SIDEBAR NAVIGATION (EXACT 14 ADMIN LINKS)
+       ========================================================== */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-gold);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-brand {
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 22px;
+      border-bottom: 1px solid var(--border-gold);
+      flex-shrink: 0;
+    }
+
+    .brand-logo-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 30% 30%, #2a251b, #111216);
+      border: 1.5px solid var(--gold-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--gold-glow);
+    }
+
+    .brand-logo-badge svg { width: 22px; height: 22px; stroke: var(--gold-primary); }
+
+    .brand-text h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.08rem;
+      font-weight: 700;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-text span {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .sidebar-user {
+      padding: 14px 18px;
+      margin: 14px 14px 6px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--gold-gradient);
+      color: #07080b;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .user-meta { flex: 1; overflow: hidden; }
+    .role-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+      text-transform: uppercase;
+      background: rgba(212, 175, 55, 0.2);
+      color: var(--gold-light);
+      border: 1px solid var(--border-gold);
+    }
+    .user-email {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 3px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px 24px;
+    }
+
+    .nav-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #64748b;
+      letter-spacing: 1.2px;
+      padding: 12px 14px 6px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.86rem;
+      font-weight: 500;
+      border-radius: 10px;
+      margin-bottom: 3px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link svg { width: 18px; height: 18px; stroke: currentColor; flex-shrink: 0; }
+
+    .nav-link:hover {
+      background: rgba(212, 175, 55, 0.08);
+      color: var(--gold-light);
+      transform: translateX(3px);
+    }
+
+    .nav-link.active {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+    }
+
+    .nav-link.active svg { stroke: var(--text-dark); }
+
+    .nav-link.logout-link {
+      color: #f87171;
+      margin-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 12px;
+    }
+    .nav-link.logout-link:hover {
+      background: rgba(239, 68, 68, 0.12);
+      color: #fca5a5;
+    }
+
+    /* ==========================================================
+       MAIN CONTENT WRAPPER & TOP BAR
+       ========================================================== */
+    .main-wrapper {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+      z-index: 10;
+    }
+
+    .top-header {
+      height: var(--header-height);
+      background: rgba(13, 15, 21, 0.85);
+      backdrop-filter: blur(15px);
+      border-bottom: 1px solid var(--border-gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 16px; }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: 1px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .breadcrumbs a { color: var(--gold-light); text-decoration: none; }
+
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+
+    .btn-lang-toggle {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.25s ease;
+    }
+
+    .btn-lang-toggle:hover {
+      background: rgba(212, 175, 55, 0.15);
+      border-color: var(--gold-primary);
+    }
+
+    .btn-add-staff {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 18px rgba(212, 175, 55, 0.3);
+      transition: all 0.25s ease;
+    }
+
+    .btn-add-staff:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(212, 175, 55, 0.45);
+    }
+
+    .content-area {
+      padding: 26px 30px 60px;
+      flex: 1;
+    }
+
+    /* ==========================================================
+       STATISTICS COUNTERS
+       ========================================================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 26px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-gold);
+      border-radius: 16px;
+      padding: 18px 20px;
+      transition: all 0.25s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-gold-bright);
+      box-shadow: var(--gold-glow);
+    }
+
+    .stat-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .stat-title {
+      font-size: 0.76rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+    }
+
+    .stat-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      color: var(--gold-light);
+    }
+
+    .stat-icon svg { width: 18px; height: 18px; stroke: currentColor; }
+
+    .stat-value {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .stat-subtext {
+      font-size: 0.72rem;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    /* ==========================================================
+       TOOLBAR & FILTERS
+       ========================================================== */
+    .toolbar-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 18px;
+      padding: 16px 20px;
+      margin-bottom: 26px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 260px;
+      position: relative;
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 17px;
+      height: 17px;
+      stroke: var(--gold-primary);
+      opacity: 0.75;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 44px;
+      background: rgba(10, 11, 16, 0.75);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 0 16px 0 42px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+    }
+
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .filter-select {
+      height: 44px;
+      background: rgba(10, 11, 16, 0.75);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 0 14px;
+      color: #e2e8f0;
+      font-family: inherit;
+      font-size: 0.84rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .filter-select:focus { border-color: var(--gold-primary); }
+
+    .btn-clear {
+      height: 44px;
+      padding: 0 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-clear:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    /* ==========================================================
+       STAFF TABLE & CARDS
+       ========================================================== */
+    .table-container {
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-gold);
+      border-radius: 20px;
+      overflow-x: auto;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      margin-bottom: 34px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      background: rgba(10, 11, 16, 0.95);
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--gold-light);
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border-gold);
+    }
+
+    td {
+      font-size: 0.86rem;
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #e2e8f0;
+      vertical-align: middle;
+    }
+
+    tr:hover td { background: rgba(212, 175, 55, 0.03); }
+
+    .role-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .role-tag-admin {
+      background: rgba(212, 175, 55, 0.2);
+      color: var(--gold-light);
+      border: 1px solid var(--border-gold);
+    }
+
+    .role-tag-shopkeeper {
+      background: rgba(59, 130, 246, 0.2);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.35);
+    }
+
+    .status-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: capitalize;
+    }
+
+    .status-tag-active {
+      background: rgba(16, 185, 129, 0.15);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-tag-disabled {
+      background: rgba(239, 68, 68, 0.15);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-action-manage {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action-manage:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);
+    }
+
+    /* ==========================================================
+       STAFF AUDIT ACTIVITY LOG
+       ========================================================== */
+    .section-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 20px;
+      padding: 24px;
+    }
+
+    .section-header-flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    /* ==========================================================
+       MODALS: ADD STAFF & PERMISSIONS MANAGEMENT
+       ========================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .modal-dialog {
+      background: #0d0f15;
+      border: 1px solid var(--border-gold);
+      border-radius: 22px;
+      width: 100%;
+      max-width: 680px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), var(--gold-glow);
+      animation: modalScaleUp 0.25s ease-out;
+      overflow: hidden;
+      margin: auto;
+    }
+
+    @keyframes modalScaleUp {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.15rem;
+      color: var(--gold-light);
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.4rem;
+      line-height: 1;
+    }
+
+    .modal-body {
+      padding: 24px;
+      max-height: calc(85vh - 140px);
+      overflow-y: auto;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .form-col-2 { grid-column: span 2; }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label { font-size: 0.8rem; font-weight: 500; color: #e2e8f0; }
+
+    .form-input, .form-select {
+      background: #08090d;
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+    }
+
+    .form-input:focus, .form-select:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+    }
+
+    /* 15 Granular Permissions Grid */
+    .permissions-section-title {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--gold-light);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .permissions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .permission-checkbox-item {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .permission-checkbox-item:hover {
+      border-color: var(--gold-primary);
+    }
+
+    .custom-check {
+      accent-color: var(--gold-primary);
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .permission-text {
+      font-size: 0.78rem;
+      color: #e2e8f0;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-modal {
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-modal-cancel {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-gold);
+      color: #e2e8f0;
+    }
+
+    .btn-modal-save {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    }
+
+    .btn-modal-disable {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+    }
+
+    .btn-modal-enable {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: #6ee7b7;
+    }
+
+    /* Toast Container */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1100;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: #141720;
+      border: 1px solid var(--border-gold);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      animation: toastSlideIn 0.3s ease-out;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.success { border-color: var(--status-active); color: #6ee7b7; }
+    .toast.error { border-color: var(--status-disabled); color: #fca5a5; }
+
+    @keyframes toastSlideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .empty-state { text-align: center; padding: 40px; color: var(--text-muted); }
+
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-left: 0; }
+      .menu-toggle { display: block; }
+      .content-area { padding: 20px 16px; }
+      .top-header { padding: 0 16px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-col-2 { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+
+  <!-- ==========================================================
+       SIDEBAR NAVIGATION (EXACT 14 ADMIN LINKS)
+       ========================================================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2C8.5 2 6 4.5 6 8c0 2 .8 3.8 2.2 5.1L5 22h14l-3.2-8.9C17.2 11.8 18 10 18 8c0-3.5-2.5-6-6-6z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h2>POULTRY ERP</h2>
+        <span data-i18n="shop_mgmt">Admin + Shopkeeper Panel</span>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="userAvatar">A</div>
+      <div class="user-meta">
+        <span class="role-badge" id="userRoleBadge">CHECKING...</span>
+        <div class="user-email" id="userEmail">Loading user...</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label" data-i18n="grp_main">Core Operations</div>
+      
+      <!-- 1. Dashboard -->
+      <a href="admin-dashboard.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span data-i18n="m_dashboard">Dashboard</span>
+      </a>
+
+      <!-- 2. Orders -->
+      <a href="admin-orders.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span data-i18n="m_orders">Orders</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_catalog">Catalog & Pricing</div>
+
+      <!-- 3. Products -->
+      <a href="admin-products.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+        <span data-i18n="m_products">Products</span>
+      </a>
+
+      <!-- 4. Prices -->
+      <a href="admin-prices.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span data-i18n="m_prices">Tiered Prices</span>
+      </a>
+
+      <!-- 5. Stock Management -->
+      <a href="admin-stock.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        <span data-i18n="m_stock">Stock Management</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_crm">CRM & Staff</div>
+
+      <!-- 6. Customers -->
+      <a href="admin-customers.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span data-i18n="m_customers">Customers</span>
+      </a>
+
+      <!-- 7. Shop Management (ACTIVE) -->
+      <a href="admin-shopkeepers.html" class="nav-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span data-i18n="m_shopkeepers">Shop Management</span>
+      </a>
+
+      <!-- 8. Referral Codes -->
+      <a href="admin-referrals.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span data-i18n="m_referrals">Referral Codes</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_config">Store Setup & Reports</div>
+
+      <!-- 9. Delivery Settings -->
+      <a href="admin-delivery.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <span data-i18n="m_delivery">Delivery Settings</span>
+      </a>
+
+      <!-- 10. Reports -->
+      <a href="admin-reports.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span data-i18n="m_reports">Reports</span>
+      </a>
+
+      <!-- 11. Shop Settings -->
+      <a href="admin-settings.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span data-i18n="m_settings">Shop Settings</span>
+      </a>
+
+      <!-- 12. Reviews -->
+      <a href="admin-reviews.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span data-i18n="m_reviews">Reviews</span>
+      </a>
+
+      <!-- 13. Customer Requests -->
+      <a href="admin-requests.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+        <span data-i18n="m_requests">Customer Requests</span>
+      </a>
+
+      <!-- 14. Logout Action -->
+      <a href="javascript:void(0)" class="nav-link logout-link" id="btnLogout">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span data-i18n="m_logout">Logout</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ==========================================================
+       MAIN CONTENT WRAPPER
+       ========================================================== -->
+  <div class="main-wrapper">
+
+    <!-- Top Consistent Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <button class="menu-toggle" id="menuToggleBtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div>
+          <!-- Working Back to Dashboard Link -->
+          <div class="breadcrumbs">
+            <a href="admin-dashboard.html" data-i18n="bc_home">Home</a> / <span data-i18n="bc_shopkeepers">Shop Management</span>
+          </div>
+          <h1 style="font-size: 1.25rem; font-weight: 700; color: #fff;" data-i18n="header_title">Staff & Permissions Management</h1>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Language Switcher -->
+        <button class="btn-lang-toggle" id="btnLangToggle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="langButtonText">English</span>
+        </button>
+
+        <button class="btn-add-staff" id="btnOpenAddStaffModal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span data-i18n="btn_add_staff">Add Staff Member</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="content-area">
+
+      <!-- 5 Realtime Staff Statistics -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_total">Total Staff</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          </div>
+          <div class="stat-value" id="statTotalStaff">0</div>
+          <div class="stat-subtext" data-i18n="st_total_sub">All authorized accounts</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_active">Active Shopkeepers</span>
+            <div class="stat-icon" style="color: var(--status-active); border-color: rgba(16,185,129,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+          </div>
+          <div class="stat-value" id="statActiveStaff" style="color: var(--status-active);">0</div>
+          <div class="stat-subtext" data-i18n="st_active_sub">Ready for shop operations</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_disabled">Disabled Accounts</span>
+            <div class="stat-icon" style="color: var(--status-disabled); border-color: rgba(239,68,68,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
+          </div>
+          <div class="stat-value" id="statDisabledStaff" style="color: var(--status-disabled);">0</div>
+          <div class="stat-subtext" data-i18n="st_disabled_sub">Access revoked by Admin</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_pending">Pending Invites</span>
+            <div class="stat-icon" style="color: var(--status-warning); border-color: rgba(245,158,11,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          </div>
+          <div class="stat-value" id="statPendingInvites" style="color: var(--status-warning);">0</div>
+          <div class="stat-subtext" data-i18n="st_pending_sub">Awaiting activation</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_recent">Recent (30 Days)</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          </div>
+          <div class="stat-value" id="statRecentStaff" style="color: var(--gold-light);">0</div>
+          <div class="stat-subtext" data-i18n="st_recent_sub">Newly onboarded staff</div>
+        </div>
+      </section>
+
+      <!-- Toolbar & Filters -->
+      <section class="toolbar-panel">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" class="search-input" data-i18n-ph="search_ph" placeholder="Search staff by name, email, or phone..." />
+        </div>
+
+        <div class="filter-group">
+          <!-- Role Filter -->
+          <select id="filterRole" class="filter-select">
+            <option value="all" data-i18n="fl_all_roles">All Roles</option>
+            <option value="shopkeeper">Shopkeeper</option>
+            <option value="admin">Admin</option>
+          </select>
+
+          <!-- Status Filter -->
+          <select id="filterStatus" class="filter-select">
+            <option value="all" data-i18n="fl_all_status">All Statuses</option>
+            <option value="active" data-i18n="st_active">Active</option>
+            <option value="disabled" data-i18n="st_disabled">Disabled</option>
+          </select>
+
+          <!-- Sort Filter -->
+          <select id="filterSort" class="filter-select">
+            <option value="newest" data-i18n="sort_newest">Sort: Newest First</option>
+            <option value="oldest" data-i18n="sort_oldest">Sort: Oldest First</option>
+          </select>
+
+          <button class="btn-clear" id="btnClearFilters" title="Reset Filters">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <span data-i18n="btn_reset">Reset</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Staff List Table -->
+      <section class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="th_name">Staff Member</th>
+              <th data-i18n="th_email">Email</th>
+              <th data-i18n="th_phone">Phone Number</th>
+              <th data-i18n="th_role">Role</th>
+              <th data-i18n="th_status">Status</th>
+              <th data-i18n="th_joined">Joined Date</th>
+              <th data-i18n="th_action">Action</th>
+            </tr>
+          </thead>
+          <tbody id="staffTableBody">
+            <tr>
+              <td colspan="7" class="empty-state">স্টাফ সদস্যদের তথ্য লোড হচ্ছে...</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Staff Audit Activity Log -->
+      <section class="section-card">
+        <div class="section-header-flex">
+          <div>
+            <h3 style="font-size: 1.1rem; color: #fff; font-weight: 700;" data-i18n="activity_title">Staff Activity & Operations Log</h3>
+            <p style="font-size: 0.78rem; color: var(--text-muted);" data-i18n="activity_sub">Auditable history of actions taken by shop staff</p>
+          </div>
+        </div>
+
+        <div class="table-container" style="box-shadow: none; margin-bottom: 0;">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="th_act_staff">Staff Name</th>
+                <th data-i18n="th_act_action">Action</th>
+                <th data-i18n="th_act_ref">Target / Entity</th>
+                <th data-i18n="th_act_time">Timestamp</th>
+              </tr>
+            </thead>
+            <tbody id="activityTableBody">
+              <tr>
+                <td colspan="4" style="text-align: center; padding: 24px; color: var(--text-muted);">No activity logged yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ==========================================================
+       MODAL 1: ADD / PRE-AUTHORIZE STAFF
+       ========================================================== -->
+  <div class="modal-backdrop" id="addStaffModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" data-i18n="modal_add_title">Authorize New Shop Staff</h3>
+        <button class="modal-close" id="btnCloseAddModal">&times;</button>
+      </div>
+
+      <form id="addStaffForm" autocomplete="off">
+        <div class="modal-body">
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" data-i18n="f_full_name">Full Name *</label>
+              <input type="text" id="addFullName" class="form-input" placeholder="e.g. Asaduzzaman" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" data-i18n="f_username">Username *</label>
+              <input type="text" id="addUsername" class="form-input" placeholder="e.g. asad_shop" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" data-i18n="f_email">Email Address *</label>
+              <input type="email" id="addEmail" class="form-input" placeholder="staff@poultryshop.com" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" data-i18n="f_phone">Phone Number *</label>
+              <input type="tel" id="addPhone" class="form-input" placeholder="017XXXXXXXX" required />
+            </div>
+
+            <div class="form-group form-col-2">
+              <label class="form-label" data-i18n="f_uid">User UID (From Firebase Auth) *</label>
+              <input type="text" id="addAuthUid" class="form-input" placeholder="Paste the Auth UID created in Firebase Authentication" required />
+              <small style="color: var(--text-muted); font-size: 0.72rem;">* Security rule: Never store passwords in Realtime Database. Create the user in Firebase Auth Console and paste UID here.</small>
+            </div>
+          </div>
+
+          <!-- Permissions Selection Grid -->
+          <div class="permissions-section-title" data-i18n="perm_title">Assign Initial Permissions</div>
+          <div class="permissions-grid" id="addPermissionsGrid">
+            <!-- 15 Permission checkboxes rendered dynamically -->
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-modal btn-modal-cancel" id="btnCancelAddModal" data-i18n="btn_cancel">Cancel</button>
+          <button type="submit" class="btn-modal btn-modal-save" id="btnSaveNewStaff" data-i18n="btn_save_staff">
+            Authorize Staff
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       MODAL 2: EDIT STAFF & GRANULAR PERMISSIONS
+       ========================================================== -->
+  <div class="modal-backdrop" id="editStaffModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" data-i18n="modal_edit_title">Edit Staff Profile & Permissions</h3>
+        <button class="modal-close" id="btnCloseEditModal">&times;</button>
+      </div>
+
+      <form id="editStaffForm" autocomplete="off">
+        <input type="hidden" id="editStaffUid" />
+
+        <div class="modal-body">
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" data-i18n="f_full_name">Full Name</label>
+              <input type="text" id="editFullName" class="form-input" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" data-i18n="f_phone">Phone Number</label>
+              <input type="tel" id="editPhone" class="form-input" required />
+            </div>
+
+            <div class="form-group form-col-2">
+              <label class="form-label">Email (Read-only)</label>
+              <input type="text" id="editEmail" class="form-input" readonly style="opacity: 0.7; background: #11131a;" />
+            </div>
+          </div>
+
+          <!-- Permissions Checkboxes -->
+          <div class="permissions-section-title" data-i18n="perm_title">Configure Operational Permissions</div>
+          <div class="permissions-grid" id="editPermissionsGrid">
+            <!-- 15 Permission checkboxes rendered dynamically -->
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-modal btn-modal-disable" id="btnToggleStaffStatus">Disable Access</button>
+          <button type="button" class="btn-modal btn-modal-cancel" id="btnCancelEditModal" data-i18n="btn_cancel">Cancel</button>
+          <button type="submit" class="btn-modal btn-modal-save" data-i18n="btn_update_perm">Update Permissions</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ==========================================================
+       MODULAR FIREBASE SDK (v10) & REALTIME SCRIPT
+       ========================================================== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      getDatabase, 
+      ref, 
+      onValue, 
+      update, 
+      push, 
+      set, 
+      serverTimestamp, 
+      get 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // 1. Firebase Configuration Placeholder (Matching Project)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDYPsjlOmRwH2F5P8fFoiirP1FLjgh3c8A",
+      authDomain: "murgi-dfd67.firebaseapp.com",
+      databaseURL: "https://murgi-dfd67-default-rtdb.firebaseio.com",
+      projectId: "murgi-dfd67",
+      storageBucket: "murgi-dfd67.firebasestorage.app",
+      messagingSenderId: "209696889864",
+      appId: "1:209696889864:web:3eaa16034f00cca45505bd"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // 15 Granular Permissions Definition
+    const PERMISSIONS_LIST = [
+      { key: "view_dashboard", label: "View Dashboard" },
+      { key: "view_orders", label: "View Orders" },
+      { key: "accept_orders", label: "Accept Orders" },
+      { key: "reject_orders", label: "Reject Orders" },
+      { key: "update_order_status", label: "Update Order Status" },
+      { key: "view_customers", label: "View Customers" },
+      { key: "view_products", label: "View Products" },
+      { key: "add_products", label: "Add Products" },
+      { key: "edit_products", label: "Edit Products" },
+      { key: "delete_products", label: "Delete Products" },
+      { key: "manage_prices", label: "Manage Prices" },
+      { key: "manage_stock", label: "Manage Stock" },
+      { key: "view_reports", label: "View Reports" },
+      { key: "manage_reviews", label: "Manage Reviews" },
+      { key: "manage_shop_settings", label: "Manage Shop Settings" }
+    ];
+
+    // Translation Dictionary
+    const i18n = {
+      en: {
+        shop_mgmt: "Admin + Shopkeeper Panel",
+        grp_main: "Core Operations",
+        m_dashboard: "Dashboard",
+        m_orders: "Orders",
+        grp_catalog: "Catalog & Pricing",
+        m_products: "Products",
+        m_prices: "Tiered Prices",
+        m_stock: "Stock Management",
+        grp_crm: "CRM & Staff",
+        m_customers: "Customers",
+        m_shopkeepers: "Shop Management",
+        m_referrals: "Referral Codes",
+        grp_config: "Store Setup & Reports",
+        m_delivery: "Delivery Settings",
+        m_reports: "Reports",
+        m_settings: "Shop Settings",
+        m_reviews: "Reviews",
+        m_requests: "Customer Requests",
+        m_logout: "Logout",
+        bc_home: "Home",
+        bc_shopkeepers: "Shop Management",
+        header_title: "Staff & Permissions Management",
+        btn_add_staff: "Add Staff Member",
+        st_total: "Total Staff",
+        st_total_sub: "All authorized accounts",
+        st_active: "Active Shopkeepers",
+        st_active_sub: "Ready for shop operations",
+        st_disabled: "Disabled Accounts",
+        st_disabled_sub: "Access revoked by Admin",
+        st_pending: "Pending Invites",
+        st_pending_sub: "Awaiting activation",
+        st_recent: "Recent (30 Days)",
+        st_recent_sub: "Newly onboarded staff",
+        search_ph: "Search staff by name, email, or phone...",
+        fl_all_roles: "All Roles",
+        fl_all_status: "All Statuses",
+        sort_newest: "Sort: Newest First",
+        sort_oldest: "Sort: Oldest First",
+        btn_reset: "Reset",
+        th_name: "Staff Member",
+        th_email: "Email",
+        th_phone: "Phone Number",
+        th_role: "Role",
+        th_status: "Status",
+        th_joined: "Joined Date",
+        th_action: "Action",
+        btn_manage: "Permissions",
+        activity_title: "Staff Activity & Operations Log",
+        activity_sub: "Auditable history of actions taken by shop staff",
+        th_act_staff: "Staff Name",
+        th_act_action: "Action",
+        th_act_ref: "Target / Entity",
+        th_act_time: "Timestamp",
+        modal_add_title: "Authorize New Shop Staff",
+        f_full_name: "Full Name *",
+        f_username: "Username *",
+        f_email: "Email Address *",
+        f_phone: "Phone Number *",
+        f_uid: "User UID (From Firebase Auth) *",
+        perm_title: "Configure Operational Permissions",
+        btn_cancel: "Cancel",
+        btn_save_staff: "Authorize Staff",
+        modal_edit_title: "Edit Staff Profile & Permissions",
+        btn_update_perm: "Update Permissions",
+        lang_switch_to: "বাংলা",
+        prompt_disable_reason: "Enter reason for revoking/disabling staff access:",
+        admin_guard_msg: "Only Admins can modify staff accounts or permissions."
+      },
+      bn: {
+        shop_mgmt: "অ্যাডমিন ও শপকিপার প্যানেল",
+        grp_main: "প্রধান কার্যক্রম",
+        m_dashboard: "ড্যাশবোর্ড",
+        m_orders: "অর্ডারসমূহ",
+        grp_catalog: "পণ্য ও মূল্যতালিকা",
+        m_products: "পণ্য ক্যাটালগ",
+        m_prices: "ক্যাটাগরি মূল্য",
+        m_stock: "স্টক ম্যানেজমেন্ট",
+        grp_crm: "গ্রাহক ও কর্মী",
+        m_customers: "গ্রাহকবৃন্দ",
+        m_shopkeepers: "দোকান পরিচালনা",
+        m_referrals: "রেফারেল কোড",
+        grp_config: "সেটআপ ও রিপোর্ট",
+        m_delivery: "ডেলিভারি সেটিংস",
+        m_reports: "রিপোর্ট ও অ্যানালিটিক্স",
+        m_settings: "শপ সেটিংস",
+        m_reviews: "রিভিউ ও রেটিং",
+        m_requests: "গ্রাহক অনুরোধ",
+        m_logout: "লগআউট",
+        bc_home: "হোম",
+        bc_shopkeepers: "দোকান ও কর্মী পরিচালনা",
+        header_title: "স্টাফ ও পারমিশন কন্ট্রোল প্যানেল",
+        btn_add_staff: "নতুন স্টাফ যুক্ত করুন",
+        st_total: "মোট কর্মী",
+        st_total_sub: "অনুমোদিত স্টাফ সংখ্যা",
+        st_active: "সক্রিয় শপকিপার",
+        st_active_sub: "দোকান পরিচালনায় নিয়োজিত",
+        st_disabled: "নিষ্ক্রিয় অ্যাকাউন্ট",
+        st_disabled_sub: "অ্যাডমিন কর্তৃক স্থগিত",
+        st_pending: "অপেক্ষমাণ ইনভাইট",
+        st_pending_sub: "অ্যাক্টিভেশনের অপেক্ষায়",
+        st_recent: "নতুন স্টাফ (৩০ দিন)",
+        st_recent_sub: "সম্প্রতি যুক্ত হওয়া কর্মী",
+        search_ph: "নাম, ইমেইল বা ফোন দিয়ে স্টাফ খুঁজুন...",
+        fl_all_roles: "সকল রোল",
+        fl_all_status: "সকল অ্যাকাউন্ট অবস্থা",
+        sort_newest: "সর্ট: নতুন স্টাফ আগে",
+        sort_oldest: "সর্ট: পুরাতন স্টাফ আগে",
+        btn_reset: "রিসেট",
+        th_name: "স্টাফ সদস্য",
+        th_email: "ইমেইল",
+        th_phone: "ফোন নম্বর",
+        th_role: "পদবী (Role)",
+        th_status: "স্ট্যাটাস",
+        th_joined: "যুক্ত হওয়ার তারিখ",
+        th_action: "অ্যাকশন",
+        btn_manage: "পারমিশন",
+        activity_title: "স্টাফদের কার্যক্রম ও অপারেশন অডিট লগ",
+        activity_sub: "দোকানের কর্মীদের দ্বারা সম্পন্ন কাজের হিস্ট্রি",
+        th_act_staff: "স্টাফের নাম",
+        th_act_action: "সম্পন্ন কাজ",
+        th_act_ref: "টার্গেট / রেফারেন্স",
+        th_act_time: "সময়",
+        modal_add_title: "নতুন স্টাফ অনুমোদন করুন",
+        f_full_name: "পুরো নাম *",
+        f_username: "ইউজারনেম *",
+        f_email: "ইমেইল অ্যাড্রেস *",
+        f_phone: "ফোন নম্বর *",
+        f_uid: "ফায়ারবেস Auth UID *",
+        perm_title: "অপারেশনাল পারমিশন নির্ধারণ করুন",
+        btn_cancel: "বাতিল",
+        btn_save_staff: "স্টাফ অনুমোদন করুন",
+        modal_edit_title: "স্টাফ প্রোফাইল ও পারমিশন সম্পাদনা",
+        btn_update_perm: "পারমিশন আপডেট করুন",
+        lang_switch_to: "English",
+        prompt_disable_reason: "স্টাফ অ্যাকাউন্ট স্থগিত/নিষ্ক্রিয় করার কারণ লিখুন:",
+        admin_guard_msg: "শুধুমাত্র মূল অ্যাডমিন স্টাফ তৈরি বা পারমিশন পরিবর্তন করতে পারবেন।"
+      }
+    };
+
+    let currentLang = localStorage.getItem('poultry_admin_lang') || 'bn';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('poultry_admin_lang', lang);
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang][key]) el.textContent = i18n[lang][key];
+      });
+
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const key = el.getAttribute('data-i18n-ph');
+        if (i18n[lang][key]) el.placeholder = i18n[lang][key];
+      });
+
+      document.getElementById('langButtonText').textContent = i18n[lang].lang_switch_to;
+      renderStaffTable();
+    }
+
+    document.getElementById('btnLangToggle').addEventListener('click', () => {
+      setLanguage(currentLang === 'en' ? 'bn' : 'en');
+    });
+
+    // App State
+    let currentUser = null;
+    let currentUserRole = null;
+    let allStaff = [];
+    let allActivities = [];
+    let activeEditingStaff = null;
+
+    // DOM Elements
+    const statTotalStaff = document.getElementById('statTotalStaff');
+    const statActiveStaff = document.getElementById('statActiveStaff');
+    const statDisabledStaff = document.getElementById('statDisabledStaff');
+    const statPendingInvites = document.getElementById('statPendingInvites');
+    const statRecentStaff = document.getElementById('statRecentStaff');
+
+    const searchInput = document.getElementById('searchInput');
+    const filterRole = document.getElementById('filterRole');
+    const filterStatus = document.getElementById('filterStatus');
+    const filterSort = document.getElementById('filterSort');
+    const btnClearFilters = document.getElementById('btnClearFilters');
+    const staffTableBody = document.getElementById('staffTableBody');
+    const activityTableBody = document.getElementById('activityTableBody');
+
+    // Modals
+    const addStaffModal = document.getElementById('addStaffModal');
+    const btnOpenAddStaffModal = document.getElementById('btnOpenAddStaffModal');
+    const btnCloseAddModal = document.getElementById('btnCloseAddModal');
+    const btnCancelAddModal = document.getElementById('btnCancelAddModal');
+    const addStaffForm = document.getElementById('addStaffForm');
+    const addPermissionsGrid = document.getElementById('addPermissionsGrid');
+
+    const editStaffModal = document.getElementById('editStaffModal');
+    const btnCloseEditModal = document.getElementById('btnCloseEditModal');
+    const btnCancelEditModal = document.getElementById('btnCancelEditModal');
+    const editStaffForm = document.getElementById('editStaffForm');
+    const editPermissionsGrid = document.getElementById('editPermissionsGrid');
+    const btnToggleStaffStatus = document.getElementById('btnToggleStaffStatus');
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // ==========================================================
+    // AUTHENTICATION GUARD
+    // ==========================================================
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.replace('admin-login.html');
+        return;
+      }
+
+      currentUser = user;
+      document.getElementById('userEmail').textContent = user.email;
+      document.getElementById('userAvatar').textContent = (user.email.charAt(0) || 'A').toUpperCase();
+
+      try {
+        const roleRef = ref(db, `users/${user.uid}/role`);
+        const snapshot = await get(roleRef);
+        const role = snapshot.val();
+
+        if (!role) {
+          showToast("অননুমোদিত অ্যাকাউন্ট!", "error");
+          await signOut(auth);
+          window.location.replace('admin-login.html');
+          return;
+        }
+
+        const normalizedRole = role.toString().toLowerCase().trim();
+        if (normalizedRole !== 'admin' && normalizedRole !== 'shopkeeper') {
+          showToast("অননুমোদিত রোল!", "error");
+          await signOut(auth);
+          window.location.replace('admin-login.html');
+          return;
+        }
+
+        currentUserRole = normalizedRole;
+        document.getElementById('userRoleBadge').textContent = normalizedRole.toUpperCase();
+
+        // If Shopkeeper, disable Add Staff button to protect Admin hierarchy
+        if (currentUserRole !== 'admin') {
+          btnOpenAddStaffModal.style.display = 'none';
+        }
+
+        buildPermissionsCheckboxes(addPermissionsGrid, "add_perm_");
+        buildPermissionsCheckboxes(editPermissionsGrid, "edit_perm_");
+
+        listenToStaffRealtime();
+        listenToActivityRealtime();
+
+      } catch (err) {
+        console.error("Auth Guard Error:", err);
+      }
+    });
+
+    document.getElementById('btnLogout').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.replace('admin-login.html');
+    });
+
+    const menuToggleBtn = document.getElementById('menuToggleBtn');
+    const sidebar = document.getElementById('sidebar');
+    menuToggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+
+    // Helper: Build Permission Checkboxes UI
+    function buildPermissionsCheckboxes(container, idPrefix) {
+      container.innerHTML = PERMISSIONS_LIST.map(p => `
+        <label class="permission-checkbox-item">
+          <input type="checkbox" id="${idPrefix}${p.key}" class="custom-check" value="${p.key}" />
+          <span class="permission-text">${p.label}</span>
+        </label>
+      `).join('');
+    }
+
+    // ==========================================================
+    // REALTIME DATABASE LISTENERS: STAFF & ACTIVITY
+    // ==========================================================
+    function listenToStaffRealtime() {
+      const usersRef = ref(db, 'users');
+
+      onValue(usersRef, (snapshot) => {
+        allStaff = [];
+        let totalCount = 0;
+        let activeCount = 0;
+        let disabledCount = 0;
+        let pendingCount = 0;
+        let recentCount = 0;
+
+        const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+
+        snapshot.forEach(child => {
+          const u = child.val();
+          u.uid = child.key;
+
+          const role = (u.role || '').toLowerCase();
+          // Filter only staff accounts (Admin or Shopkeeper)
+          if (role === 'admin' || role === 'shopkeeper') {
+            allStaff.push(u);
+            totalCount++;
+
+            const status = (u.accountStatus || 'active').toLowerCase();
+            if (status === 'disabled') disabledCount++;
+            else activeCount++;
+
+            if (u.isPendingInvite === true) pendingCount++;
+
+            const joinedTime = u.createdAt ? new Date(u.createdAt).getTime() : 0;
+            if (joinedTime >= thirtyDaysAgo) recentCount++;
+          }
+        });
+
+        statTotalStaff.textContent = totalCount;
+        statActiveStaff.textContent = activeCount;
+        statDisabledStaff.textContent = disabledCount;
+        statPendingInvites.textContent = pendingCount;
+        statRecentStaff.textContent = recentCount;
+
+        renderStaffTable();
+      }, (err) => {
+        console.error(err);
+        showToast("Error loading staff data: " + err.message, "error");
+      });
+    }
+
+    function listenToActivityRealtime() {
+      const actRef = ref(db, 'staffActivity');
+
+      onValue(actRef, (snapshot) => {
+        allActivities = [];
+        snapshot.forEach(staffNode => {
+          staffNode.forEach(actChild => {
+            const entry = actChild.val();
+            entry.id = actChild.key;
+            allActivities.push(entry);
+          });
+        });
+
+        allActivities.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        renderActivityTable();
+      });
+    }
+
+    // ==========================================================
+    // FILTER & TABLE RENDERING
+    // ==========================================================
+    [searchInput, filterRole, filterStatus, filterSort].forEach(el => {
+      el.addEventListener('input', renderStaffTable);
+      el.addEventListener('change', renderStaffTable);
+    });
+
+    btnClearFilters.addEventListener('click', () => {
+      searchInput.value = '';
+      filterRole.value = 'all';
+      filterStatus.value = 'all';
+      filterSort.value = 'newest';
+      renderStaffTable();
+    });
+
+    function renderStaffTable() {
+      const q = searchInput.value.toLowerCase().trim();
+      const roleF = filterRole.value;
+      const statusF = filterStatus.value;
+      const sortF = filterSort.value;
+      const t = i18n[currentLang];
+
+      let filtered = allStaff.filter(s => {
+        const name = (s.fullName || s.name || '').toLowerCase();
+        const email = (s.email || '').toLowerCase();
+        const phone = (s.phone || '').toLowerCase();
+
+        const matchSearch = !q || name.includes(q) || email.includes(q) || phone.includes(q);
+        const matchRole = (roleF === 'all') || ((s.role || '').toLowerCase() === roleF);
+
+        const status = (s.accountStatus || 'active').toLowerCase();
+        const matchStatus = (statusF === 'all') || (status === statusF);
+
+        return matchSearch && matchRole && matchStatus;
+      });
+
+      filtered.sort((a, b) => {
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return sortF === 'oldest' ? timeA - timeB : timeB - timeA;
+      });
+
+      if (!filtered || filtered.length === 0) {
+        staffTableBody.innerHTML = `<tr><td colspan="7" class="empty-state">কোনো স্টাফ সদস্য পাওয়া যায়নি।</td></tr>`;
+        return;
+      }
+
+      staffTableBody.innerHTML = filtered.map(s => {
+        const name = s.fullName || s.name || 'Staff Member';
+        const role = (s.role || 'shopkeeper').toLowerCase();
+        const status = (s.accountStatus || 'active').toLowerCase();
+
+        const roleTag = role === 'admin' 
+          ? `<span class="role-tag role-tag-admin">Admin</span>`
+          : `<span class="role-tag role-tag-shopkeeper">Shopkeeper</span>`;
+
+        const statusTag = status === 'disabled'
+          ? `<span class="status-tag status-tag-disabled">Disabled</span>`
+          : `<span class="status-tag status-tag-active">Active</span>`;
+
+        let joinedStr = '—';
+        if (s.createdAt) {
+          const d = new Date(s.createdAt);
+          joinedStr = !isNaN(d) ? d.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric' }) : s.createdAt;
+        }
+
+        // Hide Edit Action from Shopkeepers to protect Admin privileges
+        const manageButton = (currentUserRole === 'admin')
+          ? `<button class="btn-action-manage" onclick="openEditStaffModal('${s.uid}')">${t.btn_manage}</button>`
+          : `<span style="color:var(--text-muted); font-size:0.76rem;">View Only</span>`;
+
+        return `
+          <tr>
+            <td>
+              <strong style="color: #fff;">${escapeHTML(name)}</strong>
+              ${s.username ? `<br><small style="color: var(--text-muted);">@${escapeHTML(s.username)}</small>` : ''}
+            </td>
+            <td>${escapeHTML(s.email || '—')}</td>
+            <td>${escapeHTML(s.phone || '—')}</td>
+            <td>${roleTag}</td>
+            <td>${statusTag}</td>
+            <td style="font-size: 0.78rem; color: var(--text-muted);">${joinedStr}</td>
+            <td>${manageButton}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderActivityTable() {
+      if (!allActivities || allActivities.length === 0) {
+        activityTableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 24px; color: var(--text-muted);">No activity records found.</td></tr>`;
+        return;
+      }
+
+      activityTableBody.innerHTML = allActivities.slice(0, 15).map(act => {
+        let timeStr = '—';
+        if (act.timestamp) {
+          const d = new Date(act.timestamp);
+          timeStr = !isNaN(d) ? d.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+        }
+
+        return `
+          <tr>
+            <td><strong style="color: #fff;">${escapeHTML(act.performedByEmail || 'Staff')}</strong></td>
+            <td><span style="color: var(--gold-light);">${escapeHTML(act.action || 'Operation')}</span></td>
+            <td><small style="color: var(--text-muted);">${escapeHTML(act.targetRef || act.reason || 'General')}</small></td>
+            <td style="font-size: 0.76rem; color: var(--text-muted);">${timeStr}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // ==========================================================
+    // MODAL CONTROL: ADD NEW STAFF
+    // ==========================================================
+    btnOpenAddStaffModal.addEventListener('click', () => {
+      if (currentUserRole !== 'admin') {
+        showToast(i18n[currentLang].admin_guard_msg, "error");
+        return;
+      }
+      addStaffForm.reset();
+      // Default initial safe permissions
+      document.getElementById('add_perm_view_dashboard').checked = true;
+      document.getElementById('add_perm_view_orders').checked = true;
+      document.getElementById('add_perm_view_products').checked = true;
+      addStaffModal.style.display = 'flex';
+    });
+
+    [btnCloseAddModal, btnCancelAddModal].forEach(b => b.addEventListener('click', () => addStaffModal.style.display = 'none'));
+
+    addStaffForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (currentUserRole !== 'admin') return;
+
+      const fullName = document.getElementById('addFullName').value.trim();
+      const username = document.getElementById('addUsername').value.trim();
+      const email = document.getElementById('addEmail').value.trim();
+      const phone = document.getElementById('addPhone').value.trim();
+      const authUid = document.getElementById('addAuthUid').value.trim();
+
+      // Collect permissions
+      const permissions = {};
+      PERMISSIONS_LIST.forEach(p => {
+        permissions[p.key] = document.getElementById(`add_perm_${p.key}`).checked;
+      });
+
+      try {
+        // Pre-authorize account under `users/{uid}`
+        const staffRef = ref(db, `users/${authUid}`);
+        await set(staffRef, {
+          fullName,
+          username,
+          email,
+          phone,
+          role: 'shopkeeper',
+          accountStatus: 'active',
+          permissions,
+          createdAt: serverTimestamp(),
+          createdByUid: currentUser.uid
+        });
+
+        // Log staff creation activity
+        await push(ref(db, `staffActivity/${authUid}`), {
+          action: "Authorized as Shopkeeper",
+          performedByUid: currentUser.uid,
+          performedByEmail: currentUser.email,
+          targetRef: authUid,
+          timestamp: serverTimestamp()
+        });
+
+        showToast("Staff member authorized successfully!", "success");
+        addStaffModal.style.display = 'none';
+
+      } catch (err) {
+        console.error(err);
+        showToast("Error creating staff record: " + err.message, "error");
+      }
+    });
+
+    // ==========================================================
+    // MODAL CONTROL: EDIT STAFF & PERMISSIONS
+    // ==========================================================
+    window.openEditStaffModal = function(uid) {
+      if (currentUserRole !== 'admin') return;
+
+      activeEditingStaff = allStaff.find(s => s.uid === uid);
+      if (!activeEditingStaff) return;
+
+      document.getElementById('editStaffUid').value = activeEditingStaff.uid;
+      document.getElementById('editFullName').value = activeEditingStaff.fullName || activeEditingStaff.name || '';
+      document.getElementById('editPhone').value = activeEditingStaff.phone || '';
+      document.getElementById('editEmail').value = activeEditingStaff.email || '';
+
+      const perms = activeEditingStaff.permissions || {};
+      PERMISSIONS_LIST.forEach(p => {
+        document.getElementById(`edit_perm_${p.key}`).checked = (perms[p.key] === true);
+      });
+
+      // Toggle Disable / Enable button styling
+      const isCurrentlyDisabled = (activeEditingStaff.accountStatus || '').toLowerCase() === 'disabled';
+      btnToggleStaffStatus.textContent = isCurrentlyDisabled ? "Reactivate Access" : "Disable Staff Access";
+      btnToggleStaffStatus.className = `btn-modal ${isCurrentlyDisabled ? 'btn-modal-enable' : 'btn-modal-disable'}`;
+
+      // Prevent disabling main Admin
+      btnToggleStaffStatus.style.display = (activeEditingStaff.role === 'admin') ? 'none' : 'inline-block';
+
+      editStaffModal.style.display = 'flex';
+    };
+
+    [btnCloseEditModal, btnCancelEditModal].forEach(b => b.addEventListener('click', () => editStaffModal.style.display = 'none'));
+
+    // Save Updated Permissions & Profile
+    editStaffForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (currentUserRole !== 'admin' || !activeEditingStaff) return;
+
+      const uid = document.getElementById('editStaffUid').value;
+      const fullName = document.getElementById('editFullName').value.trim();
+      const phone = document.getElementById('editPhone').value.trim();
+
+      const permissions = {};
+      PERMISSIONS_LIST.forEach(p => {
+        permissions[p.key] = document.getElementById(`edit_perm_${p.key}`).checked;
+      });
+
+      try {
+        const userRef = ref(db, `users/${uid}`);
+        await update(userRef, {
+          fullName,
+          phone,
+          permissions,
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        });
+
+        // Audit Log
+        await push(ref(db, `staffActivity/${uid}`), {
+          action: "Permissions updated by Admin",
+          performedByUid: currentUser.uid,
+          performedByEmail: currentUser.email,
+          targetRef: uid,
+          timestamp: serverTimestamp()
+        });
+
+        showToast("Permissions updated successfully!", "success");
+        editStaffModal.style.display = 'none';
+
+      } catch (err) {
+        console.error(err);
+        showToast("Error updating permissions: " + err.message, "error");
+      }
+    });
+
+    // Disable / Reactivate Staff Action
+    btnToggleStaffStatus.addEventListener('click', async () => {
+      if (currentUserRole !== 'admin' || !activeEditingStaff) return;
+
+      const uid = activeEditingStaff.uid;
+      const isCurrentlyDisabled = (activeEditingStaff.accountStatus || '').toLowerCase() === 'disabled';
+      const targetStatus = isCurrentlyDisabled ? 'active' : 'disabled';
+      const t = i18n[currentLang];
+
+      let reason = 'Administrative update';
+      if (!isCurrentlyDisabled) {
+        const inputReason = prompt(t.prompt_disable_reason);
+        if (!inputReason) return;
+        reason = inputReason.trim();
+      }
+
+      try {
+        const userRef = ref(db, `users/${uid}`);
+        await update(userRef, {
+          accountStatus: targetStatus,
+          statusReason: reason,
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        });
+
+        // Audit Log
+        await push(ref(db, `staffActivity/${uid}`), {
+          action: `Account ${targetStatus.toUpperCase()}`,
+          reason,
+          performedByUid: currentUser.uid,
+          performedByEmail: currentUser.email,
+          targetRef: uid,
+          timestamp: serverTimestamp()
+        });
+
+        showToast(`Staff access ${targetStatus === 'active' ? 'reactivated' : 'disabled'} successfully.`, "success");
+        editStaffModal.style.display = 'none';
+
+      } catch (err) {
+        console.error(err);
+        showToast("Error changing account status: " + err.message, "error");
+      }
+    });
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    setLanguage(currentLang);
+  </script>
+</body>
+</html>

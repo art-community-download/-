@@ -1,0 +1,1772 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Requests | Poultry Shop Panel</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================
+       CSS RESET & DESIGN TOKENS (BLACK & GOLD OBSIDIAN)
+       ========================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-body: #07080b;
+      --bg-sidebar: #0d0f15;
+      --bg-card: rgba(18, 20, 28, 0.78);
+      --bg-card-hover: rgba(26, 29, 40, 0.88);
+      --border-gold: rgba(212, 175, 55, 0.22);
+      --border-gold-bright: rgba(212, 175, 55, 0.6);
+      --gold-primary: #d4af37;
+      --gold-light: #f5d77f;
+      --gold-dark: #997519;
+      --gold-gradient: linear-gradient(135deg, #f7df87 0%, #d4af37 50%, #997519 100%);
+      --text-main: #f3f4f6;
+      --text-muted: #94a3b8;
+      --text-dark: #07080b;
+
+      /* Status Colors */
+      --st-new: #06b6d4;
+      --st-pending: #f59e0b;
+      --st-review: #8b5cf6;
+      --st-approved: #10b981;
+      --st-rejected: #ef4444;
+      --st-resolved: #3b82f6;
+
+      --sidebar-width: 260px;
+      --header-height: 75px;
+      --gold-glow: 0 0 25px rgba(212, 175, 55, 0.2);
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #08090d; }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 4px; }
+
+    .ambient-glow {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      filter: blur(140px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.12;
+      background: radial-gradient(circle, var(--gold-primary), transparent 70%);
+      top: -80px;
+      right: -80px;
+    }
+
+    /* ==========================================================
+       SIDEBAR NAVIGATION (EXACT 14 ADMIN LINKS)
+       ========================================================== */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-gold);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-brand {
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 22px;
+      border-bottom: 1px solid var(--border-gold);
+      flex-shrink: 0;
+    }
+
+    .brand-logo-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 30% 30%, #2a251b, #111216);
+      border: 1.5px solid var(--gold-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--gold-glow);
+    }
+
+    .brand-logo-badge svg { width: 22px; height: 22px; stroke: var(--gold-primary); }
+
+    .brand-text h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.08rem;
+      font-weight: 700;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-text span {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .sidebar-user {
+      padding: 14px 18px;
+      margin: 14px 14px 6px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--gold-gradient);
+      color: #07080b;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .user-meta { flex: 1; overflow: hidden; }
+    .role-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+      text-transform: uppercase;
+      background: rgba(212, 175, 55, 0.2);
+      color: var(--gold-light);
+      border: 1px solid var(--border-gold);
+    }
+    .user-email {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 3px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px 24px;
+    }
+
+    .nav-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #64748b;
+      letter-spacing: 1.2px;
+      padding: 12px 14px 6px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.86rem;
+      font-weight: 500;
+      border-radius: 10px;
+      margin-bottom: 3px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link svg { width: 18px; height: 18px; stroke: currentColor; flex-shrink: 0; }
+
+    .nav-link:hover {
+      background: rgba(212, 175, 55, 0.08);
+      color: var(--gold-light);
+      transform: translateX(3px);
+    }
+
+    .nav-link.active {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+    }
+
+    .nav-link.active svg { stroke: var(--text-dark); }
+
+    .nav-link.logout-link {
+      color: #f87171;
+      margin-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 12px;
+    }
+    .nav-link.logout-link:hover {
+      background: rgba(239, 68, 68, 0.12);
+      color: #fca5a5;
+    }
+
+    /* ==========================================================
+       MAIN CONTENT WRAPPER & TOP BAR
+       ========================================================== */
+    .main-wrapper {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+      z-index: 10;
+    }
+
+    .top-header {
+      height: var(--header-height);
+      background: rgba(13, 15, 21, 0.85);
+      backdrop-filter: blur(15px);
+      border-bottom: 1px solid var(--border-gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 16px; }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: 1px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .breadcrumbs a { color: var(--gold-light); text-decoration: none; }
+
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+
+    .btn-lang-toggle {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.25s ease;
+    }
+
+    .btn-lang-toggle:hover {
+      background: rgba(212, 175, 55, 0.15);
+      border-color: var(--gold-primary);
+    }
+
+    .content-area {
+      padding: 26px 30px 60px;
+      flex: 1;
+    }
+
+    /* ==========================================================
+       7 REALTIME REQUEST STATISTICS CARDS
+       ========================================================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 26px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-gold);
+      border-radius: 16px;
+      padding: 16px 18px;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-gold-bright);
+      box-shadow: var(--gold-glow);
+    }
+
+    .stat-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .stat-title {
+      font-size: 0.74rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+
+    .stat-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      color: var(--gold-light);
+    }
+
+    .stat-icon svg { width: 16px; height: 16px; stroke: currentColor; }
+
+    .stat-value {
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* ==========================================================
+       TOOLBAR & FILTERS
+       ========================================================== */
+    .toolbar-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 18px;
+      padding: 16px 20px;
+      margin-bottom: 26px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 250px;
+      position: relative;
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 17px;
+      height: 17px;
+      stroke: var(--gold-primary);
+      opacity: 0.75;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 44px;
+      background: rgba(10, 11, 16, 0.75);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 0 16px 0 42px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+    }
+
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .filter-select {
+      height: 44px;
+      background: rgba(10, 11, 16, 0.75);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 0 14px;
+      color: #e2e8f0;
+      font-family: inherit;
+      font-size: 0.84rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .filter-select:focus { border-color: var(--gold-primary); }
+
+    .btn-clear {
+      height: 44px;
+      padding: 0 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-clear:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    /* ==========================================================
+       REQUESTS TABLE & STATUS BADGES
+       ========================================================== */
+    .table-container {
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-gold);
+      border-radius: 20px;
+      overflow-x: auto;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      background: rgba(10, 11, 16, 0.95);
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--gold-light);
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border-gold);
+    }
+
+    td {
+      font-size: 0.86rem;
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #e2e8f0;
+      vertical-align: middle;
+    }
+
+    tr:hover td { background: rgba(212, 175, 55, 0.03); }
+
+    .req-type-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(212, 175, 55, 0.12);
+      color: var(--gold-light);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    .badge-status {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .st-new { background: rgba(6, 182, 212, 0.18); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4); }
+    .st-pending { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .st-review { background: rgba(139, 92, 246, 0.18); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.4); }
+    .st-approved { background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .st-rejected { background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .st-resolved { background: rgba(59, 130, 246, 0.18); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+
+    .btn-action-open {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action-open:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);
+    }
+
+    /* ==========================================================
+       MODAL: REQUEST DETAILS & RESOLUTION WORKFLOW
+       ========================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .modal-dialog {
+      background: #0d0f15;
+      border: 1px solid var(--border-gold);
+      border-radius: 22px;
+      width: 100%;
+      max-width: 700px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), var(--gold-glow);
+      animation: modalScaleUp 0.25s ease-out;
+      overflow: hidden;
+      margin: auto;
+    }
+
+    @keyframes modalScaleUp {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.15rem;
+      color: var(--gold-light);
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.4rem;
+      line-height: 1;
+    }
+
+    .modal-body {
+      padding: 24px;
+      max-height: calc(85vh - 140px);
+      overflow-y: auto;
+    }
+
+    .request-summary-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-gold);
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-bottom: 18px;
+    }
+
+    .history-timeline {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 12px;
+      max-height: 130px;
+      overflow-y: auto;
+      margin-bottom: 18px;
+    }
+
+    .timeline-item {
+      font-size: 0.78rem;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: #e2e8f0;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .form-label { font-size: 0.82rem; font-weight: 600; color: #e2e8f0; }
+
+    .form-input, .form-select, .form-textarea {
+      background: #08090d;
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.2);
+      flex-wrap: wrap;
+    }
+
+    .btn-modal {
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-modal-cancel {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-gold);
+      color: #e2e8f0;
+    }
+
+    .btn-modal-approve {
+      background: var(--gold-gradient);
+      color: #000;
+      font-weight: 700;
+    }
+
+    .btn-modal-reject {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+    }
+
+    .btn-modal-resolve {
+      background: rgba(59, 130, 246, 0.2);
+      border: 1px solid rgba(59, 130, 246, 0.5);
+      color: #93c5fd;
+    }
+
+    /* Toast Container */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1100;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: #141720;
+      border: 1px solid var(--border-gold);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      animation: toastSlideIn 0.3s ease-out;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.success { border-color: var(--st-approved); color: #6ee7b7; }
+    .toast.error { border-color: var(--st-rejected); color: #fca5a5; }
+
+    @keyframes toastSlideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .empty-state { text-align: center; padding: 40px; color: var(--text-muted); }
+
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-left: 0; }
+      .menu-toggle { display: block; }
+      .content-area { padding: 20px 16px; }
+      .top-header { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+
+  <!-- ==========================================================
+       SIDEBAR NAVIGATION (EXACT 14 ADMIN LINKS)
+       ========================================================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2C8.5 2 6 4.5 6 8c0 2 .8 3.8 2.2 5.1L5 22h14l-3.2-8.9C17.2 11.8 18 10 18 8c0-3.5-2.5-6-6-6z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h2>POULTRY ERP</h2>
+        <span data-i18n="shop_mgmt">Admin + Shopkeeper Panel</span>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="userAvatar">A</div>
+      <div class="user-meta">
+        <span class="role-badge" id="userRoleBadge">CHECKING...</span>
+        <div class="user-email" id="userEmail">Loading user...</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label" data-i18n="grp_main">Core Operations</div>
+      
+      <!-- 1. Dashboard -->
+      <a href="admin-dashboard.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span data-i18n="m_dashboard">Dashboard</span>
+      </a>
+
+      <!-- 2. Orders -->
+      <a href="admin-orders.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span data-i18n="m_orders">Orders</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_catalog">Catalog & Pricing</div>
+
+      <!-- 3. Products -->
+      <a href="admin-products.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+        <span data-i18n="m_products">Products</span>
+      </a>
+
+      <!-- 4. Prices -->
+      <a href="admin-prices.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span data-i18n="m_prices">Tiered Prices</span>
+      </a>
+
+      <!-- 5. Stock Management -->
+      <a href="admin-stock.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        <span data-i18n="m_stock">Stock Management</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_crm">CRM & Staff</div>
+
+      <!-- 6. Customers -->
+      <a href="admin-customers.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span data-i18n="m_customers">Customers</span>
+      </a>
+
+      <!-- 7. Shop Management -->
+      <a href="admin-shopkeepers.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span data-i18n="m_shopkeepers">Shop Management</span>
+      </a>
+
+      <!-- 8. Referral Codes -->
+      <a href="admin-referrals.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span data-i18n="m_referrals">Referral Codes</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_config">Store Setup & Reports</div>
+
+      <!-- 9. Delivery Settings -->
+      <a href="admin-delivery.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <span data-i18n="m_delivery">Delivery Settings</span>
+      </a>
+
+      <!-- 10. Reports -->
+      <a href="admin-reports.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span data-i18n="m_reports">Reports & Analytics</span>
+      </a>
+
+      <!-- 11. Shop Settings -->
+      <a href="admin-settings.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span data-i18n="m_settings">Shop Settings</span>
+      </a>
+
+      <!-- 12. Reviews -->
+      <a href="admin-reviews.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span data-i18n="m_reviews">Reviews</span>
+      </a>
+
+      <!-- 13. Customer Requests (ACTIVE) -->
+      <a href="admin-requests.html" class="nav-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+        <span data-i18n="m_requests">Customer Requests</span>
+      </a>
+
+      <!-- 14. Logout Action -->
+      <a href="javascript:void(0)" class="nav-link logout-link" id="btnLogout">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span data-i18n="m_logout">Logout</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ==========================================================
+       MAIN CONTENT WRAPPER
+       ========================================================== -->
+  <div class="main-wrapper">
+
+    <!-- Top Consistent Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <button class="menu-toggle" id="menuToggleBtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div>
+          <!-- Working Back to Dashboard Link -->
+          <div class="breadcrumbs">
+            <a href="admin-dashboard.html" data-i18n="bc_home">Home</a> / <span data-i18n="bc_requests">Customer Requests</span>
+          </div>
+          <h1 style="font-size: 1.25rem; font-weight: 700; color: #fff;" data-i18n="header_title">Customer Support & Tier Requests</h1>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Language Switcher -->
+        <button class="btn-lang-toggle" id="btnLangToggle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="langButtonText">English</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="content-area">
+
+      <!-- 7 Realtime Request Statistics -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_total">Total Requests</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg></div>
+          </div>
+          <div class="stat-value" id="statTotalRequests">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_new">New Tickets</span>
+            <div class="stat-icon" style="color:var(--st-new);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          </div>
+          <div class="stat-value" style="color:var(--st-new);" id="statNewRequests">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_pending">Pending Action</span>
+            <div class="stat-icon" style="color:var(--st-pending);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          </div>
+          <div class="stat-value" style="color:var(--st-pending);" id="statPendingRequests">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_review">Under Review</span>
+            <div class="stat-icon" style="color:var(--st-review);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
+          </div>
+          <div class="stat-value" style="color:var(--st-review);" id="statReviewRequests">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_approved">Approved Tiers</span>
+            <div class="stat-icon" style="color:var(--st-approved);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+          </div>
+          <div class="stat-value" style="color:var(--st-approved);" id="statApprovedRequests">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_rejected">Rejected</span>
+            <div class="stat-icon" style="color:var(--st-rejected);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
+          </div>
+          <div class="stat-value" style="color:var(--st-rejected);" id="statRejectedRequests">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_resolved">Resolved</span>
+            <div class="stat-icon" style="color:var(--st-resolved);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+          </div>
+          <div class="stat-value" style="color:var(--st-resolved);" id="statResolvedRequests">0</div>
+        </div>
+      </section>
+
+      <!-- Toolbar & Filters -->
+      <section class="toolbar-panel">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" class="search-input" data-i18n-ph="search_ph" placeholder="Search by Ticket ID, customer name, or UID..." />
+        </div>
+
+        <div class="filter-group">
+          <!-- Request Category Filter -->
+          <select id="filterType" class="filter-select">
+            <option value="all" data-i18n="fl_all_types">All Request Categories</option>
+            <option value="business_approval">Business Tier Approval</option>
+            <option value="category_change">Customer Tier Change</option>
+            <option value="order_complaint">Order Complaint</option>
+            <option value="delivery_complaint">Delivery Complaint</option>
+            <option value="product_complaint">Product Quality Issue</option>
+            <option value="refund_request">Refund / Adjustment</option>
+            <option value="location_update">Address / Location Change</option>
+            <option value="account_support">Account & Login Support</option>
+            <option value="general_support">General Inquiry</option>
+          </select>
+
+          <!-- Status Filter -->
+          <select id="filterStatus" class="filter-select">
+            <option value="all" data-i18n="fl_all_status">All Statuses</option>
+            <option value="new">New</option>
+            <option value="pending">Pending</option>
+            <option value="under_review">Under Review</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+            <option value="resolved">Resolved</option>
+          </select>
+
+          <!-- Sort Filter -->
+          <select id="filterSort" class="filter-select">
+            <option value="newest" data-i18n="sort_newest">Sort: Newest First</option>
+            <option value="oldest" data-i18n="sort_oldest">Sort: Oldest First</option>
+          </select>
+
+          <button class="btn-clear" id="btnClearFilters" title="Reset Filters">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <span data-i18n="btn_reset">Reset</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Requests Table -->
+      <section class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="th_id">Ticket ID</th>
+              <th data-i18n="th_customer">Customer</th>
+              <th data-i18n="th_type">Category / Type</th>
+              <th data-i18n="th_subject">Subject / Issue</th>
+              <th data-i18n="th_status">Status</th>
+              <th data-i18n="th_date">Submitted</th>
+              <th data-i18n="th_action">Action</th>
+            </tr>
+          </thead>
+          <tbody id="requestsTableBody">
+            <tr>
+              <td colspan="7" class="empty-state">কাস্টমার রিকোয়েস্ট লোড হচ্ছে...</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ==========================================================
+       MODAL: REQUEST DETAILS, ACTIONS & SECURE RESPONSES
+       ========================================================== -->
+  <div class="modal-backdrop" id="requestModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalReqTitle">Customer Ticket Details</h3>
+        <button class="modal-close" id="btnCloseModal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" id="modalReqKey" />
+
+        <!-- Customer Request Bubble -->
+        <div class="request-summary-box">
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <strong style="color:#fff;" id="modalCustomerName">Customer Name</strong>
+            <span class="req-type-pill" id="modalReqTypeBadge">Business Tier</span>
+          </div>
+          <p style="font-size:0.78rem; color:var(--text-muted); margin-bottom:10px;" id="modalCustomerMeta">UID: ... • Current Tier: Normal</p>
+          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px; margin-bottom:10px;">
+            <h4 style="font-size:0.86rem; color:var(--gold-light); margin-bottom:4px;" id="modalSubject">Request Subject</h4>
+            <p style="font-size:0.88rem; color:#e2e8f0; line-height:1.45;" id="modalMessage">Customer detailed message...</p>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted);" id="modalFooterMeta">
+            <span id="modalRelatedOrder">Related Order: None</span>
+            <span id="modalTimestamp">Date</span>
+          </div>
+        </div>
+
+        <!-- Auditable Timeline History -->
+        <div class="form-label" style="margin-bottom:4px;" data-i18n="lbl_history">Activity Timeline & Notes</div>
+        <div class="history-timeline" id="modalTimelineBox">
+          <p style="text-align:center; color:var(--text-muted); font-size:0.75rem;">Loading audit trail...</p>
+        </div>
+
+        <!-- Response Composer -->
+        <div class="form-group">
+          <label class="form-label" data-i18n="lbl_response">Admin Response / Internal Note</label>
+          <textarea id="modalResponseText" class="form-textarea" rows="3" placeholder="Type your response to the customer or internal note..."></textarea>
+        </div>
+
+        <!-- Response Visibility Selector -->
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+          <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.8rem; color:#e2e8f0; cursor:pointer;">
+            <input type="radio" name="replyVisibility" id="radPublic" value="public" checked style="accent-color:var(--gold-primary);" />
+            <span data-i18n="opt_public">Customer-Visible Reply (Sent to Customer App)</span>
+          </label>
+          <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.8rem; color:#fca5a5; cursor:pointer;">
+            <input type="radio" name="replyVisibility" id="radInternal" value="internal" style="accent-color:var(--st-rejected);" />
+            <span data-i18n="opt_internal">Private Internal Note (Hidden from Customer)</span>
+          </label>
+        </div>
+
+        <!-- WhatsApp Link if Phone Exists -->
+        <div id="modalWhatsAppBox" style="margin-bottom:14px; display:none;">
+          <a id="btnWhatsAppDirect" href="#" target="_blank" style="font-size:0.8rem; color:#86efac; text-decoration:underline; display:inline-flex; align-items:center; gap:6px;">
+            💬 Open Prefilled Message in WhatsApp
+          </a>
+        </div>
+      </div>
+
+      <!-- Action Buttons in Modal Footer -->
+      <div class="modal-footer" id="modalFooterActions">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ==========================================================
+       MODULAR FIREBASE SDK (v10) & REALTIME SCRIPT
+       ========================================================== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      getDatabase, 
+      ref, 
+      onValue, 
+      update, 
+      push, 
+      serverTimestamp, 
+      get 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // 1. Firebase Configuration Placeholder (Matching Project)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDYPsjlOmRwH2F5P8fFoiirP1FLjgh3c8A",
+      authDomain: "murgi-dfd67.firebaseapp.com",
+      databaseURL: "https://murgi-dfd67-default-rtdb.firebaseio.com",
+      projectId: "murgi-dfd67",
+      storageBucket: "murgi-dfd67.firebasestorage.app",
+      messagingSenderId: "209696889864",
+      appId: "1:209696889864:web:3eaa16034f00cca45505bd"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // Translation Dictionary
+    const i18n = {
+      en: {
+        shop_mgmt: "Admin + Shopkeeper Panel",
+        grp_main: "Core Operations",
+        m_dashboard: "Dashboard",
+        m_orders: "Orders",
+        grp_catalog: "Catalog & Pricing",
+        m_products: "Products",
+        m_prices: "Tiered Prices",
+        m_stock: "Stock Management",
+        grp_crm: "CRM & Staff",
+        m_customers: "Customers",
+        m_shopkeepers: "Shop Management",
+        m_referrals: "Referral Codes",
+        grp_config: "Store Setup & Reports",
+        m_delivery: "Delivery Settings",
+        m_reports: "Reports & Analytics",
+        m_settings: "Shop Settings",
+        m_reviews: "Reviews",
+        m_requests: "Customer Requests",
+        m_logout: "Logout",
+        bc_home: "Home",
+        bc_requests: "Customer Requests",
+        header_title: "Customer Support & Tier Requests",
+        st_total: "Total Requests",
+        st_new: "New Tickets",
+        st_pending: "Pending Action",
+        st_review: "Under Review",
+        st_approved: "Approved Tiers",
+        st_rejected: "Rejected",
+        st_resolved: "Resolved",
+        search_ph: "Search by Ticket ID, customer name, or UID...",
+        fl_all_types: "All Request Categories",
+        fl_all_status: "All Statuses",
+        sort_newest: "Sort: Newest First",
+        sort_oldest: "Sort: Oldest First",
+        btn_reset: "Reset",
+        th_id: "Ticket ID",
+        th_customer: "Customer",
+        th_type: "Category / Type",
+        th_subject: "Subject / Issue",
+        th_status: "Status",
+        th_date: "Submitted",
+        th_action: "Action",
+        btn_open: "Manage Ticket",
+        lbl_history: "Activity Timeline & Notes",
+        lbl_response: "Admin Response / Internal Note",
+        opt_public: "Customer-Visible Reply (Sent to Customer App)",
+        opt_internal: "Private Internal Note (Hidden from Customer)",
+        btn_approve_tier: "Approve Tier Upgrade",
+        btn_reject: "Reject Request",
+        btn_resolve: "Mark Resolved",
+        btn_send_reply: "Send Response",
+        btn_cancel: "Close",
+        lang_switch_to: "বাংলা",
+        saved_success: "Action saved successfully!",
+        confirm_reject: "Are you sure you want to reject this request?",
+        confirm_resolve: "Are you sure you want to mark this ticket as resolved?"
+      },
+      bn: {
+        shop_mgmt: "অ্যাডমিন ও শপকিপার প্যানেল",
+        grp_main: "প্রধান কার্যক্রম",
+        m_dashboard: "ড্যাশবোর্ড",
+        m_orders: "অর্ডারসমূহ",
+        grp_catalog: "পণ্য ও মূল্যতালিকা",
+        m_products: "পণ্য ক্যাটালগ",
+        m_prices: "ক্যাটাগরি মূল্য",
+        m_stock: "স্টক ম্যানেজমেন্ট",
+        grp_crm: "গ্রাহক ও কর্মী",
+        m_customers: "গ্রাহকবৃন্দ",
+        m_shopkeepers: "দোকান পরিচালনা",
+        m_referrals: "রেফারেল কোড",
+        grp_config: "সেটআপ ও রিপোর্ট",
+        m_delivery: "ডেলিভারি সেটিংস",
+        m_reports: "রিপোর্ট ও অ্যানালিটিক্স",
+        m_settings: "শপ সেটিংস",
+        m_reviews: "রিভিউ ও রেটিং",
+        m_requests: "গ্রাহক অনুরোধ",
+        m_logout: "লগআউট",
+        bc_home: "হোম",
+        bc_requests: "কাস্টমার রিকোয়েস্ট",
+        header_title: "কাস্টমার সাপোর্ট ও বিজনেস ক্যাটাগরি রিকোয়েস্ট",
+        st_total: "সর্বমোট রিকোয়েস্ট",
+        st_new: "নতুন টিকিট",
+        st_pending: "অপেক্ষমাণ",
+        st_review: "তদন্তাধীন",
+        st_approved: "অনুমোদিত",
+        st_rejected: "বাতিলকৃত",
+        st_resolved: "সমাধানকৃত",
+        search_ph: "টিকিট আইডি, গ্রাহকের নাম বা UID দিয়ে খুঁজুন...",
+        fl_all_types: "সকল রিকোয়েস্ট ক্যাটাগরি",
+        fl_all_status: "সকল স্ট্যাটাস",
+        sort_newest: "সর্ট: নতুন টিকিট আগে",
+        sort_oldest: "সর্ট: পুরাতন টিকিট আগে",
+        btn_reset: "রিসেট",
+        th_id: "টিকিট আইডি",
+        th_customer: "গ্রাহক",
+        th_type: "ক্যাটাগরি / ধরণ",
+        th_subject: "বিষয় / সমস্যা",
+        th_status: "স্ট্যাটাস",
+        th_date: "তারিখ",
+        th_action: "অ্যাকশন",
+        btn_open: "ব্যবস্থা নিন",
+        lbl_history: "অ্যাক্টিভিটি টাইমলাইন ও নোট",
+        lbl_response: "অ্যাডমিন রিপ্লাই / ইন্টারনাল নোট",
+        opt_public: "গ্রাহক দৃশ্যমান উত্তর (অ্যাপে দেখতে পাবেন)",
+        opt_internal: "গোপন ইন্টারনাল নোট (শুধুমাত্র স্টাফদের জন্য)",
+        btn_approve_tier: "বিজনেস টায়ার অনুমোদন করুন",
+        btn_reject: "অনুরোধ বাতিল করুন",
+        btn_resolve: "সমাধান নিশ্চিত করুন",
+        btn_send_reply: "উত্তর পাঠান",
+        btn_cancel: "বন্ধ করুন",
+        lang_switch_to: "English",
+        saved_success: "সফলভাবে আপডেট করা হয়েছে!",
+        confirm_reject: "আপনি কি নিশ্চিতভাবে এই অনুরোধটি বাতিল করতে চান?",
+        confirm_resolve: "আপনি কি নিশ্চিতভাবে এই টিকিটটি সমাধান হিসেবে মার্ক করতে চান?"
+      }
+    };
+
+    let currentLang = localStorage.getItem('poultry_admin_lang') || 'bn';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('poultry_admin_lang', lang);
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang][key]) el.textContent = i18n[lang][key];
+      });
+
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const key = el.getAttribute('data-i18n-ph');
+        if (i18n[lang][key]) el.placeholder = i18n[lang][key];
+      });
+
+      document.getElementById('langButtonText').textContent = i18n[lang].lang_switch_to;
+      renderRequestsTable();
+    }
+
+    document.getElementById('btnLangToggle').addEventListener('click', () => {
+      setLanguage(currentLang === 'en' ? 'bn' : 'en');
+    });
+
+    // App State
+    let currentUser = null;
+    let currentUserRole = null;
+    let allRequests = [];
+    let selectedRequest = null;
+
+    // DOM Elements
+    const statTotal = document.getElementById('statTotalRequests');
+    const statNew = document.getElementById('statNewRequests');
+    const statPending = document.getElementById('statPendingRequests');
+    const statReview = document.getElementById('statReviewRequests');
+    const statApproved = document.getElementById('statApprovedRequests');
+    const statRejected = document.getElementById('statRejectedRequests');
+    const statResolved = document.getElementById('statResolvedRequests');
+
+    const searchInput = document.getElementById('searchInput');
+    const filterType = document.getElementById('filterType');
+    const filterStatus = document.getElementById('filterStatus');
+    const filterSort = document.getElementById('filterSort');
+    const btnClearFilters = document.getElementById('btnClearFilters');
+    const requestsTableBody = document.getElementById('requestsTableBody');
+
+    // Modal DOM
+    const requestModal = document.getElementById('requestModal');
+    const btnCloseModal = document.getElementById('btnCloseModal');
+    const modalReqKey = document.getElementById('modalReqKey');
+    const modalCustomerName = document.getElementById('modalCustomerName');
+    const modalReqTypeBadge = document.getElementById('modalReqTypeBadge');
+    const modalCustomerMeta = document.getElementById('modalCustomerMeta');
+    const modalSubject = document.getElementById('modalSubject');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalRelatedOrder = document.getElementById('modalRelatedOrder');
+    const modalTimestamp = document.getElementById('modalTimestamp');
+    const modalTimelineBox = document.getElementById('modalTimelineBox');
+    const modalResponseText = document.getElementById('modalResponseText');
+    const modalWhatsAppBox = document.getElementById('modalWhatsAppBox');
+    const btnWhatsAppDirect = document.getElementById('btnWhatsAppDirect');
+    const modalFooterActions = document.getElementById('modalFooterActions');
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // ==========================================================
+    // AUTHENTICATION GUARD
+    // ==========================================================
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.replace('admin-login.html');
+        return;
+      }
+
+      currentUser = user;
+      document.getElementById('userEmail').textContent = user.email;
+      document.getElementById('userAvatar').textContent = (user.email.charAt(0) || 'A').toUpperCase();
+
+      try {
+        const roleRef = ref(db, `users/${user.uid}/role`);
+        const snapshot = await get(roleRef);
+        const role = snapshot.val();
+
+        if (!role) {
+          showToast("অননুমোদিত একাউন্ট!", "error");
+          await signOut(auth);
+          window.location.replace('admin-login.html');
+          return;
+        }
+
+        const normalizedRole = role.toString().toLowerCase().trim();
+        if (normalizedRole !== 'admin' && normalizedRole !== 'shopkeeper') {
+          showToast("অননুমোদিত রোল!", "error");
+          await signOut(auth);
+          window.location.replace('admin-login.html');
+          return;
+        }
+
+        currentUserRole = normalizedRole;
+        document.getElementById('userRoleBadge').textContent = normalizedRole.toUpperCase();
+
+        listenToRequestsRealtime();
+
+      } catch (err) {
+        console.error("Auth Guard Error:", err);
+      }
+    });
+
+    document.getElementById('btnLogout').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.replace('admin-login.html');
+    });
+
+    const menuToggleBtn = document.getElementById('menuToggleBtn');
+    const sidebar = document.getElementById('sidebar');
+    menuToggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+
+    // ==========================================================
+    // REALTIME DATABASE LISTENER: REQUESTS
+    // ==========================================================
+    function listenToRequestsRealtime() {
+      const reqRef = ref(db, 'customerRequests');
+
+      onValue(reqRef, (snapshot) => {
+        allRequests = [];
+        let total = 0;
+        let newCount = 0;
+        let pending = 0;
+        let review = 0;
+        let approved = 0;
+        let rejected = 0;
+        let resolved = 0;
+
+        snapshot.forEach(child => {
+          const r = child.val();
+          r.key = child.key;
+          r.requestId = r.requestId || child.key;
+          allRequests.push(r);
+          total++;
+
+          const st = (r.status || 'new').toLowerCase();
+          if (st === 'new') newCount++;
+          else if (st === 'pending') pending++;
+          else if (st === 'under_review') review++;
+          else if (st === 'approved') approved++;
+          else if (st === 'rejected') rejected++;
+          else if (st === 'resolved') resolved++;
+        });
+
+        statTotal.textContent = total;
+        statNew.textContent = newCount;
+        statPending.textContent = pending;
+        statReview.textContent = review;
+        statApproved.textContent = approved;
+        statRejected.textContent = rejected;
+        statResolved.textContent = resolved;
+
+        renderRequestsTable();
+      }, (err) => {
+        console.error(err);
+        showToast("Error loading customer requests: " + err.message, "error");
+      });
+    }
+
+    // ==========================================================
+    // FILTER & TABLE RENDERING
+    // ==========================================================
+    [searchInput, filterType, filterStatus, filterSort].forEach(el => {
+      el.addEventListener('input', renderRequestsTable);
+      el.addEventListener('change', renderRequestsTable);
+    });
+
+    btnClearFilters.addEventListener('click', () => {
+      searchInput.value = '';
+      filterType.value = 'all';
+      filterStatus.value = 'all';
+      filterSort.value = 'newest';
+      renderRequestsTable();
+    });
+
+    function renderRequestsTable() {
+      const q = searchInput.value.toLowerCase().trim();
+      const typeF = filterType.value;
+      const statusF = filterStatus.value;
+      const sortF = filterSort.value;
+      const t = i18n[currentLang];
+
+      let filtered = allRequests.filter(r => {
+        const id = (r.requestId || r.key || '').toLowerCase();
+        const cust = (r.customerName || r.customerUid || '').toLowerCase();
+        const sub = (r.subject || r.message || '').toLowerCase();
+
+        const matchSearch = !q || id.includes(q) || cust.includes(q) || sub.includes(q);
+        const matchType = (typeF === 'all') || (r.requestType === typeF);
+        const matchStatus = (statusF === 'all') || ((r.status || 'new').toLowerCase() === statusF);
+
+        return matchSearch && matchType && matchStatus;
+      });
+
+      filtered.sort((a, b) => {
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return sortF === 'oldest' ? timeA - timeB : timeB - timeA;
+      });
+
+      if (!filtered || filtered.length === 0) {
+        requestsTableBody.innerHTML = `<tr><td colspan="7" class="empty-state">কোনো কাস্টমার রিকোয়েস্ট পাওয়া যায়নি।</td></tr>`;
+        return;
+      }
+
+      requestsTableBody.innerHTML = filtered.map(r => {
+        const id = (r.requestId || r.key).substring(0, 8).toUpperCase();
+        const cust = r.customerName || 'Customer';
+        const type = r.requestType || 'General';
+        const subject = r.subject || r.message || 'Support request';
+        const st = (r.status || 'new').toLowerCase();
+
+        let badgeClass = 'st-new';
+        let badgeLabel = 'New';
+        if (st === 'pending') { badgeClass = 'st-pending'; badgeLabel = 'Pending'; }
+        else if (st === 'under_review') { badgeClass = 'st-review'; badgeLabel = 'Under Review'; }
+        else if (st === 'approved') { badgeClass = 'st-approved'; badgeLabel = 'Approved'; }
+        else if (st === 'rejected') { badgeClass = 'st-rejected'; badgeLabel = 'Rejected'; }
+        else if (st === 'resolved') { badgeClass = 'st-resolved'; badgeLabel = 'Resolved'; }
+
+        let dateStr = 'Recent';
+        if (r.createdAt) {
+          const d = new Date(r.createdAt);
+          dateStr = !isNaN(d) ? d.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : r.createdAt;
+        }
+
+        return `
+          <tr>
+            <td><strong style="color:var(--gold-light); font-family:monospace;">#${escapeHTML(id)}</strong></td>
+            <td>
+              <strong style="color:#fff;">${escapeHTML(cust)}</strong>
+              ${r.customerCategory ? `<br><small style="color:var(--text-muted); text-transform:capitalize;">${escapeHTML(r.customerCategory)}</small>` : ''}
+            </td>
+            <td><span class="req-type-pill">${escapeHTML(type.replace('_', ' '))}</span></td>
+            <td style="max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+              ${escapeHTML(subject)}
+            </td>
+            <td><span class="badge-status ${badgeClass}">${badgeLabel}</span></td>
+            <td style="font-size:0.78rem; color:var(--text-muted);">${dateStr}</td>
+            <td>
+              <button class="btn-action-open" onclick="openRequestModal('${r.key}')">${t.btn_open}</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // ==========================================================
+    // MODAL CONTROL & AUDIT TRAIL LOGIC
+    // ==========================================================
+    window.openRequestModal = function(key) {
+      selectedRequest = allRequests.find(r => r.key === key);
+      if (!selectedRequest) return;
+
+      const t = i18n[currentLang];
+      modalReqKey.value = selectedRequest.key;
+      modalCustomerName.textContent = selectedRequest.customerName || 'Customer';
+      modalReqTypeBadge.textContent = (selectedRequest.requestType || 'General').replace('_', ' ').toUpperCase();
+      modalCustomerMeta.textContent = `UID: ${selectedRequest.customerUid || 'N/A'} • Phone: ${selectedRequest.customerPhone || 'N/A'} • Current Tier: ${(selectedRequest.customerCategory || 'Normal')}`;
+      modalSubject.textContent = selectedRequest.subject || 'Support Ticket';
+      modalMessage.textContent = selectedRequest.message || 'No additional details provided.';
+      modalRelatedOrder.textContent = selectedRequest.orderId ? `Related Order: #${selectedRequest.orderId}` : 'Related Order: None';
+
+      const d = selectedRequest.createdAt ? new Date(selectedRequest.createdAt).toLocaleString() : 'Recent';
+      modalTimestamp.textContent = d;
+
+      modalResponseText.value = '';
+
+      // Setup WhatsApp quick link
+      if (selectedRequest.customerPhone) {
+        const cleanPhone = selectedRequest.customerPhone.replace(/[^0-9]/g, '');
+        const msg = encodeURIComponent(`Hello ${selectedRequest.customerName || ''}, regarding your support ticket #${(selectedRequest.requestId || selectedRequest.key).substring(0,8)} with Poultry Shop:`);
+        btnWhatsAppDirect.href = `https://wa.me/${cleanPhone}?text=${msg}`;
+        modalWhatsAppBox.style.display = 'block';
+      } else {
+        modalWhatsAppBox.style.display = 'none';
+      }
+
+      // Populate Timeline History
+      const history = selectedRequest.history ? Object.values(selectedRequest.history) : [];
+      if (history.length === 0) {
+        modalTimelineBox.innerHTML = `<div class="timeline-item">Ticket created on ${d}</div>`;
+      } else {
+        modalTimelineBox.innerHTML = history.map(h => `
+          <div class="timeline-item">
+            <strong>${escapeHTML(h.action || 'Updated')}</strong> by ${escapeHTML(h.performedByEmail || 'Staff')}: 
+            <span style="color:var(--text-muted);">${escapeHTML(h.note || '')}</span>
+            <small style="color:#64748b; margin-left:6px;">(${h.timestamp ? new Date(h.timestamp).toLocaleTimeString() : ''})</small>
+          </div>
+        `).join('');
+      }
+
+      // Dynamic Action Buttons according to request category
+      let actionsHtml = '';
+      const isTierReq = (selectedRequest.requestType === 'business_approval' || selectedRequest.requestType === 'category_change');
+
+      if (isTierReq && selectedRequest.status !== 'approved') {
+        actionsHtml += `<button type="button" class="btn-modal btn-modal-approve" onclick="handleTierApproval(true)">${t.btn_approve_tier}</button>`;
+      }
+
+      actionsHtml += `
+        <button type="button" class="btn-modal btn-modal-reject" onclick="handleRequestReject()">${t.btn_reject}</button>
+        <button type="button" class="btn-modal btn-modal-resolve" onclick="handleRequestResolve()">${t.btn_resolve}</button>
+        <button type="button" class="btn-modal btn-modal-save" onclick="handleSendReply()">${t.btn_send_reply}</button>
+        <button type="button" class="btn-modal btn-modal-cancel" id="btnCancelReqModal">${t.btn_cancel}</button>
+      `;
+
+      modalFooterActions.innerHTML = actionsHtml;
+      document.getElementById('btnCancelReqModal').onclick = () => requestModal.style.display = 'none';
+
+      requestModal.style.display = 'flex';
+    };
+
+    btnCloseModal.onclick = () => requestModal.style.display = 'none';
+
+    // 1. Send Reply (Customer Visible OR Internal Note)
+    window.handleSendReply = async function() {
+      if (!selectedRequest) return;
+      const response = modalResponseText.value.trim();
+      if (!response) {
+        showToast("Please enter a response or internal note.", "error");
+        return;
+      }
+
+      const isPublic = document.getElementById('radPublic').checked;
+      const noteType = isPublic ? "Customer-Visible Reply" : "Internal Note";
+
+      try {
+        const reqRef = ref(db, `customerRequests/${selectedRequest.key}`);
+        
+        // Log to history
+        await push(ref(db, `customerRequests/${selectedRequest.key}/history`), {
+          action: noteType,
+          note: response,
+          isPublic,
+          performedByUid: currentUser.uid,
+          performedByEmail: currentUser.email,
+          timestamp: serverTimestamp()
+        });
+
+        const updates = {
+          lastReply: response,
+          lastReplyAt: serverTimestamp(),
+          status: 'under_review',
+          updatedAt: serverTimestamp()
+        };
+
+        if (isPublic) {
+          updates.customerVisibleReply = response;
+          // Send In-App Notification to Customer
+          if (selectedRequest.customerUid) {
+            await push(ref(db, `notifications/${selectedRequest.customerUid}`), {
+              ticketId: selectedRequest.requestId || selectedRequest.key,
+              title: "সাপোর্ট উত্তর প্রাপ্ত হয়েছে",
+              message: `আপনার টিকিট #${(selectedRequest.requestId || selectedRequest.key).substring(0,8)} এর উত্তর দেওয়া হয়েছে: "${response}"`,
+              createdAt: serverTimestamp(),
+              read: false
+            });
+          }
+        }
+
+        await update(reqRef, updates);
+
+        showToast(isPublic ? "Customer reply sent successfully!" : "Internal note logged.", "success");
+        requestModal.style.display = 'none';
+      } catch (err) {
+        showToast("Error sending reply: " + err.message, "error");
+      }
+    };
+
+    // 2. Business Tier Upgrade Approval
+    window.handleTierApproval = async function(isApproved) {
+      if (!selectedRequest || !selectedRequest.customerUid) return;
+      const targetCategory = selectedRequest.requestedCategory || 'restaurant';
+
+      try {
+        // Update Customer Record to grant wholesale pricing
+        const custRef = ref(db, `customers/${selectedRequest.customerUid}`);
+        await update(custRef, {
+          category: targetCategory,
+          businessApproved: true,
+          businessApprovalStatus: 'approved',
+          updatedAt: serverTimestamp()
+        });
+
+        // Update Request Record
+        const reqRef = ref(db, `customerRequests/${selectedRequest.key}`);
+        await update(reqRef, {
+          status: 'approved',
+          resolvedAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+
+        // History Log
+        await push(ref(db, `customerRequests/${selectedRequest.key}/history`), {
+          action: `Approved Tier: ${targetCategory}`,
+          performedByUid: currentUser.uid,
+          performedByEmail: currentUser.email,
+          timestamp: serverTimestamp()
+        });
+
+        // Customer Notification
+        await push(ref(db, `notifications/${selectedRequest.customerUid}`), {
+          title: "বিজনেস টায়ার অনুমোদিত!",
+          message: `অভিনন্দন! আপনার বিজনেস ক্যাটাগরি (${targetCategory}) অনুমোদিত হয়েছে। এখন থেকে আপনি পাইকারি মূল্যে অর্ডার করতে পারবেন।`,
+          createdAt: serverTimestamp(),
+          read: false
+        });
+
+        showToast("Business category approved successfully!", "success");
+        requestModal.style.display = 'none';
+      } catch (err) {
+        showToast("Error approving tier: " + err.message, "error");
+      }
+    };
+
+    // 3. Reject Request
+    window.handleRequestReject = async function() {
+      if (!selectedRequest) return;
+      const t = i18n[currentLang];
+      if (!confirm(t.confirm_reject)) return;
+
+      const reason = modalResponseText.value.trim() || 'Criteria not met';
+
+      try {
+        const reqRef = ref(db, `customerRequests/${selectedRequest.key}`);
+        await update(reqRef, {
+          status: 'rejected',
+          rejectionReason: reason,
+          updatedAt: serverTimestamp()
+        });
+
+        await push(ref(db, `customerRequests/${selectedRequest.key}/history`), {
+          action: "Request Rejected",
+          note: reason,
+          performedByUid: currentUser.uid,
+          performedByEmail: currentUser.email,
+          timestamp: serverTimestamp()
+        });
+
+        if (selectedRequest.customerUid) {
+          await push(ref(db, `notifications/${selectedRequest.customerUid}`), {
+            title: "অনুরোধ বাতিল করা হয়েছে",
+            message: `আপনার অনুরোধটি বাতিল করা হয়েছে। কারণ: ${reason}`,
+            createdAt: serverTimestamp(),
+            read: false
+          });
+        }
+
+        showToast("Request rejected.", "error");
+        requestModal.style.display = 'none';
+      } catch (err) {
+        showToast("Error: " + err.message, "error");
+      }
+    };
+
+    // 4. Resolve Request
+    window.handleRequestResolve = async function() {
+      if (!selectedRequest) return;
+      const t = i18n[currentLang];
+      if (!confirm(t.confirm_resolve)) return;
+
+      try {
+        const reqRef = ref(db, `customerRequests/${selectedRequest.key}`);
+        await update(reqRef, {
+          status: 'resolved',
+          resolvedAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+
+        await push(ref(db, `customerRequests/${selectedRequest.key}/history`), {
+          action: "Marked as Resolved",
+          performedByUid: currentUser.uid,
+          performedByEmail: currentUser.email,
+          timestamp: serverTimestamp()
+        });
+
+        showToast("Ticket marked as resolved.", "success");
+        requestModal.style.display = 'none';
+      } catch (err) {
+        showToast("Error: " + err.message, "error");
+      }
+    };
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    setLanguage(currentLang);
+  </script>
+</body>
+</html>

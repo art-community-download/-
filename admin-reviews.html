@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reviews Management | Poultry Shop Panel</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================
+       CSS RESET & DESIGN TOKENS (BLACK & GOLD OBSIDIAN)
+       ========================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-body: #07080b;
+      --bg-sidebar: #0d0f15;
+      --bg-card: rgba(18, 20, 28, 0.78);
+      --bg-card-hover: rgba(26, 29, 40, 0.88);
+      --border-gold: rgba(212, 175, 55, 0.22);
+      --border-gold-bright: rgba(212, 175, 55, 0.6);
+      --gold-primary: #d4af37;
+      --gold-light: #f5d77f;
+      --gold-dark: #997519;
+      --gold-gradient: linear-gradient(135deg, #f7df87 0%, #d4af37 50%, #997519 100%);
+      --text-main: #f3f4f6;
+      --text-muted: #94a3b8;
+      --text-dark: #07080b;
+
+      --status-published: #10b981;
+      --status-hidden: #ef4444;
+      --status-pending: #f59e0b;
+      --status-flagged: #8b5cf6;
+
+      --sidebar-width: 260px;
+      --header-height: 75px;
+      --gold-glow: 0 0 25px rgba(212, 175, 55, 0.2);
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #08090d; }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 4px; }
+
+    .ambient-glow {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      filter: blur(140px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.12;
+      background: radial-gradient(circle, var(--gold-primary), transparent 70%);
+      top: -80px;
+      right: -80px;
+    }
+
+    /* ==========================================================
+       SIDEBAR NAVIGATION (EXACT 14 ADMIN LINKS)
+       ========================================================== */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-gold);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-brand {
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 22px;
+      border-bottom: 1px solid var(--border-gold);
+      flex-shrink: 0;
+    }
+
+    .brand-logo-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 30% 30%, #2a251b, #111216);
+      border: 1.5px solid var(--gold-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--gold-glow);
+    }
+
+    .brand-logo-badge svg { width: 22px; height: 22px; stroke: var(--gold-primary); }
+
+    .brand-text h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.08rem;
+      font-weight: 700;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-text span {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .sidebar-user {
+      padding: 14px 18px;
+      margin: 14px 14px 6px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--gold-gradient);
+      color: #07080b;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .user-meta { flex: 1; overflow: hidden; }
+    .role-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+      text-transform: uppercase;
+      background: rgba(212, 175, 55, 0.2);
+      color: var(--gold-light);
+      border: 1px solid var(--border-gold);
+    }
+    .user-email {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 3px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px 24px;
+    }
+
+    .nav-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #64748b;
+      letter-spacing: 1.2px;
+      padding: 12px 14px 6px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.86rem;
+      font-weight: 500;
+      border-radius: 10px;
+      margin-bottom: 3px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link svg { width: 18px; height: 18px; stroke: currentColor; flex-shrink: 0; }
+
+    .nav-link:hover {
+      background: rgba(212, 175, 55, 0.08);
+      color: var(--gold-light);
+      transform: translateX(3px);
+    }
+
+    .nav-link.active {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+    }
+
+    .nav-link.active svg { stroke: var(--text-dark); }
+
+    .nav-link.logout-link {
+      color: #f87171;
+      margin-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 12px;
+    }
+    .nav-link.logout-link:hover {
+      background: rgba(239, 68, 68, 0.12);
+      color: #fca5a5;
+    }
+
+    /* ==========================================================
+       MAIN CONTENT WRAPPER & TOP BAR
+       ========================================================== */
+    .main-wrapper {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+      z-index: 10;
+    }
+
+    .top-header {
+      height: var(--header-height);
+      background: rgba(13, 15, 21, 0.85);
+      backdrop-filter: blur(15px);
+      border-bottom: 1px solid var(--border-gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 16px; }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: 1px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .breadcrumbs a { color: var(--gold-light); text-decoration: none; }
+
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+
+    .btn-header-act {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.25s ease;
+    }
+
+    .btn-header-act:hover {
+      background: rgba(212, 175, 55, 0.15);
+      border-color: var(--gold-primary);
+    }
+
+    .content-area {
+      padding: 26px 30px 60px;
+      flex: 1;
+    }
+
+    /* ==========================================================
+       6 REALTIME REVIEW STATISTICS CARDS
+       ========================================================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 26px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-gold);
+      border-radius: 16px;
+      padding: 18px 20px;
+      transition: all 0.25s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-gold-bright);
+      box-shadow: var(--gold-glow);
+    }
+
+    .stat-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .stat-title {
+      font-size: 0.76rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+    }
+
+    .stat-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      color: var(--gold-light);
+    }
+
+    .stat-icon svg { width: 18px; height: 18px; stroke: currentColor; }
+
+    .stat-value {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .stat-subtext {
+      font-size: 0.72rem;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    /* Score Distribution Card */
+    .score-dist-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 18px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+
+    .dist-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+    }
+
+    .dist-bar-wrap {
+      flex: 1;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .dist-bar-fill {
+      height: 100%;
+      background: var(--gold-gradient);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    /* ==========================================================
+       TOOLBAR & FILTERS
+       ========================================================== */
+    .toolbar-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 18px;
+      padding: 16px 20px;
+      margin-bottom: 26px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 250px;
+      position: relative;
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 17px;
+      height: 17px;
+      stroke: var(--gold-primary);
+      opacity: 0.75;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 44px;
+      background: rgba(10, 11, 16, 0.75);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 0 16px 0 42px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+    }
+
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .filter-select {
+      height: 44px;
+      background: rgba(10, 11, 16, 0.75);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 0 14px;
+      color: #e2e8f0;
+      font-family: inherit;
+      font-size: 0.84rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .filter-select:focus { border-color: var(--gold-primary); }
+
+    .btn-clear {
+      height: 44px;
+      padding: 0 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-clear:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    /* ==========================================================
+       REVIEWS TABLE & BADGES
+       ========================================================== */
+    .table-container {
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-gold);
+      border-radius: 20px;
+      overflow-x: auto;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      background: rgba(10, 11, 16, 0.95);
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--gold-light);
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border-gold);
+    }
+
+    td {
+      font-size: 0.86rem;
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #e2e8f0;
+      vertical-align: middle;
+    }
+
+    tr:hover td { background: rgba(212, 175, 55, 0.03); }
+
+    /* Score Badge 0-10 Scale */
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: rgba(212, 175, 55, 0.12);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      color: var(--gold-light);
+    }
+
+    .badge-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .badge-published { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-hidden { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .badge-pending { background: rgba(245, 158, 11, 0.15); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+    .btn-action-moderate {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action-moderate:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);
+    }
+
+    /* ==========================================================
+       MODAL: REVIEW DETAILS, MODERATION & REPLY
+       ========================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .modal-dialog {
+      background: #0d0f15;
+      border: 1px solid var(--border-gold);
+      border-radius: 22px;
+      width: 100%;
+      max-width: 650px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), var(--gold-glow);
+      animation: modalScaleUp 0.25s ease-out;
+      overflow: hidden;
+      margin: auto;
+    }
+
+    @keyframes modalScaleUp {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.15rem;
+      color: var(--gold-light);
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.4rem;
+      line-height: 1;
+    }
+
+    .modal-body {
+      padding: 24px;
+      max-height: calc(85vh - 140px);
+      overflow-y: auto;
+    }
+
+    .review-bubble {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-gold);
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+
+    .modal-form-group {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .modal-form-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .modal-textarea, .modal-select {
+      background: #08090d;
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+    }
+
+    .modal-textarea:focus, .modal-select:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.2);
+      flex-wrap: wrap;
+    }
+
+    .btn-modal {
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-modal-cancel {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-gold);
+      color: #e2e8f0;
+    }
+
+    .btn-modal-save {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    }
+
+    .btn-modal-hide {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+    }
+
+    .btn-modal-publish {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: #6ee7b7;
+    }
+
+    /* Toast Container */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1100;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: #141720;
+      border: 1px solid var(--border-gold);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      animation: toastSlideIn 0.3s ease-out;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.success { border-color: var(--status-published); color: #6ee7b7; }
+    .toast.error { border-color: var(--status-hidden); color: #fca5a5; }
+
+    @keyframes toastSlideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .empty-state { text-align: center; padding: 40px; color: var(--text-muted); }
+
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-left: 0; }
+      .menu-toggle { display: block; }
+      .content-area { padding: 20px 16px; }
+      .top-header { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+
+  <!-- ==========================================================
+       SIDEBAR NAVIGATION (EXACT 14 ADMIN LINKS)
+       ========================================================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2C8.5 2 6 4.5 6 8c0 2 .8 3.8 2.2 5.1L5 22h14l-3.2-8.9C17.2 11.8 18 10 18 8c0-3.5-2.5-6-6-6z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h2>POULTRY ERP</h2>
+        <span data-i18n="shop_mgmt">Admin + Shopkeeper Panel</span>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="userAvatar">A</div>
+      <div class="user-meta">
+        <span class="role-badge" id="userRoleBadge">CHECKING...</span>
+        <div class="user-email" id="userEmail">Loading user...</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label" data-i18n="grp_main">Core Operations</div>
+      
+      <!-- 1. Dashboard -->
+      <a href="admin-dashboard.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span data-i18n="m_dashboard">Dashboard</span>
+      </a>
+
+      <!-- 2. Orders -->
+      <a href="admin-orders.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span data-i18n="m_orders">Orders</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_catalog">Catalog & Pricing</div>
+
+      <!-- 3. Products -->
+      <a href="admin-products.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+        <span data-i18n="m_products">Products</span>
+      </a>
+
+      <!-- 4. Prices -->
+      <a href="admin-prices.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span data-i18n="m_prices">Tiered Prices</span>
+      </a>
+
+      <!-- 5. Stock Management -->
+      <a href="admin-stock.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        <span data-i18n="m_stock">Stock Management</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_crm">CRM & Staff</div>
+
+      <!-- 6. Customers -->
+      <a href="admin-customers.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span data-i18n="m_customers">Customers</span>
+      </a>
+
+      <!-- 7. Shop Management -->
+      <a href="admin-shopkeepers.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span data-i18n="m_shopkeepers">Shop Management</span>
+      </a>
+
+      <!-- 8. Referral Codes -->
+      <a href="admin-referrals.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span data-i18n="m_referrals">Referral Codes</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_config">Store Setup & Reports</div>
+
+      <!-- 9. Delivery Settings -->
+      <a href="admin-delivery.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <span data-i18n="m_delivery">Delivery Settings</span>
+      </a>
+
+      <!-- 10. Reports -->
+      <a href="admin-reports.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span data-i18n="m_reports">Reports & Analytics</span>
+      </a>
+
+      <!-- 11. Shop Settings -->
+      <a href="admin-settings.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1 2.83 0l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span data-i18n="m_settings">Shop Settings</span>
+      </a>
+
+      <!-- 12. Reviews (ACTIVE) -->
+      <a href="admin-reviews.html" class="nav-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span data-i18n="m_reviews">Customer Reviews</span>
+      </a>
+
+      <!-- 13. Customer Requests -->
+      <a href="admin-requests.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+        <span data-i18n="m_requests">Customer Requests</span>
+      </a>
+
+      <!-- 14. Logout Action -->
+      <a href="javascript:void(0)" class="nav-link logout-link" id="btnLogout">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span data-i18n="m_logout">Logout</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ==========================================================
+       MAIN CONTENT WRAPPER
+       ========================================================== -->
+  <div class="main-wrapper">
+
+    <!-- Top Consistent Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <button class="menu-toggle" id="menuToggleBtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div>
+          <!-- Working Back to Dashboard Link -->
+          <div class="breadcrumbs">
+            <a href="admin-dashboard.html" data-i18n="bc_home">Home</a> / <span data-i18n="bc_reviews">Customer Reviews</span>
+          </div>
+          <h1 style="font-size: 1.25rem; font-weight: 700; color: #fff;" data-i18n="header_title">Reviews & Feedback Moderation</h1>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- CSV Export Button -->
+        <button class="btn-header-act" id="btnExportCSV" title="Export Reviews to CSV">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span data-i18n="btn_csv">Export CSV</span>
+        </button>
+
+        <!-- Language Switcher -->
+        <button class="btn-lang-toggle" id="btnLangToggle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="langButtonText">English</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="content-area">
+
+      <!-- 6 Realtime Review Statistics -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_avg_rating">Average Rating (out of 10)</span>
+            <div class="stat-icon" style="color:var(--gold-light);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+          </div>
+          <div class="stat-value" style="color:var(--gold-light);" id="statAvgRating">0.0 / 10</div>
+          <div class="stat-subtext" data-i18n="st_avg_rating_sub">Overall client satisfaction</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_total_reviews">Total Reviews</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          </div>
+          <div class="stat-value" id="statTotalReviews">0</div>
+          <div class="stat-subtext" data-i18n="st_total_reviews_sub">Submitted on completed orders</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_published">Published</span>
+            <div class="stat-icon" style="color:var(--status-published);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+          </div>
+          <div class="stat-value" style="color:var(--status-published);" id="statPublishedReviews">0</div>
+          <div class="stat-subtext" data-i18n="st_published_sub">Visible in Customer App</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_hidden">Hidden / Filtered</span>
+            <div class="stat-icon" style="color:var(--status-hidden);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
+          </div>
+          <div class="stat-value" style="color:var(--status-hidden);" id="statHiddenReviews">0</div>
+          <div class="stat-subtext" data-i18n="st_hidden_sub">Under administrative hide</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_pending">Awaiting Review</span>
+            <div class="stat-icon" style="color:var(--status-pending);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          </div>
+          <div class="stat-value" style="color:var(--status-pending);" id="statPendingReviews">0</div>
+          <div class="stat-subtext" data-i18n="st_pending_sub">Requires moderation check</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_complaints">Complaints Logged</span>
+            <div class="stat-icon" style="color:var(--status-hidden);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+          </div>
+          <div class="stat-value" style="color:#fca5a5;" id="statComplaints">0</div>
+          <div class="stat-subtext" data-i18n="st_complaints_sub">Unresolved customer tickets</div>
+        </div>
+      </section>
+
+      <!-- 10-Point Score Distribution Bar -->
+      <section class="score-dist-card">
+        <h4 style="font-size:0.92rem; color:#fff; font-weight:700; margin-bottom:12px;" data-i18n="dist_title">10-Point Customer Rating Distribution</h4>
+        <div id="distributionContainer">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- Toolbar & Filters -->
+      <section class="toolbar-panel">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" class="search-input" data-i18n-ph="search_ph" placeholder="Search by customer name, order ID, or review text..." />
+        </div>
+
+        <div class="filter-group">
+          <!-- Rating Filter -->
+          <select id="filterRating" class="filter-select">
+            <option value="all" data-i18n="fl_all_ratings">All Ratings (0-10)</option>
+            <option value="high">High (9 - 10)</option>
+            <option value="good">Good (7 - 8)</option>
+            <option value="average">Average (5 - 6)</option>
+            <option value="poor">Critical (&lt; 5)</option>
+          </select>
+
+          <!-- Status Filter -->
+          <select id="filterStatus" class="filter-select">
+            <option value="all" data-i18n="fl_all_status">All Moderation Status</option>
+            <option value="published" data-i18n="st_published">Published</option>
+            <option value="hidden" data-i18n="st_hidden">Hidden</option>
+            <option value="pending" data-i18n="st_pending">Pending</option>
+            <option value="complaint">Has Complaint</option>
+          </select>
+
+          <!-- Sort Filter -->
+          <select id="filterSort" class="filter-select">
+            <option value="newest" data-i18n="sort_newest">Sort: Newest First</option>
+            <option value="oldest" data-i18n="sort_oldest">Sort: Oldest First</option>
+            <option value="highest" data-i18n="sort_highest">Highest Rating</option>
+            <option value="lowest" data-i18n="sort_lowest">Lowest Rating</option>
+          </select>
+
+          <button class="btn-clear" id="btnClearFilters" title="Reset Filters">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <span data-i18n="btn_reset">Reset</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Reviews Table -->
+      <section class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="th_customer">Customer</th>
+              <th data-i18n="th_order">Order ID</th>
+              <th data-i18n="th_score">Score (0-10)</th>
+              <th data-i18n="th_review">Review Feedback</th>
+              <th data-i18n="th_status">Status</th>
+              <th data-i18n="th_complaint">Complaint State</th>
+              <th data-i18n="th_reply">Reply State</th>
+              <th data-i18n="th_action">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="reviewsTableBody">
+            <tr>
+              <td colspan="8" class="empty-state">কাস্টমার রিভিউ লোড হচ্ছে...</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ==========================================================
+       MODAL: REVIEW DETAILS, MODERATION & ADMIN REPLY
+       ========================================================== -->
+  <div class="modal-backdrop" id="reviewModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" data-i18n="modal_review_title">Review Moderation & Reply</h3>
+        <button class="modal-close" id="btnCloseModal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" id="modalReviewId" />
+
+        <!-- Customer Bubble -->
+        <div class="review-bubble">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div>
+              <strong style="color:#fff;" id="modalCustomerName">Customer Name</strong>
+              <small style="color:var(--text-muted); margin-left:8px;" id="modalCustomerCat">Retail</small>
+            </div>
+            <div class="score-badge" id="modalScoreBadge">★ 10/10</div>
+          </div>
+          <p style="font-size:0.9rem; color:#e2e8f0; line-height:1.45;" id="modalReviewText">Review text...</p>
+          <small style="font-size:0.75rem; color:var(--text-muted); display:block; margin-top:8px;" id="modalOrderDate">Order #ORD-12345 • Date</small>
+        </div>
+
+        <!-- Admin Reply Input -->
+        <div class="modal-form-group">
+          <label class="modal-form-label" data-i18n="lbl_admin_reply">Official Shop Reply (Public in Customer App)</label>
+          <textarea id="modalAdminReply" class="modal-textarea" rows="3" placeholder="Thank you for your valuable feedback..."></textarea>
+        </div>
+
+        <!-- Complaint Resolution -->
+        <div class="modal-form-group">
+          <label class="modal-form-label" data-i18n="lbl_complaint_status">Customer Complaint State</label>
+          <select id="modalComplaintStatus" class="modal-select">
+            <option value="none">No Complaint (Standard Feedback)</option>
+            <option value="under_review">Under Investigation (অ্যাডমিন তদন্তাধীন)</option>
+            <option value="resolved">Issue Resolved (সমাধানকৃত)</option>
+          </select>
+        </div>
+
+        <!-- Private Moderation Note -->
+        <div class="modal-form-group">
+          <label class="modal-form-label" data-i18n="lbl_mod_note">Internal Moderation Note (Private for Staff)</label>
+          <input type="text" id="modalModNote" class="form-input" placeholder="e.g. Verified batch delivery temperature with shopkeeper" />
+        </div>
+      </div>
+
+      <div class="modal-footer" id="modalFooterActions">
+        <button type="button" class="btn-modal btn-modal-hide" id="btnHideReview" data-i18n="btn_hide">Hide Review</button>
+        <button type="button" class="btn-modal btn-modal-publish" id="btnPublishReview" data-i18n="btn_publish">Publish Review</button>
+        <button type="button" class="btn-modal btn-modal-save" id="btnSaveReply" data-i18n="btn_save_reply">Save Reply & Status</button>
+        <button type="button" class="btn-modal btn-modal-cancel" id="btnCancelModal" data-i18n="btn_cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ==========================================================
+       MODULAR FIREBASE SDK (v10) & REALTIME SCRIPT
+       ========================================================== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      getDatabase, 
+      ref, 
+      onValue, 
+      update, 
+      serverTimestamp, 
+      get 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // 1. Firebase Configuration Placeholder (Matching Project)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDYPsjlOmRwH2F5P8fFoiirP1FLjgh3c8A",
+      authDomain: "murgi-dfd67.firebaseapp.com",
+      databaseURL: "https://murgi-dfd67-default-rtdb.firebaseio.com",
+      projectId: "murgi-dfd67",
+      storageBucket: "murgi-dfd67.firebasestorage.app",
+      messagingSenderId: "209696889864",
+      appId: "1:209696889864:web:3eaa16034f00cca45505bd"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // Translation Dictionary
+    const i18n = {
+      en: {
+        shop_mgmt: "Admin + Shopkeeper Panel",
+        grp_main: "Core Operations",
+        m_dashboard: "Dashboard",
+        m_orders: "Orders",
+        grp_catalog: "Catalog & Pricing",
+        m_products: "Products",
+        m_prices: "Tiered Prices",
+        m_stock: "Stock Management",
+        grp_crm: "CRM & Staff",
+        m_customers: "Customers",
+        m_shopkeepers: "Shop Management",
+        m_referrals: "Referral Codes",
+        grp_config: "Store Setup & Reports",
+        m_delivery: "Delivery Settings",
+        m_reports: "Reports & Analytics",
+        m_settings: "Shop Settings",
+        m_reviews: "Customer Reviews",
+        m_requests: "Customer Requests",
+        m_logout: "Logout",
+        bc_home: "Home",
+        bc_reviews: "Customer Reviews",
+        header_title: "Reviews & Feedback Moderation",
+        btn_csv: "Export CSV",
+        st_avg_rating: "Average Rating (out of 10)",
+        st_avg_rating_sub: "Overall client satisfaction",
+        st_total_reviews: "Total Reviews",
+        st_total_reviews_sub: "Submitted on completed orders",
+        st_published: "Published",
+        st_published_sub: "Visible in Customer App",
+        st_hidden: "Hidden / Filtered",
+        st_hidden_sub: "Under administrative hide",
+        st_pending: "Awaiting Review",
+        st_pending_sub: "Requires moderation check",
+        st_complaints: "Complaints Logged",
+        st_complaints_sub: "Unresolved customer tickets",
+        dist_title: "10-Point Customer Rating Distribution",
+        search_ph: "Search by customer name, order ID, or review text...",
+        fl_all_ratings: "All Ratings (0-10)",
+        fl_all_status: "All Moderation Status",
+        sort_newest: "Sort: Newest First",
+        sort_oldest: "Sort: Oldest First",
+        sort_highest: "Highest Rating",
+        sort_lowest: "Lowest Rating",
+        btn_reset: "Reset",
+        th_customer: "Customer",
+        th_order: "Order ID",
+        th_score: "Score (0-10)",
+        th_review: "Review Feedback",
+        th_status: "Status",
+        th_complaint: "Complaint State",
+        th_reply: "Reply State",
+        th_action: "Actions",
+        modal_review_title: "Review Moderation & Reply",
+        lbl_admin_reply: "Official Shop Reply (Public in Customer App)",
+        lbl_complaint_status: "Customer Complaint State",
+        lbl_mod_note: "Internal Moderation Note (Private for Staff)",
+        btn_hide: "Hide Review",
+        btn_publish: "Publish Review",
+        btn_save_reply: "Save Reply & Status",
+        btn_cancel: "Cancel",
+        lang_switch_to: "বাংলা",
+        saved_success: "Review updated successfully!",
+        confirm_hide: "Are you sure you want to hide this review from public display?"
+      },
+      bn: {
+        shop_mgmt: "অ্যাডমিন ও শপকিপার প্যানেল",
+        grp_main: "প্রধান কার্যক্রম",
+        m_dashboard: "ড্যাশবোর্ড",
+        m_orders: "অর্ডারসমূহ",
+        grp_catalog: "পণ্য ও মূল্যতালিকা",
+        m_products: "পণ্য ক্যাটালগ",
+        m_prices: "ক্যাটাগরি মূল্য",
+        m_stock: "স্টক ম্যানেজমেন্ট",
+        grp_crm: "গ্রাহক ও কর্মী",
+        m_customers: "গ্রাহকবৃন্দ",
+        m_shopkeepers: "দোকান পরিচালনা",
+        m_referrals: "রেফারেল কোড",
+        grp_config: "সেটআপ ও রিপোর্ট",
+        m_delivery: "ডেলিভারি সেটিংস",
+        m_reports: "রিপোর্ট ও অ্যানালিটিক্স",
+        m_settings: "শপ সেটিংস",
+        m_reviews: "কাস্টমার রিভিউ",
+        m_requests: "গ্রাহক অনুরোধ",
+        m_logout: "লগআউট",
+        bc_home: "হোম",
+        bc_reviews: "কাস্টমার রিভিউ ও রেটিং",
+        header_title: "গ্রাহক মতামত ও ফিডব্যাক মডারেশন",
+        btn_csv: "CSV ডাউনলোড",
+        st_avg_rating: "গড় রেটিং (১০ এর মধ্যে)",
+        st_avg_rating_sub: "গ্রাহকদের সামগ্রিক সন্তুষ্টি",
+        st_total_reviews: "মোট রিভিউ",
+        st_total_reviews_sub: "সম্পন্ন অর্ডারে প্রাপ্ত মতামত",
+        st_published: "প্রকাশিত (Published)",
+        st_published_sub: "কাস্টমার অ্যাপে দৃশ্যমান",
+        st_hidden: "লুকানো (Hidden)",
+        st_hidden_sub: "অ্যাডমিন কর্তৃক অপ্রকাশিত",
+        st_pending: "পর্যালোচনা বাকি",
+        st_pending_sub: "মডারেশনের অপেক্ষায়",
+        st_complaints: "অভিযোগ সংখ্যা",
+        st_complaints_sub: "অমীমাংসিত গ্রাহক অভিযোগ",
+        dist_title: "১০-পয়েন্ট স্কেলে রেটিং অনুপাত",
+        search_ph: "কাস্টমার নাম, অর্ডার আইডি বা মন্তব্য দিয়ে খুঁজুন...",
+        fl_all_ratings: "সকল রেটিং (০-১০)",
+        fl_all_status: "সকল মডারেশন অবস্থা",
+        sort_newest: "সর্ট: নতুন রিভিউ আগে",
+        sort_oldest: "সর্ট: পুরাতন রিভিউ আগে",
+        sort_highest: "সর্বোচ্চ রেটিং আগে",
+        sort_lowest: "সর্বনিম্ন রেটিং আগে",
+        btn_reset: "রিসেট",
+        th_customer: "গ্রাহক",
+        th_order: "অর্ডার আইডি",
+        th_score: "স্কোর (০-১০)",
+        th_review: "গ্রাহকের মন্তব্য",
+        th_status: "স্ট্যাটাস",
+        th_complaint: "অভিযোগের অবস্থা",
+        th_reply: "রিপ্লাই অবস্থা",
+        th_action: "অ্যাকশন",
+        modal_review_title: "রিভিউ মডারেশন ও শপ রিপ্লাই",
+        lbl_admin_reply: "দোকানের অফিসিয়াল রিপ্লাই (কাস্টমার অ্যাপে দৃশ্যমান হবে)",
+        lbl_complaint_status: "গ্রাহক অভিযোগের অবস্থা",
+        lbl_mod_note: "অভ্যন্তরীণ মডারেশন নোট (শুধুমাত্র স্টাফদের জন্য)",
+        btn_hide: "রিভিউ লুকান",
+        btn_publish: "প্রকাশ করুন",
+        btn_save_reply: "রিপ্লাই ও স্ট্যাটাস সেভ করুন",
+        btn_cancel: "বাতিল",
+        lang_switch_to: "English",
+        saved_success: "রিভিউ সফলভাবে আপডেট হয়েছে!",
+        confirm_hide: "আপনি কি নিশ্চিতভাবে এই রিভিউটি কাস্টমার অ্যাপ থেকে লুকাতে চান?"
+      }
+    };
+
+    let currentLang = localStorage.getItem('poultry_admin_lang') || 'bn';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('poultry_admin_lang', lang);
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang][key]) el.textContent = i18n[lang][key];
+      });
+
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const key = el.getAttribute('data-i18n-ph');
+        if (i18n[lang][key]) el.placeholder = i18n[lang][key];
+      });
+
+      document.getElementById('langButtonText').textContent = i18n[lang].lang_switch_to;
+      renderReviewsTable();
+    }
+
+    document.getElementById('btnLangToggle').addEventListener('click', () => {
+      setLanguage(currentLang === 'en' ? 'bn' : 'en');
+    });
+
+    // App State
+    let currentUser = null;
+    let currentUserRole = null;
+    let allReviews = [];
+    let selectedReview = null;
+
+    // DOM Elements
+    const statAvgRating = document.getElementById('statAvgRating');
+    const statTotalReviews = document.getElementById('statTotalReviews');
+    const statPublishedReviews = document.getElementById('statPublishedReviews');
+    const statHiddenReviews = document.getElementById('statHiddenReviews');
+    const statPendingReviews = document.getElementById('statPendingReviews');
+    const statComplaints = document.getElementById('statComplaints');
+
+    const searchInput = document.getElementById('searchInput');
+    const filterRating = document.getElementById('filterRating');
+    const filterStatus = document.getElementById('filterStatus');
+    const filterSort = document.getElementById('filterSort');
+    const btnClearFilters = document.getElementById('btnClearFilters');
+    const reviewsTableBody = document.getElementById('reviewsTableBody');
+    const distributionContainer = document.getElementById('distributionContainer');
+
+    // Modal DOM
+    const reviewModal = document.getElementById('reviewModal');
+    const btnCloseModal = document.getElementById('btnCloseModal');
+    const btnCancelModal = document.getElementById('btnCancelModal');
+    const modalReviewId = document.getElementById('modalReviewId');
+    const modalCustomerName = document.getElementById('modalCustomerName');
+    const modalCustomerCat = document.getElementById('modalCustomerCat');
+    const modalScoreBadge = document.getElementById('modalScoreBadge');
+    const modalReviewText = document.getElementById('modalReviewText');
+    const modalOrderDate = document.getElementById('modalOrderDate');
+    const modalAdminReply = document.getElementById('modalAdminReply');
+    const modalComplaintStatus = document.getElementById('modalComplaintStatus');
+    const modalModNote = document.getElementById('modalModNote');
+    const btnHideReview = document.getElementById('btnHideReview');
+    const btnPublishReview = document.getElementById('btnPublishReview');
+    const btnSaveReply = document.getElementById('btnSaveReply');
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // ==========================================================
+    // AUTHENTICATION GUARD
+    // ==========================================================
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.replace('admin-login.html');
+        return;
+      }
+
+      currentUser = user;
+      document.getElementById('userEmail').textContent = user.email;
+      document.getElementById('userAvatar').textContent = (user.email.charAt(0) || 'A').toUpperCase();
+
+      try {
+        const roleRef = ref(db, `users/${user.uid}/role`);
+        const snapshot = await get(roleRef);
+        const role = snapshot.val();
+
+        if (!role) {
+          showToast("অননুমোদিত একাউন্ট!", "error");
+          await signOut(auth);
+          window.location.replace('admin-login.html');
+          return;
+        }
+
+        const normalizedRole = role.toString().toLowerCase().trim();
+        if (normalizedRole !== 'admin' && normalizedRole !== 'shopkeeper') {
+          showToast("অননুমোদিত রোল!", "error");
+          await signOut(auth);
+          window.location.replace('admin-login.html');
+          return;
+        }
+
+        currentUserRole = normalizedRole;
+        document.getElementById('userRoleBadge').textContent = normalizedRole.toUpperCase();
+
+        listenToReviewsRealtime();
+
+      } catch (err) {
+        console.error("Auth Guard Error:", err);
+      }
+    });
+
+    document.getElementById('btnLogout').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.replace('admin-login.html');
+    });
+
+    const menuToggleBtn = document.getElementById('menuToggleBtn');
+    const sidebar = document.getElementById('sidebar');
+    menuToggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+
+    // ==========================================================
+    // REALTIME DATABASE LISTENER: REVIEWS
+    // ==========================================================
+    function listenToReviewsRealtime() {
+      const reviewsRef = ref(db, 'reviews');
+
+      onValue(reviewsRef, (snapshot) => {
+        allReviews = [];
+        let total = 0;
+        let published = 0;
+        let hidden = 0;
+        let pending = 0;
+        let complaints = 0;
+        let ratingSum = 0;
+        const scoreBuckets = { 10:0, 9:0, 8:0, 7:0, 6:0, 5:0, 4:0, 3:0, 2:0, 1:0 };
+
+        snapshot.forEach(child => {
+          const r = child.val();
+          r.key = child.key;
+          r.reviewId = r.reviewId || child.key;
+          allReviews.push(r);
+          total++;
+
+          const score = Math.max(0, Math.min(10, parseFloat(r.rating) || 0));
+          ratingSum += score;
+
+          const bucketKey = Math.max(1, Math.round(score));
+          if (scoreBuckets[bucketKey] !== undefined) scoreBuckets[bucketKey]++;
+
+          const st = (r.status || 'published').toLowerCase();
+          if (st === 'published') published++;
+          else if (st === 'hidden') hidden++;
+          else if (st === 'pending') pending++;
+
+          const comp = (r.complaintStatus || 'none').toLowerCase();
+          if (comp === 'under_review') complaints++;
+        });
+
+        const avg = total > 0 ? (ratingSum / total).toFixed(1) : "0.0";
+        statAvgRating.textContent = `${avg} / 10`;
+        statTotalReviews.textContent = total;
+        statPublishedReviews.textContent = published;
+        statHiddenReviews.textContent = hidden;
+        statPendingReviews.textContent = pending;
+        statComplaints.textContent = complaints;
+
+        renderScoreDistribution(scoreBuckets, total);
+        renderReviewsTable();
+      }, (err) => {
+        console.error(err);
+        showToast("Error loading reviews: " + err.message, "error");
+      });
+    }
+
+    function renderScoreDistribution(buckets, total) {
+      let html = '';
+      for (let s = 10; s >= 1; s--) {
+        const count = buckets[s] || 0;
+        const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+        html += `
+          <div class="dist-row">
+            <span style="width:50px; color:#fff; font-weight:700;">★ ${s}/10</span>
+            <div class="dist-bar-wrap">
+              <div class="dist-bar-fill" style="width: ${pct}%;"></div>
+            </div>
+            <span style="width:50px; text-align:right; color:var(--text-muted); font-size:0.75rem;">${count} (${pct}%)</span>
+          </div>
+        `;
+      }
+      distributionContainer.innerHTML = html;
+    }
+
+    // ==========================================================
+    // FILTER & TABLE RENDERING
+    // ==========================================================
+    [searchInput, filterRating, filterStatus, filterSort].forEach(el => {
+      el.addEventListener('input', renderReviewsTable);
+      el.addEventListener('change', renderReviewsTable);
+    });
+
+    btnClearFilters.addEventListener('click', () => {
+      searchInput.value = '';
+      filterRating.value = 'all';
+      filterStatus.value = 'all';
+      filterSort.value = 'newest';
+      renderReviewsTable();
+    });
+
+    function renderReviewsTable() {
+      const q = searchInput.value.toLowerCase().trim();
+      const ratingF = filterRating.value;
+      const statusF = filterStatus.value;
+      const sortF = filterSort.value;
+
+      let filtered = allReviews.filter(r => {
+        const cust = (r.customerName || r.customerUid || '').toLowerCase();
+        const ord = (r.orderId || '').toLowerCase();
+        const text = (r.reviewText || '').toLowerCase();
+
+        const matchSearch = !q || cust.includes(q) || ord.includes(q) || text.includes(q);
+
+        const score = parseFloat(r.rating) || 0;
+        let matchRating = true;
+        if (ratingF === 'high') matchRating = score >= 9;
+        else if (ratingF === 'good') matchRating = score >= 7 && score < 9;
+        else if (ratingF === 'average') matchRating = score >= 5 && score < 7;
+        else if (ratingF === 'poor') matchRating = score < 5;
+
+        const st = (r.status || 'published').toLowerCase();
+        const comp = (r.complaintStatus || 'none').toLowerCase();
+        let matchStatus = true;
+        if (statusF === 'published') matchStatus = st === 'published';
+        else if (statusF === 'hidden') matchStatus = st === 'hidden';
+        else if (statusF === 'pending') matchStatus = st === 'pending';
+        else if (statusF === 'complaint') matchStatus = comp === 'under_review';
+
+        return matchSearch && matchRating && matchStatus;
+      });
+
+      filtered.sort((a, b) => {
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        const scoreA = parseFloat(a.rating) || 0;
+        const scoreB = parseFloat(b.rating) || 0;
+
+        if (sortF === 'oldest') return timeA - timeB;
+        if (sortF === 'highest') return scoreB - scoreA;
+        if (sortF === 'lowest') return scoreA - scoreB;
+        return timeB - timeA;
+      });
+
+      if (!filtered || filtered.length === 0) {
+        reviewsTableBody.innerHTML = `<tr><td colspan="8" class="empty-state">কোনো কাস্টমার রিভিউ পাওয়া যায়নি।</td></tr>`;
+        return;
+      }
+
+      reviewsTableBody.innerHTML = filtered.map(r => {
+        const cust = r.customerName || 'Verified Customer';
+        const orderId = (r.orderId || '').substring(0, 8).toUpperCase() || '—';
+        const score = parseFloat(r.rating) || 0;
+        const st = (r.status || 'published').toLowerCase();
+        const comp = (r.complaintStatus || 'none').toLowerCase();
+        const hasReply = Boolean(r.adminReply);
+
+        let statusBadge = `<span class="badge-pill badge-published">Published</span>`;
+        if (st === 'hidden') statusBadge = `<span class="badge-pill badge-hidden">Hidden</span>`;
+        else if (st === 'pending') statusBadge = `<span class="badge-pill badge-pending">Pending</span>`;
+
+        let compBadge = `<span style="color:var(--text-muted); font-size:0.75rem;">None</span>`;
+        if (comp === 'under_review') compBadge = `<span style="color:#fca5a5; font-weight:700;">⚠️ Under Review</span>`;
+        else if (comp === 'resolved') compBadge = `<span style="color:#6ee7b7; font-weight:700;">✓ Resolved</span>`;
+
+        let replyBadge = hasReply ? `<span style="color:#6ee7b7; font-weight:600;">Replied</span>` : `<span style="color:var(--text-muted);">Unanswered</span>`;
+
+        return `
+          <tr>
+            <td>
+              <strong style="color:#fff;">${escapeHTML(cust)}</strong>
+              <br><small style="color:var(--text-muted);">${escapeHTML(r.customerCategory || 'Retail')}</small>
+            </td>
+            <td><strong>#${escapeHTML(orderId)}</strong></td>
+            <td><div class="score-badge">★ ${score.toFixed(1)}/10</div></td>
+            <td style="max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+              ${escapeHTML(r.reviewText || 'No comment provided.')}
+            </td>
+            <td>${statusBadge}</td>
+            <td>${compBadge}</td>
+            <td>${replyBadge}</td>
+            <td>
+              <button class="btn-action-moderate" onclick="openReviewModal('${r.key}')">Moderate</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // ==========================================================
+    // MODAL CONTROL: MODERATION & REPLY
+    // ==========================================================
+    window.openReviewModal = function(key) {
+      selectedReview = allReviews.find(r => r.key === key);
+      if (!selectedReview) return;
+
+      modalReviewId.value = selectedReview.key;
+      modalCustomerName.textContent = selectedReview.customerName || 'Verified Customer';
+      modalCustomerCat.textContent = `(${selectedReview.customerCategory || 'Normal Customer'})`;
+      modalScoreBadge.textContent = `★ ${(parseFloat(selectedReview.rating) || 0).toFixed(1)} / 10`;
+      modalReviewText.textContent = selectedReview.reviewText || 'No comment provided.';
+
+      const dateStr = selectedReview.createdAt ? new Date(selectedReview.createdAt).toLocaleDateString() : 'Recent';
+      modalOrderDate.textContent = `Order #${(selectedReview.orderId || '').substring(0,8).toUpperCase()} • Date: ${dateStr}`;
+
+      modalAdminReply.value = selectedReview.adminReply || '';
+      modalComplaintStatus.value = selectedReview.complaintStatus || 'none';
+      modalModNote.value = selectedReview.moderationNote || '';
+
+      const st = (selectedReview.status || 'published').toLowerCase();
+      btnHideReview.style.display = st === 'hidden' ? 'none' : 'inline-block';
+      btnPublishReview.style.display = st === 'published' ? 'none' : 'inline-block';
+
+      reviewModal.style.display = 'flex';
+    };
+
+    [btnCloseModal, btnCancelModal].forEach(b => b.addEventListener('click', () => reviewModal.style.display = 'none'));
+
+    // Save Admin Reply, Complaint State & Note
+    btnSaveReply.addEventListener('click', async () => {
+      if (!selectedReview) return;
+
+      const reply = modalAdminReply.value.trim();
+      const complaintStatus = modalComplaintStatus.value;
+      const moderationNote = modalModNote.value.trim();
+
+      try {
+        const reviewRef = ref(db, `reviews/${selectedReview.key}`);
+        await update(reviewRef, {
+          adminReply: reply,
+          complaintStatus: complaintStatus,
+          moderationNote: moderationNote,
+          repliedByUid: currentUser.uid,
+          repliedByEmail: currentUser.email,
+          repliedAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+
+        showToast(i18n[currentLang].saved_success, "success");
+        reviewModal.style.display = 'none';
+      } catch (err) {
+        showToast("Error updating review: " + err.message, "error");
+      }
+    });
+
+    // Hide Review Action
+    btnHideReview.addEventListener('click', async () => {
+      if (!selectedReview) return;
+      if (!confirm(i18n[currentLang].confirm_hide)) return;
+
+      try {
+        await update(ref(db, `reviews/${selectedReview.key}`), {
+          status: 'hidden',
+          updatedAt: serverTimestamp()
+        });
+        showToast("Review hidden from public customer app.", "success");
+        reviewModal.style.display = 'none';
+      } catch (err) {
+        showToast("Error: " + err.message, "error");
+      }
+    });
+
+    // Publish Review Action
+    btnPublishReview.addEventListener('click', async () => {
+      if (!selectedReview) return;
+
+      try {
+        await update(ref(db, `reviews/${selectedReview.key}`), {
+          status: 'published',
+          updatedAt: serverTimestamp()
+        });
+        showToast("Review published to customer app.", "success");
+        reviewModal.style.display = 'none';
+      } catch (err) {
+        showToast("Error: " + err.message, "error");
+      }
+    });
+
+    // ==========================================================
+    // EXPORT TO CSV
+    // ==========================================================
+    document.getElementById('btnExportCSV').addEventListener('click', () => {
+      if (!allReviews.length) {
+        showToast("No reviews to export.", "error");
+        return;
+      }
+
+      let csv = "ReviewID,Customer,Category,OrderID,Rating,Status,ComplaintState,ReviewText,AdminReply\n";
+      allReviews.forEach(r => {
+        csv += `"${r.key}","${r.customerName || ''}","${r.customerCategory || ''}","${r.orderId || ''}",${r.rating || 0},"${r.status || 'published'}","${r.complaintStatus || 'none'}","${(r.reviewText || '').replace(/"/g, '""')}","${(r.adminReply || '').replace(/"/g, '""')}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Poultry_Customer_Reviews_${Date.now()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    setLanguage(currentLang);
+  </script>
+</body>
+</html>

@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delivery Management | Poultry Shop Panel</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================
+       CSS RESET & DESIGN TOKENS (BLACK & GOLD OBSIDIAN)
+       ========================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-body: #07080b;
+      --bg-sidebar: #0d0f15;
+      --bg-card: rgba(18, 20, 28, 0.78);
+      --bg-card-hover: rgba(26, 29, 40, 0.88);
+      --border-gold: rgba(212, 175, 55, 0.22);
+      --border-gold-bright: rgba(212, 175, 55, 0.6);
+      --gold-primary: #d4af37;
+      --gold-light: #f5d77f;
+      --gold-dark: #997519;
+      --gold-gradient: linear-gradient(135deg, #f7df87 0%, #d4af37 50%, #997519 100%);
+      --text-main: #f3f4f6;
+      --text-muted: #94a3b8;
+      --text-dark: #07080b;
+
+      --status-active: #10b981;
+      --status-suspended: #ef4444;
+      --status-warning: #f59e0b;
+      --status-info: #3b82f6;
+
+      --sidebar-width: 260px;
+      --header-height: 75px;
+      --gold-glow: 0 0 25px rgba(212, 175, 55, 0.2);
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #08090d; }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 4px; }
+
+    .ambient-glow {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      filter: blur(140px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.12;
+      background: radial-gradient(circle, var(--gold-primary), transparent 70%);
+      top: -80px;
+      right: -80px;
+    }
+
+    /* ==========================================================
+       SIDEBAR NAVIGATION (EXACT 14 ADMIN LINKS)
+       ========================================================== */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-gold);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-brand {
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 22px;
+      border-bottom: 1px solid var(--border-gold);
+      flex-shrink: 0;
+    }
+
+    .brand-logo-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 30% 30%, #2a251b, #111216);
+      border: 1.5px solid var(--gold-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--gold-glow);
+    }
+
+    .brand-logo-badge svg { width: 22px; height: 22px; stroke: var(--gold-primary); }
+
+    .brand-text h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.08rem;
+      font-weight: 700;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-text span {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .sidebar-user {
+      padding: 14px 18px;
+      margin: 14px 14px 6px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--gold-gradient);
+      color: #07080b;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .user-meta { flex: 1; overflow: hidden; }
+    .role-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+      text-transform: uppercase;
+      background: rgba(212, 175, 55, 0.2);
+      color: var(--gold-light);
+      border: 1px solid var(--border-gold);
+    }
+    .user-email {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 3px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px 24px;
+    }
+
+    .nav-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #64748b;
+      letter-spacing: 1.2px;
+      padding: 12px 14px 6px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.86rem;
+      font-weight: 500;
+      border-radius: 10px;
+      margin-bottom: 3px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link svg { width: 18px; height: 18px; stroke: currentColor; flex-shrink: 0; }
+
+    .nav-link:hover {
+      background: rgba(212, 175, 55, 0.08);
+      color: var(--gold-light);
+      transform: translateX(3px);
+    }
+
+    .nav-link.active {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+    }
+
+    .nav-link.active svg { stroke: var(--text-dark); }
+
+    .nav-link.logout-link {
+      color: #f87171;
+      margin-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 12px;
+    }
+    .nav-link.logout-link:hover {
+      background: rgba(239, 68, 68, 0.12);
+      color: #fca5a5;
+    }
+
+    /* ==========================================================
+       MAIN CONTENT WRAPPER & TOP BAR
+       ========================================================== */
+    .main-wrapper {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+      z-index: 10;
+    }
+
+    .top-header {
+      height: var(--header-height);
+      background: rgba(13, 15, 21, 0.85);
+      backdrop-filter: blur(15px);
+      border-bottom: 1px solid var(--border-gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 16px; }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: 1px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .breadcrumbs a { color: var(--gold-light); text-decoration: none; }
+
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+
+    .btn-lang-toggle {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.25s ease;
+    }
+
+    .btn-lang-toggle:hover {
+      background: rgba(212, 175, 55, 0.15);
+      border-color: var(--gold-primary);
+    }
+
+    .content-area {
+      padding: 26px 30px 60px;
+      flex: 1;
+    }
+
+    /* Tabs Styling */
+    .delivery-tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-gold);
+      margin-bottom: 24px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 12px 18px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      position: relative;
+      white-space: nowrap;
+      transition: color 0.2s ease;
+    }
+
+    .tab-btn:hover { color: var(--gold-light); }
+
+    .tab-btn.active {
+      color: #fff;
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gold-gradient);
+      border-radius: 3px;
+    }
+
+    /* Panels & Cards */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .card-panel {
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-gold);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    .panel-header-flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .panel-header-flex h3 { font-size: 1.15rem; color: #fff; font-weight: 700; }
+    .panel-header-flex p { font-size: 0.8rem; color: var(--text-muted); }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .form-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .form-label { font-size: 0.82rem; font-weight: 600; color: #e2e8f0; }
+
+    .form-input, .form-select, .form-textarea {
+      background: #08090d;
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+    }
+
+    .input-affix-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .affix-currency {
+      position: absolute;
+      left: 12px;
+      color: var(--gold-primary);
+      font-weight: 700;
+      pointer-events: none;
+    }
+
+    .input-affix-wrap input {
+      width: 100%;
+      padding-left: 28px;
+    }
+
+    /* Status Toggle Switch */
+    .service-switch-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-gold);
+      border-radius: 14px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .switch-ui {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 26px;
+    }
+
+    .switch-ui input { opacity: 0; width: 0; height: 0; }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: #374151;
+      transition: .3s;
+      border-radius: 30px;
+      border: 1px solid var(--border-gold);
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #fff;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider { background: var(--gold-gradient); }
+    input:checked + .slider:before { transform: translateX(24px); background-color: #07080b; }
+
+    /* Calculator Preview Box */
+    .calculator-result-card {
+      background: rgba(212, 175, 55, 0.08);
+      border: 1px dashed var(--border-gold);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 10px;
+    }
+
+    .calc-breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.86rem;
+      padding: 6px 0;
+      color: #e2e8f0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .calc-breakdown-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding-top: 12px;
+      color: #fff;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 6px;
+    }
+
+    .btn-gold-save {
+      background: var(--gold-gradient);
+      color: var(--text-dark);
+      padding: 10px 22px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-gold-save:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.45);
+    }
+
+    .table-container {
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-gold);
+      border-radius: 16px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      background: rgba(10, 11, 16, 0.95);
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--gold-light);
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-gold);
+    }
+
+    td {
+      font-size: 0.85rem;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #e2e8f0;
+    }
+
+    tr:hover td { background: rgba(212, 175, 55, 0.03); }
+
+    /* Toast Container */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1100;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: #141720;
+      border: 1px solid var(--border-gold);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      animation: toastSlideIn 0.3s ease-out;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.success { border-color: var(--status-active); color: #6ee7b7; }
+    .toast.error { border-color: var(--status-suspended); color: #fca5a5; }
+
+    @keyframes toastSlideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-left: 0; }
+      .menu-toggle { display: block; }
+      .content-area { padding: 20px 16px; }
+      .top-header { padding: 0 16px; }
+      .form-grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+
+  <!-- ==========================================================
+       SIDEBAR NAVIGATION (EXACT 14 ADMIN LINKS)
+       ========================================================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2C8.5 2 6 4.5 6 8c0 2 .8 3.8 2.2 5.1L5 22h14l-3.2-8.9C17.2 11.8 18 10 18 8c0-3.5-2.5-6-6-6z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h2>POULTRY ERP</h2>
+        <span data-i18n="shop_mgmt">Admin + Shopkeeper Panel</span>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="userAvatar">A</div>
+      <div class="user-meta">
+        <span class="role-badge" id="userRoleBadge">CHECKING...</span>
+        <div class="user-email" id="userEmail">Loading user...</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label" data-i18n="grp_main">Core Operations</div>
+      
+      <!-- 1. Dashboard -->
+      <a href="admin-dashboard.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span data-i18n="m_dashboard">Dashboard</span>
+      </a>
+
+      <!-- 2. Orders -->
+      <a href="admin-orders.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span data-i18n="m_orders">Orders</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_catalog">Catalog & Pricing</div>
+
+      <!-- 3. Products -->
+      <a href="admin-products.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+        <span data-i18n="m_products">Products</span>
+      </a>
+
+      <!-- 4. Prices -->
+      <a href="admin-prices.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span data-i18n="m_prices">Tiered Prices</span>
+      </a>
+
+      <!-- 5. Stock Management -->
+      <a href="admin-stock.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        <span data-i18n="m_stock">Stock Management</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_crm">CRM & Staff</div>
+
+      <!-- 6. Customers -->
+      <a href="admin-customers.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span data-i18n="m_customers">Customers</span>
+      </a>
+
+      <!-- 7. Shop Management -->
+      <a href="admin-shopkeepers.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span data-i18n="m_shopkeepers">Shop Management</span>
+      </a>
+
+      <!-- 8. Referral Codes -->
+      <a href="admin-referrals.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span data-i18n="m_referrals">Referral Codes</span>
+      </a>
+
+      <div class="nav-label" data-i18n="grp_config">Store Setup & Reports</div>
+
+      <!-- 9. Delivery Settings (ACTIVE) -->
+      <a href="admin-delivery.html" class="nav-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <span data-i18n="m_delivery">Delivery Settings</span>
+      </a>
+
+      <!-- 10. Reports -->
+      <a href="admin-reports.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span data-i18n="m_reports">Reports</span>
+      </a>
+
+      <!-- 11. Shop Settings -->
+      <a href="admin-settings.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span data-i18n="m_settings">Shop Settings</span>
+      </a>
+
+      <!-- 12. Reviews -->
+      <a href="admin-reviews.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span data-i18n="m_reviews">Reviews</span>
+      </a>
+
+      <!-- 13. Customer Requests -->
+      <a href="admin-requests.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+        <span data-i18n="m_requests">Customer Requests</span>
+      </a>
+
+      <!-- 14. Logout Action -->
+      <a href="javascript:void(0)" class="nav-link logout-link" id="btnLogout">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span data-i18n="m_logout">Logout</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ==========================================================
+       MAIN CONTENT WRAPPER
+       ========================================================== -->
+  <div class="main-wrapper">
+
+    <!-- Top Consistent Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <button class="menu-toggle" id="menuToggleBtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div>
+          <!-- Working Back to Dashboard Link -->
+          <div class="breadcrumbs">
+            <a href="admin-dashboard.html" data-i18n="bc_home">Home</a> / <span data-i18n="bc_delivery">Delivery Settings</span>
+          </div>
+          <h1 style="font-size: 1.25rem; font-weight: 700; color: #fff;" data-i18n="header_title">Delivery & Radius Controls</h1>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Language Switcher -->
+        <button class="btn-lang-toggle" id="btnLangToggle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="langButtonText">English</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="content-area">
+
+      <!-- Navigation Tabs -->
+      <div class="delivery-tabs">
+        <button class="tab-btn active" onclick="switchTab('tabArea')" data-i18n="tab_area">Area & Service Status</button>
+        <button class="tab-btn" onclick="switchTab('tabRates')" data-i18n="tab_rates">Distance & Weight Charges</button>
+        <button class="tab-btn" onclick="switchTab('tabCategories')" data-i18n="tab_categories">Category Rules</button>
+        <button class="tab-btn" onclick="switchTab('tabCalculator')" data-i18n="tab_calc">Rate Calculator Preview</button>
+        <button class="tab-btn" onclick="switchTab('tabHistory')" data-i18n="tab_history">Delivery Order History</button>
+      </div>
+
+      <!-- TAB 1: AREA & SERVICE STATUS -->
+      <div id="tabArea" class="tab-panel active">
+        <div class="card-panel">
+          <div class="panel-header-flex">
+            <div>
+              <h3 data-i18n="p_service_title">Delivery Service Master Control</h3>
+              <p data-i18n="p_service_sub">Enable or suspend all delivery operations across Barisal city</p>
+            </div>
+            <span id="serviceBadge" style="font-size: 0.82rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3);">Active Service</span>
+          </div>
+
+          <div class="service-switch-box">
+            <div>
+              <strong style="color: #fff; font-size: 0.95rem;" data-i18n="lbl_service_active">Accept Customer Delivery Orders</strong>
+              <p style="font-size: 0.78rem; color: var(--text-muted);" data-i18n="lbl_service_active_sub">When turned OFF, the customer app blocks delivery checkout immediately</p>
+            </div>
+            <label class="switch-ui">
+              <input type="checkbox" id="chkServiceActive" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div id="suspensionDetailsBox" style="display: none; background: rgba(239,68,68,0.08); border: 1px dashed rgba(239,68,68,0.3); border-radius: 12px; padding: 14px; margin-bottom: 20px;">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_suspension_reason">Temporary Suspension Reason</label>
+                <input type="text" id="txtSuspensionReason" class="form-input" placeholder="e.g. Inclement Weather / High Water Logging / Road Block" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_reopen_time">Estimated Resumption Time</label>
+                <input type="text" id="txtReopenTime" class="form-input" placeholder="e.g. Tomorrow 9:00 AM" />
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-header-flex" style="margin-top: 10px;">
+            <div>
+              <h3 data-i18n="p_area_title">Shop Operational Center & Coverage Radius</h3>
+              <p data-i18n="p_area_sub">Set default hub location in Barisal City and maximum operating radius</p>
+            </div>
+          </div>
+
+          <form id="formAreaSettings" autocomplete="off">
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_hub_name">Shop Hub Location Name</label>
+                <input type="text" id="txtHubName" class="form-input" value="Barisal Sadar, Barisal" required />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_hub_lat">Center Latitude</label>
+                <input type="number" step="any" id="numHubLat" class="form-input" value="22.7010" required />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_hub_lng">Center Longitude</label>
+                <input type="number" step="any" id="numHubLng" class="form-input" value="90.3535" required />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_max_radius">Maximum Operational Radius (KM)</label>
+                <input type="number" min="1" max="100" id="numMaxRadius" class="form-input" value="30" required />
+              </div>
+            </div>
+
+            <button type="submit" class="btn-gold-save">
+              <span data-i18n="btn_save_area">Save Area Settings</span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- TAB 2: DISTANCE & WEIGHT CHARGES -->
+      <div id="tabRates" class="tab-panel">
+        <div class="card-panel">
+          <div class="panel-header-flex">
+            <div>
+              <h3 data-i18n="p_rates_title">Base Charges & Thresholds</h3>
+              <p data-i18n="p_rates_sub">Configure base fees, weight limits, and free delivery qualifiers</p>
+            </div>
+          </div>
+
+          <form id="formRatesSettings" autocomplete="off">
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_base_fee">Base Delivery Charge</label>
+                <div class="input-affix-wrap">
+                  <span class="affix-currency">৳</span>
+                  <input type="number" min="0" step="any" id="numBaseCharge" class="form-input" value="50" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_per_km">Fee Per Additional KM</label>
+                <div class="input-affix-wrap">
+                  <span class="affix-currency">৳</span>
+                  <input type="number" min="0" step="any" id="numPerKmCharge" class="form-input" value="10" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_min_order">Minimum Order Amount for Delivery</label>
+                <div class="input-affix-wrap">
+                  <span class="affix-currency">৳</span>
+                  <input type="number" min="0" step="any" id="numMinOrderAmount" class="form-input" value="300" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_free_del_amt">Free Delivery Min Order Amount</label>
+                <div class="input-affix-wrap">
+                  <span class="affix-currency">৳</span>
+                  <input type="number" min="0" step="any" id="numFreeDeliveryAmount" class="form-input" value="2500" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_free_del_dist">Free Delivery Within Distance (KM)</label>
+                <input type="number" min="0" step="any" id="numFreeDeliveryDist" class="form-input" value="3" required />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="lbl_extra_kg">Extra Fee per KG (Over 10 KG)</label>
+                <div class="input-affix-wrap">
+                  <span class="affix-currency">৳</span>
+                  <input type="number" min="0" step="any" id="numWeightExtraCharge" class="form-input" value="5" required />
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-header-flex" style="margin-top: 16px;">
+              <div>
+                <h4 style="color: var(--gold-light); font-size: 0.96rem;" data-i18n="p_slabs_title">Configurable Distance Range Slabs (Barisal City)</h4>
+                <p style="font-size: 0.76rem; color: var(--text-muted);" data-i18n="p_slabs_sub">Fixed delivery charges mapped to distance brackets</p>
+              </div>
+            </div>
+
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label class="form-label">0 – 3 KM (Local Area)</label>
+                <div class="input-affix-wrap"><span class="affix-currency">৳</span><input type="number" min="0" id="slab_0_3" class="form-input" value="40" required /></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">3 – 5 KM (Mid Zone)</label>
+                <div class="input-affix-wrap"><span class="affix-currency">৳</span><input type="number" min="0" id="slab_3_5" class="form-input" value="60" required /></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">5 – 10 KM (Extended)</label>
+                <div class="input-affix-wrap"><span class="affix-currency">৳</span><input type="number" min="0" id="slab_5_10" class="form-input" value="90" required /></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">10 – 15 KM (Suburban)</label>
+                <div class="input-affix-wrap"><span class="affix-currency">৳</span><input type="number" min="0" id="slab_10_15" class="form-input" value="130" required /></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">15 – 20 KM (Outer City)</label>
+                <div class="input-affix-wrap"><span class="affix-currency">৳</span><input type="number" min="0" id="slab_15_20" class="form-input" value="180" required /></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">20 – 30 KM (Max Border)</label>
+                <div class="input-affix-wrap"><span class="affix-currency">৳</span><input type="number" min="0" id="slab_20_30" class="form-input" value="250" required /></div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-gold-save" style="margin-top: 10px;">
+              <span data-i18n="btn_save_rates">Save Charge Rates</span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- TAB 3: CUSTOMER CATEGORY RULES -->
+      <div id="tabCategories" class="tab-panel">
+        <div class="card-panel">
+          <div class="panel-header-flex">
+            <div>
+              <h3 data-i18n="p_cat_title">Customer Category Delivery Discounts / Fixed Fees</h3>
+              <p data-i18n="p_cat_sub">Set special delivery treatment for commercial & restaurant clients</p>
+            </div>
+          </div>
+
+          <form id="formCategoryDeliverySettings" autocomplete="off">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">🛒 Normal Customer (Retail)</label>
+                <select id="cat_rule_normal" class="form-select">
+                  <option value="standard">Standard Calculated Rate</option>
+                  <option value="free">Free Delivery Always</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">🍽️ Restaurant (Wholesale Partner)</label>
+                <select id="cat_rule_restaurant" class="form-select">
+                  <option value="standard">Standard Rate</option>
+                  <option value="flat_30" selected>Flat ৳ 30 Discount</option>
+                  <option value="free_over_1000">Free Over ৳ 1000</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">🏨 Hotel</label>
+                <select id="cat_rule_hotel" class="form-select">
+                  <option value="standard">Standard Rate</option>
+                  <option value="flat_30" selected>Flat ৳ 30 Discount</option>
+                  <option value="free_over_1000">Free Over ৳ 1000</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">🏌️ Club</label>
+                <select id="cat_rule_club" class="form-select">
+                  <option value="standard" selected>Standard Rate</option>
+                  <option value="flat_30">Flat ৳ 30 Discount</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">🥖 Bakery</label>
+                <select id="cat_rule_bakery" class="form-select">
+                  <option value="standard" selected>Standard Rate</option>
+                  <option value="flat_30">Flat ৳ 30 Discount</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">☕ Cafe</label>
+                <select id="cat_rule_cafe" class="form-select">
+                  <option value="standard" selected>Standard Rate</option>
+                  <option value="flat_30">Flat ৳ 30 Discount</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">🍲 Catering Service</label>
+                <select id="cat_rule_catering" class="form-select">
+                  <option value="standard">Standard Rate</option>
+                  <option value="free_over_1000" selected>Free Over ৳ 1000</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">🏢 Other Business</label>
+                <select id="cat_rule_otherBusiness" class="form-select">
+                  <option value="standard" selected>Standard Rate</option>
+                  <option value="flat_30">Flat ৳ 30 Discount</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-gold-save" style="margin-top: 10px;">
+              <span data-i18n="btn_save_cat_rules">Save Category Rules</span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- TAB 4: CALCULATOR PREVIEW -->
+      <div id="tabCalculator" class="tab-panel">
+        <div class="card-panel">
+          <div class="panel-header-flex">
+            <div>
+              <h3 data-i18n="p_calc_title">Live Delivery Rate Calculator (Preview)</h3>
+              <p data-i18n="p_calc_sub">Simulate delivery costs using the saved configuration</p>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div>
+              <div class="form-group">
+                <label class="form-label" data-i18n="sim_dist">Delivery Distance (Kilometers)</label>
+                <input type="number" min="0" step="0.1" id="simDistance" class="form-input" value="4.5" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="sim_weight">Total Order Weight (KG)</label>
+                <input type="number" min="0" step="0.1" id="simWeight" class="form-input" value="6" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="sim_subtotal">Order Subtotal (৳)</label>
+                <input type="number" min="0" step="any" id="simSubtotal" class="form-input" value="1200" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="sim_cat">Customer Category</label>
+                <select id="simCategory" class="form-select">
+                  <option value="normal">Normal Customer</option>
+                  <option value="restaurant">Restaurant</option>
+                  <option value="hotel">Hotel</option>
+                  <option value="catering">Catering Service</option>
+                </select>
+              </div>
+
+              <button type="button" class="btn-gold-save" id="btnRunCalculation" data-i18n="btn_calculate">Calculate Preview</button>
+            </div>
+
+            <div>
+              <div class="calculator-result-card">
+                <h4 style="color: var(--gold-light); font-size: 0.95rem; margin-bottom: 12px;" data-i18n="calc_breakdown_title">Estimated Cost Breakdown</h4>
+                <div class="calc-breakdown-row"><span>Distance Slab / Base Fee</span><span id="resBaseFee">৳ 0</span></div>
+                <div class="calc-breakdown-row"><span>Extra Weight Surcharge</span><span id="resWeightFee">৳ 0</span></div>
+                <div class="calc-breakdown-row"><span>Category / Promo Discount</span><span id="resDiscount" style="color: #6ee7b7;">- ৳ 0</span></div>
+                <div class="calc-breakdown-total"><span>Final Delivery Charge</span><span id="resFinalCharge" style="color: var(--gold-light);">৳ 0</span></div>
+                <small style="color: var(--text-muted); font-size: 0.72rem; display: block; margin-top: 10px;">* This calculator is a preview simulator. Actual checkout fee is validated securely via backend Firebase rules.</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: DELIVERY ORDER HISTORY -->
+      <div id="tabHistory" class="tab-panel">
+        <div class="card-panel">
+          <div class="panel-header-flex">
+            <div>
+              <h3 data-i18n="p_hist_title">Delivery Dispatch History</h3>
+              <p data-i18n="p_hist_sub">Real-time log of customer deliveries and collected shipping fees</p>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th data-i18n="th_order">Order ID</th>
+                  <th data-i18n="th_cust">Customer</th>
+                  <th data-i18n="th_addr">Address</th>
+                  <th data-i18n="th_fee">Delivery Fee</th>
+                  <th data-i18n="th_status">Status</th>
+                  <th data-i18n="th_date">Date</th>
+                </tr>
+              </thead>
+              <tbody id="deliveryHistoryBody">
+                <tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--text-muted);">Loading delivery dispatches...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ==========================================================
+       MODULAR FIREBASE SDK (v10) & REALTIME SCRIPT
+       ========================================================== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      getDatabase, 
+      ref, 
+      onValue, 
+      update, 
+      serverTimestamp, 
+      get 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // 1. Firebase Configuration Placeholder (Matching Project)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDYPsjlOmRwH2F5P8fFoiirP1FLjgh3c8A",
+      authDomain: "murgi-dfd67.firebaseapp.com",
+      databaseURL: "https://murgi-dfd67-default-rtdb.firebaseio.com",
+      projectId: "murgi-dfd67",
+      storageBucket: "murgi-dfd67.firebasestorage.app",
+      messagingSenderId: "209696889864",
+      appId: "1:209696889864:web:3eaa16034f00cca45505bd"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // Translation Dictionary
+    const i18n = {
+      en: {
+        shop_mgmt: "Admin + Shopkeeper Panel",
+        grp_main: "Core Operations",
+        m_dashboard: "Dashboard",
+        m_orders: "Orders",
+        grp_catalog: "Catalog & Pricing",
+        m_products: "Products",
+        m_prices: "Tiered Prices",
+        m_stock: "Stock Management",
+        grp_crm: "CRM & Staff",
+        m_customers: "Customers",
+        m_shopkeepers: "Shop Management",
+        m_referrals: "Referral Codes",
+        grp_config: "Store Setup & Reports",
+        m_delivery: "Delivery Settings",
+        m_reports: "Reports",
+        m_settings: "Shop Settings",
+        m_reviews: "Reviews",
+        m_requests: "Customer Requests",
+        m_logout: "Logout",
+        bc_home: "Home",
+        bc_delivery: "Delivery Settings",
+        header_title: "Delivery & Radius Controls",
+        tab_area: "Area & Service Status",
+        tab_rates: "Distance & Weight Charges",
+        tab_categories: "Category Rules",
+        tab_calc: "Rate Calculator Preview",
+        tab_history: "Delivery Order History",
+        p_service_title: "Delivery Service Master Control",
+        p_service_sub: "Enable or suspend all delivery operations across Barisal city",
+        lbl_service_active: "Accept Customer Delivery Orders",
+        lbl_service_active_sub: "When turned OFF, the customer app blocks delivery checkout immediately",
+        lbl_suspension_reason: "Temporary Suspension Reason",
+        lbl_reopen_time: "Estimated Resumption Time",
+        p_area_title: "Shop Operational Center & Coverage Radius",
+        p_area_sub: "Set default hub location in Barisal City and maximum operating radius",
+        lbl_hub_name: "Shop Hub Location Name",
+        lbl_hub_lat: "Center Latitude",
+        lbl_hub_lng: "Center Longitude",
+        lbl_max_radius: "Maximum Operational Radius (KM)",
+        btn_save_area: "Save Area Settings",
+        p_rates_title: "Base Charges & Thresholds",
+        p_rates_sub: "Configure base fees, weight limits, and free delivery qualifiers",
+        lbl_base_fee: "Base Delivery Charge",
+        lbl_per_km: "Fee Per Additional KM",
+        lbl_min_order: "Minimum Order Amount for Delivery",
+        lbl_free_del_amt: "Free Delivery Min Order Amount",
+        lbl_free_del_dist: "Free Delivery Within Distance (KM)",
+        lbl_extra_kg: "Extra Fee per KG (Over 10 KG)",
+        p_slabs_title: "Configurable Distance Range Slabs (Barisal City)",
+        p_slabs_sub: "Fixed delivery charges mapped to distance brackets",
+        btn_save_rates: "Save Charge Rates",
+        p_cat_title: "Customer Category Delivery Discounts / Fixed Fees",
+        p_cat_sub: "Set special delivery treatment for commercial & restaurant clients",
+        btn_save_cat_rules: "Save Category Rules",
+        p_calc_title: "Live Delivery Rate Calculator (Preview)",
+        p_calc_sub: "Simulate delivery costs using the saved configuration",
+        sim_dist: "Delivery Distance (Kilometers)",
+        sim_weight: "Total Order Weight (KG)",
+        sim_subtotal: "Order Subtotal (৳)",
+        sim_cat: "Customer Category",
+        btn_calculate: "Calculate Preview",
+        calc_breakdown_title: "Estimated Cost Breakdown",
+        p_hist_title: "Delivery Dispatch History",
+        p_hist_sub: "Real-time log of customer deliveries and collected shipping fees",
+        th_order: "Order ID",
+        th_cust: "Customer",
+        th_addr: "Address",
+        th_fee: "Delivery Fee",
+        th_status: "Status",
+        th_date: "Date",
+        lang_switch_to: "বাংলা",
+        saved_success: "Settings saved successfully to Firebase!"
+      },
+      bn: {
+        shop_mgmt: "অ্যাডমিন ও শপকিপার প্যানেল",
+        grp_main: "প্রধান কার্যক্রম",
+        m_dashboard: "ড্যাশবোর্ড",
+        m_orders: "অর্ডারসমূহ",
+        grp_catalog: "পণ্য ও মূল্যতালিকা",
+        m_products: "পণ্য ক্যাটালগ",
+        m_prices: "ক্যাটাগরি মূল্য",
+        m_stock: "স্টক ম্যানেজমেন্ট",
+        grp_crm: "গ্রাহক ও কর্মী",
+        m_customers: "গ্রাহকবৃন্দ",
+        m_shopkeepers: "দোকান পরিচালনা",
+        m_referrals: "রেফারেল কোড",
+        grp_config: "সেটআপ ও রিপোর্ট",
+        m_delivery: "ডেলিভারি সেটিংস",
+        m_reports: "রিপোর্ট ও অ্যানালিটিক্স",
+        m_settings: "শপ সেটিংস",
+        m_reviews: "রিভিউ ও রেটিং",
+        m_requests: "গ্রাহক অনুরোধ",
+        m_logout: "লগআউট",
+        bc_home: "হোম",
+        bc_delivery: "ডেলিভারি সেটিংস",
+        header_title: "ডেলিভারি এরিয়া ও চার্জ কন্ট্রোল",
+        tab_area: "এরিয়া ও সার্ভিস স্ট্যাটাস",
+        tab_rates: "দূরত্ব ও ওজনভিত্তিক চার্জ",
+        tab_categories: "ক্যাটাগরি রুলস",
+        tab_calc: "চার্জ ক্যালকুলেটর প্রিভিউ",
+        tab_history: "ডেলিভারি অর্ডার হিস্ট্রি",
+        p_service_title: "ডেলিভারি সার্ভিস মাস্টার কন্ট্রোল",
+        p_service_sub: "পুরো বরিশাল শহরে ডেলিভারি চালু বা সাময়িকভাবে বন্ধ রাখুন",
+        lbl_service_active: "কাস্টমার ডেলিভারি অর্ডার গ্রহণ সক্রিয় রাখুন",
+        lbl_service_active_sub: "এটি বন্ধ থাকলে কাস্টমার অ্যাপ থেকে হোম ডেলিভারি অর্ডার ব্লক হয়ে যাবে",
+        lbl_suspension_reason: "ডেলিভারি বন্ধ রাখার কারণ",
+        lbl_reopen_time: "পুনরায় চালুর আনুমানিক সময়",
+        p_area_title: "দোকানের কেন্দ্র ও সার্ভিস কাভারেজ ব্যাসার্ধ",
+        p_area_sub: "বরিশাল শহরের মূল সেন্টার লোকেশন ও সর্বোচ্চ ডেলিভারি রেঞ্জ",
+        lbl_hub_name: "হাব / সেন্টারের নাম",
+        lbl_hub_lat: "সেন্টার ল্যাটিটিউড (Latitude)",
+        lbl_hub_lng: "সেন্টার লংগিটিউড (Longitude)",
+        lbl_max_radius: "সর্বোচ্চ ডেলিভারি রেঞ্জ (কিমি)",
+        btn_save_area: "এরিয়া সেটিংস সেভ করুন",
+        p_rates_title: "বেস চার্জ ও ডেলিভারি শর্ত",
+        p_rates_sub: "বেস ফি, ওজনের শর্ত ও ফ্রি ডেলিভারির সীমা নির্ধারণ",
+        lbl_base_fee: "বেস ডেলিভারি চার্জ",
+        lbl_per_km: "প্রতি অতিরিক্ত কিমি চার্জ",
+        lbl_min_order: "ডেলিভারির সর্বনিম্ন অর্ডার মূল্য",
+        lbl_free_del_amt: "ফ্রি ডেলিভারির সর্বনিম্ন অর্ডার মূল্য",
+        lbl_free_del_dist: "যত কিমি এর মধ্যে ফ্রি ডেলিভারি প্রযোজ্য",
+        lbl_extra_kg: "১০ কেজির পর প্রতি অতিরিক্ত কেজিতে ফি",
+        p_slabs_title: "দূরত্বভিত্তিক ফিক্সড স্ল্যাব চার্জ (বরিশাল শহর)",
+        p_slabs_sub: "দূরত্বের রেঞ্জ অনুযায়ী নির্দিষ্ট ডেলিভারি চার্জ",
+        btn_save_rates: "চার্জ রেট সেভ করুন",
+        p_cat_title: "কাস্টমার ক্যাটাগরিভিত্তিক বিশেষ ডেলিভারি ডিসকাউন্ট",
+        p_cat_sub: "হোটেল ও রেস্তোরাঁর মতো বাণিজ্যিক পার্টনারদের জন্য স্পেশাল রুলস",
+        btn_save_cat_rules: "ক্যাটাগরি রুলস সেভ করুন",
+        p_calc_title: "লাইভ ডেলিভারি চার্জ ক্যালকুলেটর (সিমুলেটর)",
+        p_calc_sub: "সেটিংস অনুযায়ী সম্ভাব্য ডেলিভারি খরচের লাইভ প্রিভিউ",
+        sim_dist: "ডেলিভারি দূরত্ব (কিলোমিটার)",
+        sim_weight: "মোট পণ্যের ওজন (কেজি)",
+        sim_subtotal: "অর্ডার মূল্য (৳)",
+        sim_cat: "কাস্টমার ক্যাটাগরি",
+        btn_calculate: "চার্জ হিসাব করুন",
+        calc_breakdown_title: "আনুমানিক খরচ বিশ্লেষণ",
+        p_hist_title: "সাম্প্রতিক ডেলিভারি হিস্ট্রি",
+        p_hist_sub: "সফলভাবে পাঠানো অর্ডারের ডেলিভারি ফি লগ",
+        th_order: "অর্ডার আইডি",
+        th_cust: "গ্রাহক",
+        th_addr: "ঠিকানা",
+        th_fee: "ডেলিভারি ফি",
+        th_status: "স্ট্যাটাস",
+        th_date: "তারিখ",
+        lang_switch_to: "English",
+        saved_success: "ফায়ারবেসে সফলভাবে সংরক্ষিত হয়েছে!"
+      }
+    };
+
+    let currentLang = localStorage.getItem('poultry_admin_lang') || 'bn';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('poultry_admin_lang', lang);
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang][key]) el.textContent = i18n[lang][key];
+      });
+
+      document.getElementById('langButtonText').textContent = i18n[lang].lang_switch_to;
+    }
+
+    document.getElementById('btnLangToggle').addEventListener('click', () => {
+      setLanguage(currentLang === 'en' ? 'bn' : 'en');
+    });
+
+    // App State
+    let currentUser = null;
+    let currentUserRole = null;
+    let savedSettings = {};
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // Switch Tabs
+    window.switchTab = function(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+
+      event.target.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    };
+
+    // ==========================================================
+    // AUTHENTICATION GUARD
+    // ==========================================================
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.replace('admin-login.html');
+        return;
+      }
+
+      currentUser = user;
+      document.getElementById('userEmail').textContent = user.email;
+      document.getElementById('userAvatar').textContent = (user.email.charAt(0) || 'A').toUpperCase();
+
+      try {
+        const roleRef = ref(db, `users/${user.uid}/role`);
+        const snapshot = await get(roleRef);
+        const role = snapshot.val();
+
+        if (!role) {
+          showToast("অননুমোদিত অ্যাকাউন্ট!", "error");
+          await signOut(auth);
+          window.location.replace('admin-login.html');
+          return;
+        }
+
+        const normalizedRole = role.toString().toLowerCase().trim();
+        if (normalizedRole !== 'admin' && normalizedRole !== 'shopkeeper') {
+          showToast("অননুমোদিত রোল!", "error");
+          await signOut(auth);
+          window.location.replace('admin-login.html');
+          return;
+        }
+
+        currentUserRole = normalizedRole;
+        document.getElementById('userRoleBadge').textContent = normalizedRole.toUpperCase();
+
+        listenToDeliverySettings();
+        listenToDeliveryOrders();
+
+      } catch (err) {
+        console.error("Auth Guard Error:", err);
+      }
+    });
+
+    document.getElementById('btnLogout').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.replace('admin-login.html');
+    });
+
+    const menuToggleBtn = document.getElementById('menuToggleBtn');
+    const sidebar = document.getElementById('sidebar');
+    menuToggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+
+    // ==========================================================
+    // REALTIME DATABASE: SETTINGS LISTENERS
+    // ==========================================================
+    function listenToDeliverySettings() {
+      const delRef = ref(db, 'settings/delivery');
+
+      onValue(delRef, (snap) => {
+        savedSettings = snap.val() || {};
+        
+        // 1. Service Status
+        const status = savedSettings.serviceStatus || {};
+        const isOnline = (status.isActive !== false);
+        document.getElementById('chkServiceActive').checked = isOnline;
+        document.getElementById('suspensionDetailsBox').style.display = isOnline ? 'none' : 'block';
+        document.getElementById('txtSuspensionReason').value = status.reason || '';
+        document.getElementById('txtReopenTime').value = status.reopenTime || '';
+
+        const badge = document.getElementById('serviceBadge');
+        if (isOnline) {
+          badge.textContent = "Active Service";
+          badge.style.background = "rgba(16,185,129,0.15)";
+          badge.style.color = "#6ee7b7";
+          badge.style.borderColor = "rgba(16,185,129,0.3)";
+        } else {
+          badge.textContent = "Service Suspended";
+          badge.style.background = "rgba(239,68,68,0.15)";
+          badge.style.color = "#fca5a5";
+          badge.style.borderColor = "rgba(239,68,68,0.3)";
+        }
+
+        // 2. Area Settings
+        const area = savedSettings.area || {};
+        document.getElementById('txtHubName').value = area.hubName || 'Barisal Sadar, Barisal';
+        document.getElementById('numHubLat').value = area.latitude || 22.7010;
+        document.getElementById('numHubLng').value = area.longitude || 90.3535;
+        document.getElementById('numMaxRadius').value = area.maxRadiusKm || 30;
+
+        // 3. Charges Settings
+        const charges = savedSettings.charges || {};
+        document.getElementById('numBaseCharge').value = charges.baseCharge ?? 50;
+        document.getElementById('numPerKmCharge').value = charges.perKmCharge ?? 10;
+        document.getElementById('numMinOrderAmount').value = charges.minOrderAmount ?? 300;
+        document.getElementById('numFreeDeliveryAmount').value = charges.freeDeliveryMinAmount ?? 2500;
+        document.getElementById('numFreeDeliveryDist').value = charges.freeDeliveryMaxDistKm ?? 3;
+        document.getElementById('numWeightExtraCharge').value = charges.weightExtraPerKg ?? 5;
+
+        // Slabs
+        const slabs = charges.slabs || {};
+        document.getElementById('slab_0_3').value = slabs['0_3'] ?? 40;
+        document.getElementById('slab_3_5').value = slabs['3_5'] ?? 60;
+        document.getElementById('slab_5_10').value = slabs['5_10'] ?? 90;
+        document.getElementById('slab_10_15').value = slabs['10_15'] ?? 130;
+        document.getElementById('slab_15_20').value = slabs['15_20'] ?? 180;
+        document.getElementById('slab_20_30').value = slabs['20_30'] ?? 250;
+
+        // 4. Category Rules
+        const catRules = savedSettings.categoryRules || {};
+        ['normal','restaurant','hotel','club','bakery','cafe','catering','otherBusiness'].forEach(c => {
+          const el = document.getElementById(`cat_rule_${c}`);
+          if (el && catRules[c]) el.value = catRules[c];
+        });
+
+        // Run calculator preview with populated values
+        runSimulator();
+      });
+    }
+
+    function listenToDeliveryOrders() {
+      const ordersRef = ref(db, 'orders');
+      onValue(ordersRef, (snap) => {
+        const historyBody = document.getElementById('deliveryHistoryBody');
+        const list = [];
+
+        snap.forEach(child => {
+          const ord = child.val();
+          ord.key = child.key;
+          list.push(ord);
+        });
+
+        list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+        if (list.length === 0) {
+          historyBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--text-muted);">কোনো ডেলিভারি রেকর্ড পাওয়া যায়নি।</td></tr>`;
+          return;
+        }
+
+        historyBody.innerHTML = list.slice(0, 15).map(o => {
+          const id = (o.orderId || o.key || '').substring(0, 8).toUpperCase();
+          const cust = o.customerName || o.customer?.name || 'Customer';
+          const addr = o.deliveryAddress || o.customer?.address || 'Shop Pickup';
+          const fee = Number(o.deliveryCharge || o.pricing?.deliveryCharge || 0).toLocaleString('en-IN');
+          const st = o.status || 'pending';
+          const d = o.createdAt ? new Date(o.createdAt).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short' }) : '—';
+
+          return `
+            <tr>
+              <td><strong>#${escapeHTML(id)}</strong></td>
+              <td>${escapeHTML(cust)}</td>
+              <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${escapeHTML(addr)}</td>
+              <td style="color: var(--gold-light); font-weight:700;">৳ ${fee}</td>
+              <td><span style="text-transform: capitalize;">${escapeHTML(st)}</span></td>
+              <td style="font-size:0.78rem; color:var(--text-muted);">${d}</td>
+            </tr>
+          `;
+        }).join('');
+      });
+    }
+
+    // ==========================================================
+    // SAVE HANDLERS
+    // ==========================================================
+    // 1. Toggle Service ON / OFF
+    document.getElementById('chkServiceActive').addEventListener('change', async (e) => {
+      const isActive = e.target.checked;
+      document.getElementById('suspensionDetailsBox').style.display = isActive ? 'none' : 'block';
+
+      if (!isActive && !confirm("আপনি কি নিশ্চিতভাবে পুরো বরিশাল শহরে ডেলিভারি সার্ভিস সাময়িকভাবে বন্ধ করতে চান?")) {
+        e.target.checked = true;
+        document.getElementById('suspensionDetailsBox').style.display = 'none';
+        return;
+      }
+
+      try {
+        await update(ref(db, 'settings/delivery/serviceStatus'), {
+          isActive,
+          reason: document.getElementById('txtSuspensionReason').value.trim(),
+          reopenTime: document.getElementById('txtReopenTime').value.trim(),
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        });
+        showToast(`Delivery service status changed to ${isActive ? 'ONLINE' : 'SUSPENDED'}.`, "success");
+      } catch (err) {
+        showToast("Error updating service: " + err.message, "error");
+      }
+    });
+
+    // 2. Area Settings
+    document.getElementById('formAreaSettings').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await update(ref(db, 'settings/delivery/area'), {
+          hubName: document.getElementById('txtHubName').value.trim(),
+          latitude: parseFloat(document.getElementById('numHubLat').value),
+          longitude: parseFloat(document.getElementById('numHubLng').value),
+          maxRadiusKm: parseFloat(document.getElementById('numMaxRadius').value),
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        });
+        showToast(i18n[currentLang].saved_success, "success");
+      } catch (err) {
+        showToast("Error saving area: " + err.message, "error");
+      }
+    });
+
+    // 3. Charge Rates & Slabs
+    document.getElementById('formRatesSettings').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await update(ref(db, 'settings/delivery/charges'), {
+          baseCharge: parseFloat(document.getElementById('numBaseCharge').value),
+          perKmCharge: parseFloat(document.getElementById('numPerKmCharge').value),
+          minOrderAmount: parseFloat(document.getElementById('numMinOrderAmount').value),
+          freeDeliveryMinAmount: parseFloat(document.getElementById('numFreeDeliveryAmount').value),
+          freeDeliveryMaxDistKm: parseFloat(document.getElementById('numFreeDeliveryDist').value),
+          weightExtraPerKg: parseFloat(document.getElementById('numWeightExtraCharge').value),
+          slabs: {
+            '0_3': parseFloat(document.getElementById('slab_0_3').value),
+            '3_5': parseFloat(document.getElementById('slab_3_5').value),
+            '5_10': parseFloat(document.getElementById('slab_5_10').value),
+            '10_15': parseFloat(document.getElementById('slab_10_15').value),
+            '15_20': parseFloat(document.getElementById('slab_15_20').value),
+            '20_30': parseFloat(document.getElementById('slab_20_30').value)
+          },
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        });
+        showToast(i18n[currentLang].saved_success, "success");
+      } catch (err) {
+        showToast("Error saving rates: " + err.message, "error");
+      }
+    });
+
+    // 4. Category Rules
+    document.getElementById('formCategoryDeliverySettings').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const rules = {};
+      ['normal','restaurant','hotel','club','bakery','cafe','catering','otherBusiness'].forEach(c => {
+        rules[c] = document.getElementById(`cat_rule_${c}`).value;
+      });
+
+      try {
+        await update(ref(db, 'settings/delivery/categoryRules'), {
+          ...rules,
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        });
+        showToast(i18n[currentLang].saved_success, "success");
+      } catch (err) {
+        showToast("Error: " + err.message, "error");
+      }
+    });
+
+    // ==========================================================
+    // SIMULATOR CALCULATOR LOGIC
+    // ==========================================================
+    document.getElementById('btnRunCalculation').addEventListener('click', runSimulator);
+
+    function runSimulator() {
+      const dist = parseFloat(document.getElementById('simDistance').value) || 0;
+      const weight = parseFloat(document.getElementById('simWeight').value) || 0;
+      const subtotal = parseFloat(document.getElementById('simSubtotal').value) || 0;
+      const cat = document.getElementById('simCategory').value;
+
+      const charges = savedSettings.charges || {};
+      const slabs = charges.slabs || {};
+
+      let baseFee = 50;
+      if (dist <= 3) baseFee = slabs['0_3'] ?? 40;
+      else if (dist <= 5) baseFee = slabs['3_5'] ?? 60;
+      else if (dist <= 10) baseFee = slabs['5_10'] ?? 90;
+      else if (dist <= 15) baseFee = slabs['10_15'] ?? 130;
+      else if (dist <= 20) baseFee = slabs['15_20'] ?? 180;
+      else baseFee = slabs['20_30'] ?? 250;
+
+      // Weight surcharge (over 10 KG)
+      let weightFee = 0;
+      if (weight > 10) {
+        const extraKg = weight - 10;
+        weightFee = extraKg * (charges.weightExtraPerKg ?? 5);
+      }
+
+      // Free Delivery Check
+      let discount = 0;
+      const freeMinAmt = charges.freeDeliveryMinAmount ?? 2500;
+      const freeMaxDist = charges.freeDeliveryMaxDistKm ?? 3;
+
+      if (subtotal >= freeMinAmt || (freeMaxDist > 0 && dist <= freeMaxDist && subtotal >= 1000)) {
+        discount = baseFee;
+      }
+
+      // Category Discount Rule
+      const catRules = savedSettings.categoryRules || {};
+      const rule = catRules[cat] || 'standard';
+      if (rule === 'flat_30' && discount === 0) {
+        discount = Math.min(30, baseFee);
+      } else if (rule === 'free_over_1000' && subtotal >= 1000) {
+        discount = baseFee;
+      }
+
+      const finalCharge = Math.max(0, (baseFee + weightFee) - discount);
+
+      document.getElementById('resBaseFee').textContent = `৳ ${baseFee.toFixed(2)}`;
+      document.getElementById('resWeightFee').textContent = `৳ ${weightFee.toFixed(2)}`;
+      document.getElementById('resDiscount').textContent = `- ৳ ${discount.toFixed(2)}`;
+      document.getElementById('resFinalCharge').textContent = `৳ ${finalCharge.toFixed(2)}`;
+    }
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    setLanguage(currentLang);
+  </script>
+</body>
+</html>

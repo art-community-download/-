@@ -78,7 +78,7 @@
     }
 
     /* ==========================================================
-       SIDEBAR NAVIGATION (EXACT ADMIN HTML LINKS)
+       SIDEBAR NAVIGATION (EXACT 14 ADMIN LINKS)
        ========================================================== */
     .sidebar {
       width: var(--sidebar-width);
@@ -238,7 +238,7 @@
     }
 
     /* ==========================================================
-       MAIN WRAPPER & TOP BAR (CONSISTENT HEADER)
+       MAIN CONTENT WRAPPER & TOP BAR
        ========================================================== */
     .main-wrapper {
       margin-left: var(--sidebar-width);
@@ -264,11 +264,7 @@
       z-index: 90;
     }
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
+    .header-left { display: flex; align-items: center; gap: 16px; }
 
     .menu-toggle {
       display: none;
@@ -288,18 +284,10 @@
       color: var(--text-muted);
       margin-bottom: 2px;
     }
-    .breadcrumbs a {
-      color: var(--gold-light);
-      text-decoration: none;
-    }
+    .breadcrumbs a { color: var(--gold-light); text-decoration: none; }
 
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+    .header-actions { display: flex; align-items: center; gap: 12px; }
 
-    /* Language Switcher */
     .btn-lang-toggle {
       background: rgba(255, 255, 255, 0.05);
       border: 1.5px solid var(--border-gold);
@@ -320,7 +308,6 @@
       border-color: var(--gold-primary);
     }
 
-    /* Notification Bell */
     .btn-notification {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-gold);
@@ -346,18 +333,17 @@
       box-shadow: 0 0 6px var(--status-outofstock);
     }
 
-    /* Content Area */
     .content-area {
       padding: 26px 30px 60px;
       flex: 1;
     }
 
     /* ==========================================================
-       DASHBOARD STATISTICS GRID (9 REALTIME STATS)
+       DASHBOARD STATISTICS GRID (10 REALTIME CARDS)
        ========================================================== */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 16px;
       margin-bottom: 28px;
     }
@@ -411,6 +397,10 @@
       font-size: 1.65rem;
       font-weight: 700;
       color: #fff;
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      transition: color 0.3s ease;
     }
 
     .stat-subtext {
@@ -419,18 +409,32 @@
       margin-top: 4px;
     }
 
-    /* Skeleton */
+    /* Improved Skeleton Shimmer Animation */
     .skeleton {
-      background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(212,175,55,0.12) 50%, rgba(255,255,255,0.04) 75%);
       background-size: 200% 100%;
-      animation: skeletonShimmer 1.5s infinite;
-      border-radius: 6px;
+      animation: skeletonShimmer 1.4s ease-in-out infinite;
+      border-radius: 8px;
+      height: 34px;
+      width: 90px;
       color: transparent !important;
     }
 
     @keyframes skeletonShimmer {
       0% { background-position: 200% 0; }
       100% { background-position: -200% 0; }
+    }
+
+    /* Retry button for failed queries */
+    .btn-retry-stat {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 6px;
     }
 
     /* ==========================================================
@@ -458,18 +462,9 @@
       margin-bottom: 20px;
     }
 
-    .card-title {
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: #fff;
-    }
+    .card-title { font-size: 1.05rem; font-weight: 600; color: #fff; }
+    .card-subtitle { font-size: 0.78rem; color: var(--text-muted); }
 
-    .card-subtitle {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-    }
-
-    /* Orders Table */
     .table-container {
       width: 100%;
       overflow-x: auto;
@@ -498,9 +493,7 @@
       color: #e2e8f0;
     }
 
-    tr:hover td {
-      background: rgba(212, 175, 55, 0.03);
-    }
+    tr:hover td { background: rgba(212, 175, 55, 0.03); }
 
     .order-status {
       display: inline-flex;
@@ -516,7 +509,6 @@
     .status-pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
     .status-completed { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
 
-    /* Stock List */
     .stock-item {
       display: flex;
       align-items: center;
@@ -534,33 +526,6 @@
       background: rgba(239, 68, 68, 0.15);
       color: #fca5a5;
       border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-
-    /* Toast */
-    .toast-container {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 1100;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .toast {
-      background: #141720;
-      border: 1px solid var(--border-gold);
-      color: #fff;
-      padding: 12px 18px;
-      border-radius: 12px;
-      font-size: 0.85rem;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
-      animation: toastSlideIn 0.3s ease-out;
-    }
-
-    @keyframes toastSlideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
     }
 
     @media (max-width: 1080px) {
@@ -582,7 +547,7 @@
   <div class="ambient-glow"></div>
 
   <!-- ==========================================================
-       1. COMPLETE ADMIN SIDEBAR (ALL EXACT HTML LINKS)
+       SIDEBAR NAVIGATION (EXACT 14 ADMIN LINKS)
        ========================================================== -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
@@ -605,11 +570,10 @@
       </div>
     </div>
 
-    <!-- Exact Navigation Menu Items -->
     <nav class="sidebar-nav">
       <div class="nav-label" data-i18n="grp_main">Core Operations</div>
       
-      <!-- 1. Dashboard -->
+      <!-- 1. Dashboard (ACTIVE) -->
       <a href="admin-dashboard.html" class="nav-link active">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
         <span data-i18n="m_dashboard">Dashboard</span>
@@ -632,7 +596,7 @@
       <!-- 4. Prices -->
       <a href="admin-prices.html" class="nav-link">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        <span data-i18n="m_prices">Prices</span>
+        <span data-i18n="m_prices">Tiered Prices</span>
       </a>
 
       <!-- 5. Stock Management -->
@@ -672,12 +636,12 @@
       <!-- 10. Reports -->
       <a href="admin-reports.html" class="nav-link">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        <span data-i18n="m_reports">Reports</span>
+        <span data-i18n="m_reports">Reports & Analytics</span>
       </a>
 
       <!-- 11. Shop Settings -->
       <a href="admin-settings.html" class="nav-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         <span data-i18n="m_settings">Shop Settings</span>
       </a>
 
@@ -738,10 +702,10 @@
     <!-- Main Content Area -->
     <main class="content-area">
 
-      <!-- 9 Realtime Dashboard Statistics -->
+      <!-- 10 Realtime Dashboard Statistics Grid -->
       <section class="stats-grid">
         
-        <!-- 1. Total Customers -->
+        <!-- 1. Total Customers (WITH REPAIR & FAILSAFE) -->
         <div class="stat-card">
           <div class="stat-head">
             <span class="stat-title" data-i18n="st_customers">Total Customers</span>
@@ -811,7 +775,17 @@
           <div class="stat-subtext" data-i18n="st_outofstock_sub">Immediate restock required</div>
         </div>
 
-        <!-- 8. Today's Sales -->
+        <!-- 8. Today's Orders -->
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-title" data-i18n="st_today_orders">Today's Orders</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          </div>
+          <div class="stat-value skeleton" id="statTodayOrders">0</div>
+          <div class="stat-subtext" data-i18n="st_today_orders_sub">Received today</div>
+        </div>
+
+        <!-- 9. Today's Sales -->
         <div class="stat-card">
           <div class="stat-head">
             <span class="stat-title" data-i18n="st_today_sales">Today's Sales</span>
@@ -821,7 +795,7 @@
           <div class="stat-subtext" data-i18n="st_today_sales_sub">Delivered orders today</div>
         </div>
 
-        <!-- 9. Total Sales -->
+        <!-- 10. Total Sales -->
         <div class="stat-card">
           <div class="stat-head">
             <span class="stat-title" data-i18n="st_total_sales">Total Sales</span>
@@ -894,8 +868,6 @@
     </main>
   </div>
 
-  <div class="toast-container" id="toastContainer"></div>
-
   <!-- ==========================================================
        MODULAR FIREBASE SDK (v10) & REALTIME SCRIPT
        ========================================================== -->
@@ -904,7 +876,7 @@
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // Firebase Configuration Placeholder (Matching Project)
+    // 1. Firebase Configuration (Matches Project Credentials)
     const firebaseConfig = {
       apiKey: "AIzaSyDYPsjlOmRwH2F5P8fFoiirP1FLjgh3c8A",
       authDomain: "murgi-dfd67.firebaseapp.com",
@@ -919,9 +891,7 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    // ==========================================================
-    // MULTI-LANGUAGE TRANSLATION DICTIONARY (EN & BN)
-    // ==========================================================
+    // Translation Dictionary
     const i18n = {
       en: {
         shop_mgmt: "Admin + Shopkeeper Panel",
@@ -930,7 +900,7 @@
         m_orders: "Orders",
         grp_catalog: "Catalog & Pricing",
         m_products: "Products",
-        m_prices: "Prices",
+        m_prices: "Tiered Prices",
         m_stock: "Stock Management",
         grp_crm: "CRM & Staff",
         m_customers: "Customers",
@@ -960,6 +930,8 @@
         st_available_sub: "Active in Customer App",
         st_outofstock: "Out of Stock",
         st_outofstock_sub: "Immediate restock required",
+        st_today_orders: "Today's Orders",
+        st_today_orders_sub: "Received today",
         st_today_sales: "Today's Sales",
         st_today_sales_sub: "Delivered orders today",
         st_total_sales: "Total Sales",
@@ -1016,6 +988,8 @@
         st_available_sub: "গ্রাহক অ্যাপে সক্রিয়",
         st_outofstock: "স্টক শেষ",
         st_outofstock_sub: "দ্রুত স্টক রিফিল প্রয়োজন",
+        st_today_orders: "আজকের অর্ডার",
+        st_today_orders_sub: "আজকের নতুন রিকুয়েস্ট",
         st_today_sales: "আজকের মোট বিক্রি",
         st_today_sales_sub: "আজকের সম্পন্ন ডেলিভারি",
         st_total_sales: "সর্বমোট বিক্রি",
@@ -1063,6 +1037,61 @@
 
     let analyticsChart = null;
 
+    // Helper: Lightweight Number Counter Animation
+    function animateCount(el, target, isCurrency = false, duration = 650) {
+      if (!el) return;
+      el.classList.remove('skeleton');
+
+      // Honor user motion preferences
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        el.textContent = isCurrency ? `৳ ${Math.round(target).toLocaleString('en-IN')}` : target.toLocaleString('en-IN');
+        return;
+      }
+
+      const start = parseFloat(el.getAttribute('data-val') || 0);
+      const startTime = performance.now();
+
+      function updateNumber(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const current = Math.floor(start + (target - start) * progress);
+        el.textContent = isCurrency ? `৳ ${current.toLocaleString('en-IN')}` : current.toLocaleString('en-IN');
+
+        if (progress < 1) {
+          requestAnimationFrame(updateNumber);
+        } else {
+          el.setAttribute('data-val', target);
+          el.textContent = isCurrency ? `৳ ${Math.round(target).toLocaleString('en-IN')}` : target.toLocaleString('en-IN');
+        }
+      }
+      requestAnimationFrame(updateNumber);
+    }
+
+    // Helper: Fail-safe update
+    function updateStat(elementId, value, isCurrency = false) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      el.classList.remove('skeleton');
+      if (typeof value === 'number') {
+        animateCount(el, value, isCurrency);
+      } else {
+        el.textContent = value;
+      }
+    }
+
+    function showStatError(elementId, retryCallback) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      el.classList.remove('skeleton');
+      el.innerHTML = `0 <button class="btn-retry-stat" title="Retry">↻</button>`;
+      const btn = el.querySelector('.btn-retry-stat');
+      if (btn && retryCallback) {
+        btn.onclick = () => {
+          el.classList.add('skeleton');
+          retryCallback();
+        };
+      }
+    }
+
     // ==========================================================
     // AUTHENTICATION GUARD
     // ==========================================================
@@ -1096,7 +1125,7 @@
         document.getElementById('userRoleBadge').textContent = normalizedRole.toUpperCase();
 
         // Start Live Realtime Listeners
-        initRealtimeDashboard();
+        initDashboardData();
 
       } catch (err) {
         console.error("Auth Guard Error:", err);
@@ -1109,16 +1138,82 @@
     });
 
     // ==========================================================
-    // REALTIME DATABASE LISTENERS
+    // 1. FIX TOTAL CUSTOMERS LISTENER (MULTI-PATH & TIMEOUT SAFE)
     // ==========================================================
-    function initRealtimeDashboard() {
-      // 1. Customers Count
-      onValue(ref(db, 'customers'), (snap) => {
-        updateStat('statCustomers', snap.numChildren());
-      });
+    function listenToCustomerStats() {
+      const el = document.getElementById('statCustomers');
+      
+      // Safety timer: Never leave skeleton stuck for > 4.5s
+      const fallbackTimer = setTimeout(() => {
+        if (el && el.classList.contains('skeleton')) {
+          el.classList.remove('skeleton');
+          el.textContent = '0';
+        }
+      }, 4500);
 
-      // 2. Products & Stock Counts
-      onValue(ref(db, 'products'), (snap) => {
+      // Path A: Primary Customers Node
+      const customersRef = ref(db, 'customers');
+      onValue(customersRef, (snap) => {
+        clearTimeout(fallbackTimer);
+        if (snap.exists() && snap.numChildren() > 0) {
+          updateStat('statCustomers', snap.numChildren());
+        } else {
+          // Path B: Fallback to `users` node (where role is customer or not admin/shopkeeper)
+          get(ref(db, 'users')).then(usersSnap => {
+            let custCount = 0;
+            if (usersSnap.exists()) {
+              usersSnap.forEach(child => {
+                const r = (child.val().role || '').toLowerCase();
+                if (r === 'customer' || (r !== 'admin' && r !== 'shopkeeper')) {
+                  custCount++;
+                }
+              });
+            }
+            updateStat('statCustomers', custCount);
+          }).catch(() => {
+            updateStat('statCustomers', 0);
+          });
+        }
+      }, (err) => {
+        clearTimeout(fallbackTimer);
+        console.warn("Direct customers node read failed, checking users node:", err);
+        // Fallback listener on users node
+        onValue(ref(db, 'users'), (usersSnap) => {
+          let custCount = 0;
+          if (usersSnap.exists()) {
+            usersSnap.forEach(child => {
+              const r = (child.val().role || '').toLowerCase();
+              if (r === 'customer' || (r !== 'admin' && r !== 'shopkeeper')) {
+                custCount++;
+              }
+            });
+          }
+          updateStat('statCustomers', custCount);
+        }, () => {
+          showStatError('statCustomers', listenToCustomerStats);
+        });
+      });
+    }
+
+    // ==========================================================
+    // 2. PRODUCTS & INVENTORY LISTENER
+    // ==========================================================
+    function listenToProductsStats() {
+      const productsRef = ref(db, 'products');
+
+      // Safety timeout
+      const pTimer = setTimeout(() => {
+        ['statTotalProducts', 'statAvailableProducts', 'statStockOut'].forEach(id => {
+          const e = document.getElementById(id);
+          if (e && e.classList.contains('skeleton')) {
+            e.classList.remove('skeleton');
+            e.textContent = '0';
+          }
+        });
+      }, 4500);
+
+      onValue(productsRef, (snap) => {
+        clearTimeout(pTimer);
         let total = 0;
         let available = 0;
         let outOfStock = 0;
@@ -1146,14 +1241,39 @@
         updateStat('statStockOut', outOfStock);
 
         renderLowStock(lowStock);
+      }, (err) => {
+        clearTimeout(pTimer);
+        console.error("Products query error:", err);
+        showStatError('statTotalProducts', listenToProductsStats);
+        showStatError('statAvailableProducts', listenToProductsStats);
+        showStatError('statStockOut', listenToProductsStats);
       });
+    }
 
-      // 3. Orders & Revenue Calculation
-      onValue(ref(db, 'orders'), (snap) => {
+    // ==========================================================
+    // 3. ORDERS & SALES REALTIME LISTENER
+    // ==========================================================
+    function listenToOrdersAndSales() {
+      const ordersRef = ref(db, 'orders');
+
+      // Safety timeout
+      const oTimer = setTimeout(() => {
+        ['statTotalOrders', 'statPendingOrders', 'statCompletedOrders', 'statTodayOrders', 'statTodaySales', 'statTotalSales'].forEach(id => {
+          const e = document.getElementById(id);
+          if (e && e.classList.contains('skeleton')) {
+            e.classList.remove('skeleton');
+            e.textContent = id.includes('Sales') ? '৳ 0' : '0';
+          }
+        });
+      }, 4500);
+
+      onValue(ordersRef, (snap) => {
+        clearTimeout(oTimer);
         let totalOrders = 0;
         let pending = 0;
         let completed = 0;
         let totalRevenue = 0;
+        let todayOrdersCount = 0;
         let todayRevenue = 0;
         const recentOrders = [];
 
@@ -1172,39 +1292,52 @@
           const time = ord.createdAt ? new Date(ord.createdAt).getTime() : 0;
 
           if (status === 'pending') pending++;
-          if (status === 'completed') {
+          
+          // Strict accounting rule: Count only delivered or completed orders in revenue
+          if (status === 'completed' || status === 'delivered') {
             completed++;
             totalRevenue += amount;
             if (time >= todayTs) {
               todayRevenue += amount;
             }
           }
+
+          if (time >= todayTs) {
+            todayOrdersCount++;
+          }
         });
 
         updateStat('statTotalOrders', totalOrders);
         updateStat('statPendingOrders', pending);
         updateStat('statCompletedOrders', completed);
-        updateStat('statTodaySales', `৳ ${todayRevenue.toLocaleString('en-IN')}`);
-        updateStat('statTotalSales', `৳ ${totalRevenue.toLocaleString('en-IN')}`);
+        updateStat('statTodayOrders', todayOrdersCount);
+        updateStat('statTodaySales', todayRevenue, true);
+        updateStat('statTotalSales', totalRevenue, true);
 
         // Update Notification Bell Dot if pending orders exist
         document.getElementById('notifDot').style.display = pending > 0 ? 'block' : 'none';
 
-        // Update Chart
+        // Update Chart safely
         updateChart(pending, completed, Math.max(0, totalOrders - (pending + completed)));
 
         // Recent Orders Table (Last 5)
         recentOrders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
         renderRecentOrders(recentOrders.slice(0, 5));
+
+      }, (err) => {
+        clearTimeout(oTimer);
+        console.error("Orders query error:", err);
+        ['statTotalOrders', 'statPendingOrders', 'statCompletedOrders', 'statTodayOrders'].forEach(id => {
+          showStatError(id, listenToOrdersAndSales);
+        });
       });
     }
 
-    function updateStat(elementId, value) {
-      const el = document.getElementById(elementId);
-      if (el) {
-        el.classList.remove('skeleton');
-        el.textContent = value;
-      }
+    // Master Initialization
+    function initDashboardData() {
+      listenToCustomerStats();
+      listenToProductsStats();
+      listenToOrdersAndSales();
     }
 
     function renderLowStock(items) {
@@ -1237,7 +1370,7 @@
         const cust = ord.customer?.name || ord.customerName || 'Customer';
         const amt = `৳ ${Number(ord.pricing?.totalAmount ?? ord.totalAmount ?? 0).toLocaleString('en-IN')}`;
         const st = (ord.status || 'pending').toLowerCase();
-        const badge = st === 'completed' 
+        const badge = st === 'completed' || st === 'delivered'
           ? `<span class="order-status status-completed">Completed</span>` 
           : `<span class="order-status status-pending">Pending</span>`;
 

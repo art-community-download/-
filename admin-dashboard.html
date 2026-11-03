@@ -57,12 +57,10 @@
       overflow-x: hidden;
     }
 
-    /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #08090d; }
     ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 4px; }
 
-    /* Ambient Glow */
     .ambient-glow {
       position: fixed;
       width: 500px;
@@ -339,7 +337,7 @@
     }
 
     /* ==========================================================
-       DASHBOARD STATISTICS GRID (10 REALTIME CARDS)
+       DASHBOARD STATISTICS GRID (10 CARDS)
        ========================================================== */
     .stats-grid {
       display: grid;
@@ -407,34 +405,6 @@
       font-size: 0.72rem;
       color: #64748b;
       margin-top: 4px;
-    }
-
-    /* Improved Skeleton Shimmer Animation */
-    .skeleton {
-      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(212,175,55,0.12) 50%, rgba(255,255,255,0.04) 75%);
-      background-size: 200% 100%;
-      animation: skeletonShimmer 1.4s ease-in-out infinite;
-      border-radius: 8px;
-      height: 34px;
-      width: 90px;
-      color: transparent !important;
-    }
-
-    @keyframes skeletonShimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
-    /* Retry button for failed queries */
-    .btn-retry-stat {
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #fca5a5;
-      font-size: 0.7rem;
-      padding: 2px 8px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-left: 6px;
     }
 
     /* ==========================================================
@@ -705,13 +675,13 @@
       <!-- 10 Realtime Dashboard Statistics Grid -->
       <section class="stats-grid">
         
-        <!-- 1. Total Customers (WITH REPAIR & FAILSAFE) -->
+        <!-- 1. Total Customers (FIXED: NO STUCK SKELETON) -->
         <div class="stat-card">
           <div class="stat-head">
             <span class="stat-title" data-i18n="st_customers">Total Customers</span>
             <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
           </div>
-          <div class="stat-value skeleton" id="statCustomers">0</div>
+          <div class="stat-value" id="statCustomers">0</div>
           <div class="stat-subtext" data-i18n="st_customers_sub">Registered customer profiles</div>
         </div>
 
@@ -721,7 +691,7 @@
             <span class="stat-title" data-i18n="st_orders">Total Orders</span>
             <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
           </div>
-          <div class="stat-value skeleton" id="statTotalOrders">0</div>
+          <div class="stat-value" id="statTotalOrders">0</div>
           <div class="stat-subtext" data-i18n="st_orders_sub">Lifetime received orders</div>
         </div>
 
@@ -731,7 +701,7 @@
             <span class="stat-title" data-i18n="st_pending">Pending Orders</span>
             <div class="stat-icon" style="color: var(--status-warning); border-color: rgba(245,158,11,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
           </div>
-          <div class="stat-value skeleton" id="statPendingOrders" style="color: var(--status-warning);">0</div>
+          <div class="stat-value" style="color: var(--status-warning);" id="statPendingOrders">0</div>
           <div class="stat-subtext" data-i18n="st_pending_sub">Requires approval action</div>
         </div>
 
@@ -741,7 +711,7 @@
             <span class="stat-title" data-i18n="st_completed">Completed Orders</span>
             <div class="stat-icon" style="color: var(--status-available); border-color: rgba(16,185,129,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
           </div>
-          <div class="stat-value skeleton" id="statCompletedOrders" style="color: var(--status-available);">0</div>
+          <div class="stat-value" style="color: var(--status-available);" id="statCompletedOrders">0</div>
           <div class="stat-subtext" data-i18n="st_completed_sub">Successfully delivered</div>
         </div>
 
@@ -751,7 +721,7 @@
             <span class="stat-title" data-i18n="st_products">Total Products</span>
             <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg></div>
           </div>
-          <div class="stat-value skeleton" id="statTotalProducts">0</div>
+          <div class="stat-value" id="statTotalProducts">0</div>
           <div class="stat-subtext" data-i18n="st_products_sub">Catalog products registered</div>
         </div>
 
@@ -761,7 +731,7 @@
             <span class="stat-title" data-i18n="st_available">Available Products</span>
             <div class="stat-icon" style="color: var(--status-available); border-color: rgba(16,185,129,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
           </div>
-          <div class="stat-value skeleton" id="statAvailableProducts" style="color: var(--status-available);">0</div>
+          <div class="stat-value" style="color: var(--status-available);" id="statAvailableProducts">0</div>
           <div class="stat-subtext" data-i18n="st_available_sub">Active in Customer App</div>
         </div>
 
@@ -771,7 +741,7 @@
             <span class="stat-title" data-i18n="st_outofstock">Out of Stock</span>
             <div class="stat-icon" style="color: var(--status-outofstock); border-color: rgba(239,68,68,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
           </div>
-          <div class="stat-value skeleton" id="statStockOut" style="color: var(--status-outofstock);">0</div>
+          <div class="stat-value" style="color: var(--status-outofstock);" id="statStockOut">0</div>
           <div class="stat-subtext" data-i18n="st_outofstock_sub">Immediate restock required</div>
         </div>
 
@@ -781,7 +751,7 @@
             <span class="stat-title" data-i18n="st_today_orders">Today's Orders</span>
             <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
           </div>
-          <div class="stat-value skeleton" id="statTodayOrders">0</div>
+          <div class="stat-value" id="statTodayOrders">0</div>
           <div class="stat-subtext" data-i18n="st_today_orders_sub">Received today</div>
         </div>
 
@@ -791,7 +761,7 @@
             <span class="stat-title" data-i18n="st_today_sales">Today's Sales</span>
             <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
           </div>
-          <div class="stat-value skeleton" id="statTodaySales" style="color: var(--gold-light);">৳ 0</div>
+          <div class="stat-value" style="color: var(--gold-light);" id="statTodaySales">৳ 0</div>
           <div class="stat-subtext" data-i18n="st_today_sales_sub">Delivered orders today</div>
         </div>
 
@@ -801,7 +771,7 @@
             <span class="stat-title" data-i18n="st_total_sales">Total Sales</span>
             <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
           </div>
-          <div class="stat-value skeleton" id="statTotalSales" style="color: var(--gold-light);">৳ 0</div>
+          <div class="stat-value" style="color: var(--gold-light);" id="statTotalSales">৳ 0</div>
           <div class="stat-subtext" data-i18n="st_total_sales_sub">Lifetime revenue generated</div>
         </div>
 
@@ -1030,65 +1000,21 @@
       setLanguage(currentLang === 'en' ? 'bn' : 'en');
     });
 
-    // Mobile Sidebar
+    // Mobile Sidebar Toggle
     const menuToggleBtn = document.getElementById('menuToggleBtn');
     const sidebar = document.getElementById('sidebar');
     menuToggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
 
     let analyticsChart = null;
 
-    // Helper: Lightweight Number Counter Animation
-    function animateCount(el, target, isCurrency = false, duration = 650) {
-      if (!el) return;
-      el.classList.remove('skeleton');
-
-      // Honor user motion preferences
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        el.textContent = isCurrency ? `৳ ${Math.round(target).toLocaleString('en-IN')}` : target.toLocaleString('en-IN');
-        return;
-      }
-
-      const start = parseFloat(el.getAttribute('data-val') || 0);
-      const startTime = performance.now();
-
-      function updateNumber(now) {
-        const progress = Math.min((now - startTime) / duration, 1);
-        const current = Math.floor(start + (target - start) * progress);
-        el.textContent = isCurrency ? `৳ ${current.toLocaleString('en-IN')}` : current.toLocaleString('en-IN');
-
-        if (progress < 1) {
-          requestAnimationFrame(updateNumber);
-        } else {
-          el.setAttribute('data-val', target);
-          el.textContent = isCurrency ? `৳ ${Math.round(target).toLocaleString('en-IN')}` : target.toLocaleString('en-IN');
-        }
-      }
-      requestAnimationFrame(updateNumber);
-    }
-
-    // Helper: Fail-safe update
+    // Helper: Fail-safe Direct Number Update
     function updateStat(elementId, value, isCurrency = false) {
       const el = document.getElementById(elementId);
       if (!el) return;
-      el.classList.remove('skeleton');
       if (typeof value === 'number') {
-        animateCount(el, value, isCurrency);
+        el.textContent = isCurrency ? `৳ ${Math.round(value).toLocaleString('en-IN')}` : value.toLocaleString('en-IN');
       } else {
         el.textContent = value;
-      }
-    }
-
-    function showStatError(elementId, retryCallback) {
-      const el = document.getElementById(elementId);
-      if (!el) return;
-      el.classList.remove('skeleton');
-      el.innerHTML = `0 <button class="btn-retry-stat" title="Retry">↻</button>`;
-      const btn = el.querySelector('.btn-retry-stat');
-      if (btn && retryCallback) {
-        btn.onclick = () => {
-          el.classList.add('skeleton');
-          retryCallback();
-        };
       }
     }
 
@@ -1124,7 +1050,7 @@
 
         document.getElementById('userRoleBadge').textContent = normalizedRole.toUpperCase();
 
-        // Start Live Realtime Listeners
+        // Start Dashboard Load
         initDashboardData();
 
       } catch (err) {
@@ -1138,59 +1064,52 @@
     });
 
     // ==========================================================
-    // 1. FIX TOTAL CUSTOMERS LISTENER (MULTI-PATH & TIMEOUT SAFE)
+    // 1. TOTAL CUSTOMERS (DIRECT, RESILIENT & SKELETON-FREE)
     // ==========================================================
     function listenToCustomerStats() {
       const el = document.getElementById('statCustomers');
-      
-      // Safety timer: Never leave skeleton stuck for > 4.5s
-      const fallbackTimer = setTimeout(() => {
-        if (el && el.classList.contains('skeleton')) {
-          el.classList.remove('skeleton');
-          el.textContent = '0';
-        }
-      }, 4500);
+      if (el) el.textContent = '0'; // Instant default 0
 
-      // Path A: Primary Customers Node
-      const customersRef = ref(db, 'customers');
-      onValue(customersRef, (snap) => {
-        clearTimeout(fallbackTimer);
-        if (snap.exists() && snap.numChildren() > 0) {
-          updateStat('statCustomers', snap.numChildren());
-        } else {
-          // Path B: Fallback to `users` node (where role is customer or not admin/shopkeeper)
-          get(ref(db, 'users')).then(usersSnap => {
-            let custCount = 0;
-            if (usersSnap.exists()) {
-              usersSnap.forEach(child => {
-                const r = (child.val().role || '').toLowerCase();
-                if (r === 'customer' || (r !== 'admin' && r !== 'shopkeeper')) {
-                  custCount++;
-                }
-              });
-            }
-            updateStat('statCustomers', custCount);
-          }).catch(() => {
-            updateStat('statCustomers', 0);
-          });
+      // Listen to 'customers' node directly
+      onValue(ref(db, 'customers'), (snap) => {
+        let count = 0;
+        if (snap.exists()) {
+          count = snap.numChildren();
         }
+
+        // Also cross-check users node to count customers registered under users
+        get(ref(db, 'users')).then(usersSnap => {
+          if (usersSnap.exists()) {
+            let uCustCount = 0;
+            usersSnap.forEach(child => {
+              const r = (child.val().role || '').toLowerCase();
+              if (r === 'customer' || (r !== 'admin' && r !== 'shopkeeper')) {
+                uCustCount++;
+              }
+            });
+            count = Math.max(count, uCustCount);
+          }
+          updateStat('statCustomers', count);
+        }).catch(() => {
+          updateStat('statCustomers', count);
+        });
+
       }, (err) => {
-        clearTimeout(fallbackTimer);
-        console.warn("Direct customers node read failed, checking users node:", err);
-        // Fallback listener on users node
+        console.warn("Could not read customers node, checking users:", err);
+        // Fallback to users node
         onValue(ref(db, 'users'), (usersSnap) => {
-          let custCount = 0;
+          let uCustCount = 0;
           if (usersSnap.exists()) {
             usersSnap.forEach(child => {
               const r = (child.val().role || '').toLowerCase();
               if (r === 'customer' || (r !== 'admin' && r !== 'shopkeeper')) {
-                custCount++;
+                uCustCount++;
               }
             });
           }
-          updateStat('statCustomers', custCount);
+          updateStat('statCustomers', uCustCount);
         }, () => {
-          showStatError('statCustomers', listenToCustomerStats);
+          updateStat('statCustomers', 0);
         });
       });
     }
@@ -1201,19 +1120,7 @@
     function listenToProductsStats() {
       const productsRef = ref(db, 'products');
 
-      // Safety timeout
-      const pTimer = setTimeout(() => {
-        ['statTotalProducts', 'statAvailableProducts', 'statStockOut'].forEach(id => {
-          const e = document.getElementById(id);
-          if (e && e.classList.contains('skeleton')) {
-            e.classList.remove('skeleton');
-            e.textContent = '0';
-          }
-        });
-      }, 4500);
-
       onValue(productsRef, (snap) => {
-        clearTimeout(pTimer);
         let total = 0;
         let available = 0;
         let outOfStock = 0;
@@ -1242,11 +1149,10 @@
 
         renderLowStock(lowStock);
       }, (err) => {
-        clearTimeout(pTimer);
         console.error("Products query error:", err);
-        showStatError('statTotalProducts', listenToProductsStats);
-        showStatError('statAvailableProducts', listenToProductsStats);
-        showStatError('statStockOut', listenToProductsStats);
+        updateStat('statTotalProducts', 0);
+        updateStat('statAvailableProducts', 0);
+        updateStat('statStockOut', 0);
       });
     }
 
@@ -1256,19 +1162,7 @@
     function listenToOrdersAndSales() {
       const ordersRef = ref(db, 'orders');
 
-      // Safety timeout
-      const oTimer = setTimeout(() => {
-        ['statTotalOrders', 'statPendingOrders', 'statCompletedOrders', 'statTodayOrders', 'statTodaySales', 'statTotalSales'].forEach(id => {
-          const e = document.getElementById(id);
-          if (e && e.classList.contains('skeleton')) {
-            e.classList.remove('skeleton');
-            e.textContent = id.includes('Sales') ? '৳ 0' : '0';
-          }
-        });
-      }, 4500);
-
       onValue(ordersRef, (snap) => {
-        clearTimeout(oTimer);
         let totalOrders = 0;
         let pending = 0;
         let completed = 0;
@@ -1293,7 +1187,6 @@
 
           if (status === 'pending') pending++;
           
-          // Strict accounting rule: Count only delivered or completed orders in revenue
           if (status === 'completed' || status === 'delivered') {
             completed++;
             totalRevenue += amount;
@@ -1317,7 +1210,7 @@
         // Update Notification Bell Dot if pending orders exist
         document.getElementById('notifDot').style.display = pending > 0 ? 'block' : 'none';
 
-        // Update Chart safely
+        // Update Chart
         updateChart(pending, completed, Math.max(0, totalOrders - (pending + completed)));
 
         // Recent Orders Table (Last 5)
@@ -1325,15 +1218,10 @@
         renderRecentOrders(recentOrders.slice(0, 5));
 
       }, (err) => {
-        clearTimeout(oTimer);
         console.error("Orders query error:", err);
-        ['statTotalOrders', 'statPendingOrders', 'statCompletedOrders', 'statTodayOrders'].forEach(id => {
-          showStatError(id, listenToOrdersAndSales);
-        });
       });
     }
 
-    // Master Initialization
     function initDashboardData() {
       listenToCustomerStats();
       listenToProductsStats();
